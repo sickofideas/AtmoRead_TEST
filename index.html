@@ -312,11 +312,27 @@
         /* ČTEČKA POHÁDEK A KNIH */
         .story-controls {
             display: grid;
-            grid-template-columns: 1fr auto auto;
+            grid-template-columns: 1fr auto auto auto;
             gap: 10px; margin-bottom: 14px;
         }
-        @media (max-width: 720px) {
+        @media (max-width: 920px) {
+            .story-controls { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 560px) {
             .story-controls { grid-template-columns: 1fr; }
+        }
+        .article-switch-bar {
+            display: none;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+            padding: 10px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1.5px dashed var(--accent);
+        }
+        .article-switch-bar.active {
+            display: grid;
         }
         select {
             font-size: 16px; font-weight: 800; padding: 14px 16px;
@@ -338,20 +354,36 @@
             font-weight: bold; box-shadow: 0 0 14px var(--accent);
         }
 
-        /* MODAL PRO OŘEZ A VYSOKOKONTRASTNÍ PRAHOVÁNÍ FOTKY (OCR) */
-        #ocrModal {
+        /* MODAL PRO OŘEZ FOTKY (OCR) A MODAL PRO NAČTENÍ ČLÁNKU Z URL */
+        #ocrModal, #urlModal {
             position: fixed; inset: 0; z-index: 400;
             background: rgba(6, 5, 4, 0.94);
             display: none; flex-direction: column; align-items: center;
             justify-content: center; padding: 18px;
             backdrop-filter: blur(14px);
         }
-        #ocrModal.active { display: flex; }
+        #ocrModal.active, #urlModal.active { display: flex; }
         .ocr-modal-card {
             background: var(--tile-bg); border: 2px solid var(--accent);
             border-radius: 26px; padding: 20px; width: 100%; max-width: 720px;
             display: flex; flex-direction: column; gap: 14px;
             max-height: 94vh; overflow-y: auto;
+        }
+        .url-input-row {
+            display: flex; gap: 10px; width: 100%;
+        }
+        @media (max-width: 560px) {
+            .url-input-row { flex-direction: column; }
+        }
+        .url-input-field {
+            flex: 1; font-size: 16px; font-weight: 600;
+            padding: 15px 16px; border-radius: 16px;
+            background: #14100c; color: var(--text-main);
+            border: 2px solid var(--tile-border); outline: none;
+        }
+        .url-input-field:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
         }
         .ocr-canvas-wrap {
             position: relative; width: 100%; display: flex; justify-content: center;
@@ -502,6 +534,63 @@
     </div>
 </div>
 
+<!-- ========================================================================
+     MODAL PRO NAČTENÍ ČLÁNKU Z URL (SEZNAM ZPRÁVY, NOVINKY, WEB) + VÝTAH
+     ======================================================================== -->
+<div id="urlModal">
+    <div class="ocr-modal-card">
+        <div class="tile-header" style="margin-bottom:0;">
+            <div class="tile-title">🔗 Načíst článek z URL a vytvořit výtah pro AI Vypravěče</div>
+            <span class="tile-badge">Smart Reader + Extraktor</span>
+        </div>
+        <div style="font-size:13px; color:var(--text-muted); line-height:1.5;">
+            Vlož odkaz na článek (Seznam Zprávy, Novinky.cz, iDNES, Wikipedie, blog...). Aplikace odstraní reklamy a menu, vytáhne to nejdůležitější a připraví článek k poslechu přes <b>🎧 AI Vypravěče</b> se zvukovou kulisou:
+        </div>
+
+        <div class="url-input-row">
+            <input type="url" id="articleUrlInput" class="url-input-field" placeholder="https://www.seznamzpravy.cz/clanek/..." autocomplete="off" onkeydown="if(event.key==='Enter')fetchAndProcessUrlArticle()">
+            <button class="big-tile-btn" style="min-height:54px; padding:10px 18px; flex-direction:row; gap:8px;" onclick="pasteUrlFromClipboard()">
+                <span class="bt-icon">📋</span>
+                <span class="bt-title">Vložit</span>
+            </button>
+        </div>
+
+        <div class="section-label" style="margin-top:2px;">🎯 Co chceš z článku připravit k poslechu? (1 ťuknutí)</div>
+        <div class="choice-grid-2">
+            <button class="big-tile-btn active" id="urlModeSummaryBtn" onclick="setUrlExtractMode('summary')">
+                <span class="bt-icon">⚡</span>
+                <span class="bt-title">Výtah toho nejdůležitějšího</span>
+                <span class="bt-sub">Titulek + perex + klíčové věty s fakty (1–2 min)</span>
+            </button>
+            <button class="big-tile-btn" id="urlModeFullBtn" onclick="setUrlExtractMode('full')">
+                <span class="bt-icon">📰</span>
+                <span class="bt-title">Celý čistý článek</span>
+                <span class="bt-sub">Kompletní text zbavený reklam a rozcestníků</span>
+            </button>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.03); border:1px solid var(--tile-border); border-radius:14px; padding:10px 14px;">
+            <div style="font-size:12px; color:var(--text-muted); margin-bottom:6px;">
+                🤖 <b>Volitelně:</b> Vlastní Gemini API klíč (pokud ho nevyplníš, použije se vestavěný lokální algoritmus TF-IDF zcela zdarma a bez klíče):
+            </div>
+            <input type="password" id="geminiApiKeyInput" class="url-input-field" style="width:100%; padding:10px 14px; font-size:13px;" placeholder="AIzaSy... (nepovinné – uloženo pouze v tvém prohlížeči)">
+        </div>
+
+        <div class="status-bubble" id="urlModalStatus" style="font-size:14px; padding:12px 16px;">
+            💡 Tip: Po načtení můžeš přímo ve čtečce jedním ťuknutím přepínat mezi <b>⚡ Výtahem</b> a <b>📰 Celým článkem</b>.
+        </div>
+
+        <div class="choice-grid-2">
+            <button class="big-tile-btn" style="min-height:60px;" onclick="closeUrlModal()">
+                <span class="bt-title">❌ Zrušit</span>
+            </button>
+            <button class="big-tile-btn active" id="urlFetchSubmitBtn" style="min-height:60px; background:linear-gradient(135deg,#16a34a,#15803d);" onclick="fetchAndProcessUrlArticle()">
+                <span class="bt-title">🎧 Vytáhnout článek a číst</span>
+            </button>
+        </div>
+    </div>
+</div>
+
 <div class="app-wrapper">
     <!-- HLAVIČKA -->
     <header class="top-header">
@@ -625,24 +714,45 @@
                     <span class="bt-sub">Čteš očima bez mikrofonu</span>
                 </button>
             </div>
+            <button class="big-tile-btn" style="min-height:58px; margin-top:10px; flex-direction:row; gap:10px; border-color:var(--accent);" onclick="openUrlModal()">
+                <span class="bt-icon">🔗</span>
+                <div style="text-align:left;">
+                    <div class="bt-title">Načíst článek z URL (Seznam, zprávy, web...)</div>
+                    <div class="bt-sub">Vytáhne to nejdůležitější a přečte přes AI Vypravěče</div>
+                </div>
+            </button>
         </section>
 
-        <!-- DLAŽDICE 3: ČTEČKA POHÁDEK A KNIH + OCR S OŘEZEM -->
+        <!-- DLAŽDICE 3: ČTEČKA POHÁDEK A KNIH + OCR S OŘEZEM + URL VÝTAH -->
         <section class="tile tile-story" id="storyTile">
             <div class="tile-header">
-                <div class="tile-title" id="libraryTitle">📚 Knihovna dlouhých pohádek a příběhů</div>
+                <div class="tile-title" id="libraryTitle">📚 Knihovna dlouhých pohádek, knih a článků</div>
                 <span class="tile-badge">Ťukni na libovolné slovo pro okamžitý zvuk</span>
             </div>
             <div class="story-controls">
                 <select id="storySelect" onchange="loadSelectedStory()"></select>
-                <button class="big-tile-btn" style="min-height:54px; flex-direction:row; padding:10px 18px; gap:8px;" onclick="document.getElementById('ocrInput').click()">
+                <button class="big-tile-btn" style="min-height:54px; flex-direction:row; padding:10px 16px; gap:8px;" onclick="openUrlModal()">
+                    <span class="bt-icon">🔗</span>
+                    <span class="bt-title">Článek z URL</span>
+                </button>
+                <button class="big-tile-btn" style="min-height:54px; flex-direction:row; padding:10px 16px; gap:8px;" onclick="document.getElementById('ocrInput').click()">
                     <span class="bt-icon">📷</span>
-                    <span class="bt-title">Vyfotit a oříznout stránku</span>
+                    <span class="bt-title">Vyfotit stránku</span>
                 </button>
                 <input type="file" id="ocrInput" accept="image/*" style="display:none" onchange="handleOcrFileSelect(event)">
-                <button class="big-tile-btn" style="min-height:54px; flex-direction:row; padding:10px 18px; gap:8px;" onclick="promptCustomText()">
+                <button class="big-tile-btn" style="min-height:54px; flex-direction:row; padding:10px 16px; gap:8px;" onclick="promptCustomText()">
                     <span class="bt-icon">✍️</span>
                     <span class="bt-title">Vložit text</span>
+                </button>
+            </div>
+            <div class="article-switch-bar" id="articleModeSwitchBar">
+                <button class="big-tile-btn active" id="readerSwitchSummaryBtn" style="min-height:52px; flex-direction:row; gap:8px;" onclick="switchLoadedArticleVariant('summary')">
+                    <span class="bt-icon">⚡</span>
+                    <span class="bt-title">Výtah toho nejdůležitějšího</span>
+                </button>
+                <button class="big-tile-btn" id="readerSwitchFullBtn" style="min-height:52px; flex-direction:row; gap:8px;" onclick="switchLoadedArticleVariant('full')">
+                    <span class="bt-icon">📰</span>
+                    <span class="bt-title">Celý čistý článek</span>
                 </button>
             </div>
             <div class="reader-viewport" id="readerBox"></div>
@@ -1811,7 +1921,23 @@ function loadSelectedStory() {
     const list = STORIES[getStoryKey()] || STORIES.kids_cs;
     const idx = parseInt(document.getElementById('storySelect').value || '0', 10);
     const story = list[idx] || list[0];
-    if (story) renderStoryText(story.text);
+    const switchBar = document.getElementById('articleModeSwitchBar');
+    if (story) {
+        if (switchBar) {
+            if (story.isUrlArticle && story.summaryText && story.fullText) {
+                switchBar.classList.add('active');
+                const variant = story.activeVariant || 'summary';
+                document.getElementById('readerSwitchSummaryBtn').classList.toggle('active', variant === 'summary');
+                document.getElementById('readerSwitchFullBtn').classList.toggle('active', variant === 'full');
+                renderStoryText(variant === 'full' ? story.fullText : story.summaryText);
+            } else {
+                switchBar.classList.remove('active');
+                renderStoryText(story.text);
+            }
+        } else {
+            renderStoryText(story.text);
+        }
+    }
 }
 
 function renderStoryText(text) {
@@ -2053,6 +2179,337 @@ function promptCustomText() {
         document.getElementById('storySelect').value = '0';
         loadSelectedStory();
         setStatus('✅ Vlastní příběh byl vložen a připraven ke čtení.');
+    }
+}
+
+/* ============================================================================
+   SEKCE 5B: NAČTENÍ ČLÁNKU Z URL (SEZNAM ZPRÁVY, NOVINKY, WEB) + VÝTAH NEJDŮLEŽITĚJŠÍHO
+   ============================================================================ */
+let urlExtractMode = 'summary'; // 'summary' | 'full'
+
+const CZ_EN_STOPWORDS = new Set([
+    'a','i','o','u','v','z','s','k','na','do','po','od','za','pro','při','před','nad','pod','mezi',
+    'se','si','že','aby','když','jak','co','kdo','kde','kdy','kam','proč','nebo','ale','avšak','proto',
+    'tak','pak','už','jen','již','ještě','taky','také','totiž','však','ani','než','jako','být','je',
+    'jsou','byl','byla','bylo','byli','bude','budou','mít','má','mají','měl','měla','může','mohou',
+    'ten','ta','to','ti','ty','tento','tato','toto','který','která','které','kteří','jeho','její','jejich',
+    'svůj','svá','své','svých','svým','náš','váš','já','ty','on','ona','ono','my','vy','oni','ony',
+    'tím','tomu','toho','tom','těch','těm','těmi','podle','kolem','přes','bez','kromě','všech','všechny',
+    'the','and','for','that','this','with','from','have','has','had','was','were','are','been','will','would'
+]);
+
+function openUrlModal() {
+    const savedKey = localStorage.getItem('atmoread_gemini_key') || '';
+    const keyInput = document.getElementById('geminiApiKeyInput');
+    if (keyInput && savedKey) keyInput.value = savedKey;
+    document.getElementById('urlModal').classList.add('active');
+    setTimeout(() => {
+        const inp = document.getElementById('articleUrlInput');
+        if (inp) inp.focus();
+    }, 80);
+}
+
+function closeUrlModal() {
+    document.getElementById('urlModal').classList.remove('active');
+}
+
+async function pasteUrlFromClipboard() {
+    try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+            document.getElementById('articleUrlInput').value = text.trim();
+            document.getElementById('urlModalStatus').innerText = '📋 Odkaz byl vložen ze schránky. Klepni na zelené tlačítko dole!';
+        }
+    } catch (e) {
+        document.getElementById('articleUrlInput').focus();
+        document.getElementById('urlModalStatus').innerText = 'ℹ️ Podrž prst v poli pro URL (nebo stiskni Ctrl+V) a vlož odkaz.';
+    }
+}
+
+function setUrlExtractMode(mode) {
+    urlExtractMode = mode === 'full' ? 'full' : 'summary';
+    document.getElementById('urlModeSummaryBtn').classList.toggle('active', urlExtractMode === 'summary');
+    document.getElementById('urlModeFullBtn').classList.toggle('active', urlExtractMode === 'full');
+}
+
+function switchLoadedArticleVariant(variant) {
+    const list = STORIES[getStoryKey()] || STORIES.kids_cs;
+    const idx = parseInt(document.getElementById('storySelect').value || '0', 10);
+    const story = list[idx];
+    if (!story || !story.isUrlArticle) return;
+
+    const wasRunning = isSessionRunning && currentMode === 'tts';
+    if (wasRunning) stopActiveSession();
+
+    story.activeVariant = variant === 'full' ? 'full' : 'summary';
+    story.text = story.activeVariant === 'full' ? story.fullText : story.summaryText;
+    loadSelectedStory();
+
+    setStatus(story.activeVariant === 'summary'
+        ? '⚡ Zobrazen výtah toho nejdůležitějšího z článku. Klepni na SPUSTIT pro čtení AI Vypravěčem!'
+        : '📰 Zobrazen celý čistý článek bez reklam. Klepni na SPUSTIT pro čtení AI Vypravěčem!');
+
+    if (wasRunning) {
+        setTimeout(() => startActiveSession(), 180);
+    }
+}
+
+function cleanNoiseLines(rawText) {
+    const lines = rawText.split(/\r?\n/);
+    const cleaned = [];
+    for (let line of lines) {
+        let l = line
+            .replace(/!\[[^\]]*\]\([^)]*\)/g, '') // pryč obrázky v markdownu
+            .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1') // z odkazů [text](url) necháme jen čitelný text
+            .replace(/https?:\/\/\S+/g, '')
+            .replace(/^#+\s*/, '')
+            .replace(/\*\*([^*]+)\*\*/g, '$1')
+            .replace(/_{1,2}([^_]+)_{1,2}/g, '$1')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        if (l.length < 32) continue;
+        if (/^(title:|url source:|markdown content:|published time:|image \d+|čtěte také|související|reklama|inzerce|sdílet|autor:|foto:|zdroj:|diskuse|komentáře|přečtěte si|více k tématu|mohlo by vás zajímat|cookies|přihlásit)/i.test(l)) {
+            continue;
+        }
+        // Vynecháme řádky, které vypadají jako navigační menu s mnoha svislítky
+        if ((l.match(/\|/g) || []).length >= 2) continue;
+        cleaned.push(l);
+    }
+    return cleaned;
+}
+
+async function fetchCleanArticleFromUrl(targetUrl) {
+    // 1. Primární čtečkový extraktor r.jina.ai (skvělý na Seznam Zprávy, Novinky, iDNES, blogy)
+    try {
+        const jinaUrl = 'https://r.jina.ai/' + targetUrl;
+        const resp = await fetch(jinaUrl, {
+            headers: { 'Accept': 'text/plain' }
+        });
+        if (resp.ok) {
+            const raw = await resp.text();
+            let title = '';
+            const titleMatch = raw.match(/^Title:\s*(.+)$/m);
+            if (titleMatch && titleMatch[1]) {
+                title = titleMatch[1].replace(/\s*[-|–—]\s*(Seznam Zprávy|Novinky\.cz|iDNES\.cz|Aktuálně\.cz).*$/i, '').trim();
+            }
+            const bodyStart = raw.indexOf('Markdown Content:');
+            const contentPart = bodyStart !== -1 ? raw.slice(bodyStart + 17) : raw;
+            const paragraphs = cleanNoiseLines(contentPart);
+            if (paragraphs.join(' ').length > 160) {
+                return { title: title || 'Článek z webu', paragraphs };
+            }
+        }
+    } catch (e) {
+        // Pokračujeme na záložní DOM extraktor
+    }
+
+    // 2. Záložní extraktor přes CORS proxy + DOMParser (pro případy výpadku r.jina.ai)
+    const proxies = [
+        `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`,
+        `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
+    ];
+
+    for (const proxyUrl of proxies) {
+        try {
+            const resp = await fetch(proxyUrl);
+            if (!resp.ok) continue;
+            let html = '';
+            if (proxyUrl.includes('allorigins.win')) {
+                const data = await resp.json();
+                html = data.contents || '';
+            } else {
+                html = await resp.text();
+            }
+            if (!html || html.length < 200) continue;
+
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            doc.querySelectorAll('script, style, nav, footer, aside, header, form, iframe, noscript, svg, .ad, .advert, .related, .discussion').forEach(el => el.remove());
+
+            const h1 = doc.querySelector('h1');
+            const docTitle = (h1 ? h1.textContent : doc.title || 'Článek z webu')
+                .replace(/\s*[-|–—]\s*(Seznam Zprávy|Novinky\.cz|iDNES\.cz|Aktuálně\.cz).*$/i, '')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            const paragraphs = [];
+            const metaDesc = doc.querySelector('meta[name="description"], meta[property="og:description"]');
+            if (metaDesc && metaDesc.getAttribute('content')) {
+                const desc = metaDesc.getAttribute('content').replace(/\s+/g, ' ').trim();
+                if (desc.length > 40) paragraphs.push(desc);
+            }
+
+            const root = doc.querySelector('article, main, [role="main"]') || doc.body;
+            root.querySelectorAll('p').forEach(p => {
+                const txt = (p.textContent || '').replace(/\s+/g, ' ').trim();
+                if (txt.length >= 45 && !paragraphs.includes(txt)) {
+                    paragraphs.push(txt);
+                }
+            });
+
+            if (paragraphs.join(' ').length > 120) {
+                return { title: docTitle, paragraphs };
+            }
+        } catch (err) {}
+    }
+
+    throw new Error('Nepodařilo se stáhnout čitelný text z této adresy.');
+}
+
+function buildLocalSmartSummary(title, paragraphs) {
+    if (!paragraphs || !paragraphs.length) return title;
+
+    // 1. Vždy zachováme titulek a úvodní perex (v českém zpravodajství jako Seznam Zprávy nese hlavní shrnutí)
+    const perex = paragraphs[0];
+    const remainingText = paragraphs.slice(1).join(' ');
+    const rawSentences = remainingText.match(/[^.!?…]+[.!?…]+/g) || [];
+
+    if (rawSentences.length <= 4) {
+        return `${title}. ${paragraphs.join(' ')}`;
+    }
+
+    // 2. Spočítáme frekvenci klíčových slov (TF-IDF vážení) v celém článku
+    const wordFreq = {};
+    const allWords = paragraphs.join(' ').split(/\s+/);
+    for (const w of allWords) {
+        const clean = normWord(w);
+        if (clean.length < 4 || CZ_EN_STOPWORDS.has(clean)) continue;
+        wordFreq[clean] = (wordFreq[clean] || 0) + 1;
+    }
+
+    // Bonus pro slova z titulku (hlavní téma článku)
+    for (const tw of title.split(/\s+/)) {
+        const clean = normWord(tw);
+        if (clean.length >= 4 && !CZ_EN_STOPWORDS.has(clean)) {
+            wordFreq[clean] = (wordFreq[clean] || 0) + 4;
+        }
+    }
+
+    // 3. Ohodnotíme každou větu podle informační hustoty, faktů (čísla/jména) a pozice v textu
+    const scored = rawSentences.map((sent, idx) => {
+        const trimmed = sent.replace(/\s+/g, ' ').trim();
+        const words = trimmed.split(/\s+/);
+        if (words.length < 6 || words.length > 48 || trimmed.length < 40) {
+            return { idx, text: trimmed, score: -1 };
+        }
+        // Odfiltrujeme věty z perexu, abychom je neopakovali
+        if (perex.includes(trimmed.slice(0, 30))) {
+            return { idx, text: trimmed, score: -1 };
+        }
+
+        let score = 0;
+        for (const w of words) {
+            const clean = normWord(w);
+            if (wordFreq[clean]) score += wordFreq[clean];
+        }
+        // Normalizace délkou věty, aby nevyhrávala jen nejdelší souvětí
+        score = score / Math.pow(words.length, 0.65);
+
+        // Bonus za konkrétní fakta, čísla, letopočty, procenta nebo přímou řeč
+        if (/\d+/.test(trimmed)) score *= 1.22;
+        if (/[„“"]/.test(trimmed)) score *= 1.12;
+        // Mírný bonus pro první třetinu článku a závěrečné shrnutí
+        if (idx < rawSentences.length * 0.3) score *= 1.18;
+        if (idx >= rawSentences.length - 2) score *= 1.1;
+
+        return { idx, text: trimmed, score };
+    }).filter(item => item.score > 0);
+
+    // 4. Vybereme 5 nejvýznamnějších vět a seřadíme je chronologicky, jak šly v článku za sebou
+    scored.sort((a, b) => b.score - a.score);
+    const topSentences = scored.slice(0, 5).sort((a, b) => a.idx - b.idx).map(s => s.text);
+
+    return `${title}. Shrnutí toho nejdůležitějšího z článku: ${perex} ${topSentences.join(' ')}`.replace(/\s+/g, ' ').trim();
+}
+
+async function summarizeWithGeminiApi(title, fullText, apiKey) {
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
+    const prompt = `Jsi poutavý český rozhlasový vypravěč v aplikaci AtmoRead. Vytvoř z následujícího článku přehledný, čtivý a souvislý mluvený výtah toho nejdůležitějšího v češtině (na 1 až 2 minuty poslechu, cca 6 až 9 vět). Nepoužívej odrážky, hvězdičky ani markdown, piš plynulé věty vhodné pro přímé čtení hlasovým syntezátorem. Začni názvem článku.\n\nNázev: ${title}\n\nText článku:\n${fullText.slice(0, 14000)}`;
+
+    const resp = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }]
+        })
+    });
+    if (!resp.ok) throw new Error('Gemini API error');
+    const data = await resp.json();
+    const out = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    return out.replace(/[*#_`>-]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+async function fetchAndProcessUrlArticle() {
+    const urlInput = document.getElementById('articleUrlInput');
+    const statusEl = document.getElementById('urlModalStatus');
+    const submitBtn = document.getElementById('urlFetchSubmitBtn');
+    const apiKeyInput = document.getElementById('geminiApiKeyInput');
+
+    let rawUrl = (urlInput.value || '').trim();
+    if (!rawUrl) {
+        statusEl.innerText = '⚠️ Nejprve vlož platnou URL adresu článku (např. ze Seznam Zpráv nebo Novinek).';
+        urlInput.focus();
+        return;
+    }
+    if (!/^https?:\/\//i.test(rawUrl)) {
+        rawUrl = 'https://' + rawUrl;
+    }
+
+    const geminiKey = (apiKeyInput?.value || '').trim();
+    if (geminiKey) {
+        localStorage.setItem('atmoread_gemini_key', geminiKey);
+    }
+
+    submitBtn.disabled = true;
+    statusEl.innerText = '⏳ Stahuji článek, odstraňuji reklamy a sestavuji výtah toho nejdůležitějšího...';
+
+    try {
+        const { title, paragraphs } = await fetchCleanArticleFromUrl(rawUrl);
+        const fullCleanText = `${title}. ${paragraphs.join(' ')}`.replace(/\s+/g, ' ').trim();
+
+        let summaryText = '';
+        if (geminiKey) {
+            try {
+                statusEl.innerText = '🤖 Generuji mluvené shrnutí přes Gemini AI...';
+                summaryText = await summarizeWithGeminiApi(title, fullCleanText, geminiKey);
+            } catch (e) {
+                summaryText = buildLocalSmartSummary(title, paragraphs);
+            }
+        } else {
+            summaryText = buildLocalSmartSummary(title, paragraphs);
+        }
+
+        const activeText = urlExtractMode === 'full' ? fullCleanText : summaryText;
+        const key = getStoryKey();
+
+        STORIES[key].unshift({
+            title: `🔗 ${title.slice(0, 62)}${title.length > 62 ? '…' : ''}`,
+            text: activeText,
+            summaryText: summaryText,
+            fullText: fullCleanText,
+            activeVariant: urlExtractMode,
+            isUrlArticle: true,
+            sourceUrl: rawUrl
+        });
+
+        populateStoryDropdown();
+        document.getElementById('storySelect').value = '0';
+
+        // Automaticky přepneme do režimu AI Vypravěče (TTS), aby se otevřela čtečka a mohl článek rovnou číst
+        switchMode('tts');
+        loadSelectedStory();
+        closeUrlModal();
+
+        showAutoBadge(urlExtractMode === 'summary' ? '⚡ Výtah článku připraven' : '📰 Celý článek připraven');
+        setStatus(`✅ Článek „${title}“ je připraven! Spouštím 🎧 AI Vypravěče se zvukovou kulisou...`);
+
+        // Rovnou spustíme AI Vypravěče (uživatel právě kliknul na tlačítko, takže audio kontext je odemčený)
+        if (isSessionRunning) stopActiveSession();
+        startActiveSession();
+    } catch (err) {
+        statusEl.innerText = '⚠️ Nepodařilo se článek automaticky vytáhnout (web může blokovat roboty). Zkus jiný odkaz nebo vlož zkopírovaný text přes ✍️ Vložit text.';
+    } finally {
+        submitBtn.disabled = false;
     }
 }
 
