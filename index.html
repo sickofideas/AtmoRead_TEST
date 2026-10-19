@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AtmoRead v6.2.0 — Živá atmosféra pro pohádky, knihy i články</title>
+    <title>AtmoRead v6.3.0 — Živá atmosféra pro pohádky, knihy i články</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="data.js"></script>
     <style>
@@ -27,6 +27,7 @@
             --reader-text: #fef3c7;
             --green: #16a34a;
             --red: #dc2626;
+            --plane-ease: cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         /* Téma pro dospělé: Břidlicovo-pergamenový vzhled */
@@ -66,18 +67,72 @@
         }
 
         /* ====================================================================
-           SKUTEČNÁ VYSOCE SVÍTIVÁ LAMPIČKA (100% PLOCHY BEZ ČERNÉHO OKRAJE)
+           PLYNULÉ ROZBALOVÁNÍ JAKO ROVNINA (BEZ BLIKÁNÍ PRO VŠECHNA OKNA A DLAŽDICE)
+           ==================================================================== */
+        @keyframes planeUnfold {
+            0% {
+                opacity: 0;
+                transform: perspective(900px) rotateX(-5deg) translateY(-8px) scale(0.985);
+            }
+            100% {
+                opacity: 1;
+                transform: perspective(900px) rotateX(0deg) translateY(0) scale(1);
+            }
+        }
+        .plane-animate {
+            animation: planeUnfold 0.34s var(--plane-ease) forwards;
+            transform-origin: top center;
+        }
+
+        .collapsible-plane {
+            display: grid;
+            grid-template-rows: 0fr;
+            opacity: 0;
+            transform: perspective(900px) rotateX(-5deg) translateY(-8px) scale(0.985);
+            transform-origin: top center;
+            pointer-events: none;
+            margin-bottom: 0;
+            transition:
+                grid-template-rows 0.38s var(--plane-ease),
+                opacity 0.30s var(--plane-ease),
+                transform 0.38s var(--plane-ease),
+                margin 0.34s var(--plane-ease);
+        }
+        .collapsible-plane.open {
+            grid-template-rows: 1fr;
+            opacity: 1;
+            transform: perspective(900px) rotateX(0deg) translateY(0) scale(1);
+            pointer-events: auto;
+            margin-bottom: 12px;
+        }
+        .collapsible-plane-inner {
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        /* ====================================================================
+           SKUTEČNÁ VYSOCE SVÍTIVÁ LAMPIČKA (100% PLOCHY S PLYNULÝM ROZBALENÍM)
            ==================================================================== */
         #pureLampScreen {
             position: fixed; inset: 0; z-index: 300;
-            display: none; flex-direction: column; justify-content: space-between;
+            display: flex; flex-direction: column; justify-content: space-between;
             align-items: center; padding: 24px 18px 28px;
             background: rgb(var(--aura-r), var(--aura-g), var(--aura-b));
             filter: brightness(var(--lamp-brightness));
-            transition: background 0.6s ease, filter 0.3s ease;
+            opacity: 0; visibility: hidden; pointer-events: none;
+            transform: scale(0.97);
+            transition:
+                opacity 0.36s var(--plane-ease),
+                transform 0.36s var(--plane-ease),
+                visibility 0.36s,
+                background 0.6s ease,
+                filter 0.3s ease;
             overflow-y: auto;
         }
-        #pureLampScreen.active { display: flex; }
+        #pureLampScreen.active {
+            opacity: 1; visibility: visible; pointer-events: auto;
+            transform: scale(1);
+        }
 
         .lamp-top-badge {
             background: rgba(12, 8, 4, 0.72);
@@ -104,6 +159,7 @@
             backdrop-filter: blur(16px);
             box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
             display: flex; flex-direction: column; gap: 14px;
+            transition: opacity 0.35s var(--plane-ease), transform 0.35s var(--plane-ease);
         }
         #pureLampScreen.zen-hide .lamp-top-badge,
         #pureLampScreen.zen-hide .lamp-controls-card {
@@ -116,7 +172,7 @@
         }
 
         /* ====================================================================
-           HLAVNÍ KONTEJNER A ÚVODNÍ ROZCESTNÍK (3 VELKÉ KARTY)
+           HLAVNÍ KONTEJNER A ÚVODNÍ ROZCESTNÍK (3 KARTY)
            ==================================================================== */
         .app-wrapper {
             position: relative; z-index: 5;
@@ -160,7 +216,7 @@
             padding: 20px 18px;
             cursor: pointer;
             display: flex; flex-direction: column; justify-content: space-between; gap: 10px;
-            transition: all 0.22s ease;
+            transition: all 0.26s var(--plane-ease);
             text-align: left;
             color: var(--text-main);
             box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
@@ -209,7 +265,11 @@
             backdrop-filter: blur(14px);
             box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
             display: flex; flex-direction: column; justify-content: space-between;
-            transition: border-color 0.2s;
+            transition:
+                border-color 0.25s ease,
+                background 0.35s ease,
+                transform 0.36s var(--plane-ease),
+                opacity 0.32s var(--plane-ease);
         }
         .tile:hover { border-color: var(--tile-hover); }
         .tile-header {
@@ -228,8 +288,40 @@
 
         .tile-hero   { grid-column: span 7; }
         .tile-modes  { grid-column: span 5; }
-        .tile-story  { grid-column: span 12; display: none; }
-        .tile-story.visible { display: flex; }
+
+        /* Plynulé rozbalování a sbalování okna čtečky jako rovnina (žádné blikání!) */
+        .tile-story {
+            grid-column: span 12;
+            display: flex;
+            max-height: 0;
+            opacity: 0;
+            overflow: hidden;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-top: -16px;
+            border-width: 0;
+            pointer-events: none;
+            transform: perspective(1100px) rotateX(-6deg) translateY(-12px) scale(0.985);
+            transform-origin: top center;
+            transition:
+                max-height 0.44s var(--plane-ease),
+                opacity 0.32s var(--plane-ease),
+                transform 0.42s var(--plane-ease),
+                padding 0.36s var(--plane-ease),
+                margin 0.36s var(--plane-ease),
+                border-width 0.25s ease;
+        }
+        .tile-story.visible {
+            max-height: 1850px;
+            opacity: 1;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            margin-top: 0;
+            border-width: 1.5px;
+            pointer-events: auto;
+            transform: perspective(1100px) rotateX(0deg) translateY(0) scale(1);
+        }
+
         .tile-amb    { grid-column: span 12; }
         .tile-audio  { grid-column: span 8; }
         /* Kompaktní doplňková dlaždice lampičky (nadstavba) */
@@ -252,7 +344,7 @@
             gap: 8px;
             text-align: left;
             min-height: 48px;
-            transition: all 0.16s ease;
+            transition: all 0.2s var(--plane-ease);
         }
         .compact-lamp-btn:hover { border-color: var(--accent); background: rgba(255, 255, 255, 0.09); }
         .compact-lamp-btn.active {
@@ -272,6 +364,7 @@
         .choice-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .choice-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
         @media (max-width: 680px) {
+            .choice-grid-3 { grid-template-columns: 1fr; }
             .choice-grid-4 { grid-template-columns: repeat(2, 1fr); }
         }
 
@@ -279,17 +372,17 @@
             background: rgba(255, 255, 255, 0.05);
             border: 2px solid var(--tile-border);
             border-radius: 18px;
-            padding: 14px 10px;
+            padding: 12px 10px;
             color: var(--text-main);
             cursor: pointer;
             display: flex; flex-direction: column; align-items: center;
-            justify-content: center; gap: 5px; text-align: center;
-            min-height: 76px;
-            transition: all 0.16s ease;
+            justify-content: center; gap: 4px; text-align: center;
+            min-height: 72px;
+            transition: all 0.2s var(--plane-ease);
         }
-        .big-tile-btn:hover { border-color: var(--accent); background: rgba(255, 255, 255, 0.09); }
-        .big-tile-btn .bt-icon { font-size: 24px; line-height: 1.1; }
-        .big-tile-btn .bt-title { font-size: 14px; font-weight: 800; color: var(--text-main); }
+        .big-tile-btn:hover { border-color: var(--accent); background: rgba(255, 255, 255, 0.09); transform: translateY(-1px); }
+        .big-tile-btn .bt-icon { font-size: 22px; line-height: 1.1; }
+        .big-tile-btn .bt-title { font-size: 13.5px; font-weight: 800; color: var(--text-main); }
         .big-tile-btn .bt-sub { font-size: 11px; color: var(--text-muted); }
         .big-tile-btn.active {
             background: linear-gradient(135deg, var(--accent-glow), rgba(255, 255, 255, 0.12));
@@ -324,6 +417,7 @@
             border-radius: 18px; font-size: 16px; font-weight: 700;
             color: var(--accent-soft); min-height: 54px;
             display: flex; align-items: center; justify-content: center;
+            transition: all 0.25s var(--plane-ease);
         }
         #autoBadgesBox {
             min-height: 42px; margin-top: 10px;
@@ -334,15 +428,15 @@
             background: linear-gradient(135deg, var(--accent), #d97706);
             color: #140d04; padding: 6px 15px; border-radius: 99px;
             box-shadow: 0 4px 14px var(--accent-glow);
-            animation: popBadge 0.28s ease-out;
+            animation: popBadge 0.28s var(--plane-ease);
         }
-        @keyframes popBadge { from { transform: scale(0.75); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes popBadge { from { transform: scale(0.75) translateY(4px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
 
-        /* ČTEČKA POHÁDEK A KNIH */
+        /* ČTEČKA POHÁDEK A KNIH + PANEL TEMPA, HLASU A DÉLKY */
         .story-controls {
             display: grid;
             grid-template-columns: 1fr auto auto auto;
-            gap: 10px; margin-bottom: 14px;
+            gap: 10px; margin-bottom: 12px;
         }
         @media (max-width: 920px) {
             .story-controls { grid-template-columns: 1fr 1fr; }
@@ -350,24 +444,50 @@
         @media (max-width: 560px) {
             .story-controls { grid-template-columns: 1fr; }
         }
+        .reader-settings-panel {
+            background: rgba(255, 255, 255, 0.035);
+            border: 1.5px solid var(--tile-border);
+            border-radius: 18px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .reader-settings-row {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 14px;
+            align-items: start;
+        }
+        @media (max-width: 900px) {
+            .reader-settings-row { grid-template-columns: 1fr; }
+        }
+        .voice-picker-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        @media (max-width: 600px) {
+            .voice-picker-row { grid-template-columns: 1fr; }
+        }
         .article-switch-bar {
-            display: none;
+            display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            margin-bottom: 12px;
             padding: 10px;
             border-radius: 16px;
             background: rgba(255, 255, 255, 0.04);
             border: 1.5px dashed var(--accent);
         }
-        .article-switch-bar.active {
-            display: grid;
-        }
         select {
-            font-size: 16px; font-weight: 800; padding: 14px 16px;
+            font-size: 15px; font-weight: 800; padding: 12px 14px;
             border-radius: 16px; background: #14100c; color: var(--text-main);
             border: 2px solid var(--tile-border); width: 100%; cursor: pointer;
+            transition: border-color 0.2s ease;
         }
+        select:hover, select:focus { border-color: var(--accent); outline: none; }
         .reader-viewport {
             font-family: 'Georgia', serif;
             background: var(--reader-bg);
@@ -375,6 +495,7 @@
             border-radius: 20px; padding: 24px;
             font-size: 22px; line-height: 1.9; color: var(--reader-text);
             max-height: 52vh; overflow-y: auto;
+            transition: opacity 0.28s var(--plane-ease), transform 0.28s var(--plane-ease);
         }
         .w-tok { padding: 2px 5px; border-radius: 6px; cursor: pointer; transition: background 0.12s; }
         .w-tok.trig-sfx { border-bottom: 2px dotted var(--accent); }
@@ -383,36 +504,72 @@
             font-weight: bold; box-shadow: 0 0 14px var(--accent);
         }
 
-        /* MODAL PRO OŘEZ FOTKY (OCR) A MODAL PRO NAČTENÍ ČLÁNKU Z URL */
+        /* MODAL PRO OŘEZ FOTKY (OCR) A MODAL PRO NAČTENÍ ČLÁNKU Z URL (S PLYNULOU ANIMACÍ ROVNINY) */
         #ocrModal, #urlModal {
             position: fixed; inset: 0; z-index: 400;
-            background: rgba(6, 5, 4, 0.94);
-            display: none; flex-direction: column; align-items: center;
+            background: rgba(6, 5, 4, 0.88);
+            display: flex; flex-direction: column; align-items: center;
             justify-content: center; padding: 18px;
             backdrop-filter: blur(14px);
+            opacity: 0; visibility: hidden; pointer-events: none;
+            transition: opacity 0.32s var(--plane-ease), visibility 0.32s;
         }
-        #ocrModal.active, #urlModal.active { display: flex; }
+        #ocrModal.active, #urlModal.active {
+            opacity: 1; visibility: visible; pointer-events: auto;
+        }
         .ocr-modal-card {
             background: var(--tile-bg); border: 2px solid var(--accent);
-            border-radius: 26px; padding: 20px; width: 100%; max-width: 720px;
-            display: flex; flex-direction: column; gap: 14px;
+            border-radius: 26px; padding: 20px; width: 100%; max-width: 740px;
+            display: flex; flex-direction: column; gap: 12px;
             max-height: 94vh; overflow-y: auto;
+            transform: perspective(1000px) rotateX(-6deg) translateY(18px) scale(0.96);
+            transform-origin: top center;
+            transition: transform 0.36s var(--plane-ease);
+        }
+        #ocrModal.active .ocr-modal-card,
+        #urlModal.active .ocr-modal-card {
+            transform: perspective(1000px) rotateX(0deg) translateY(0) scale(1);
         }
         .url-input-row {
-            display: flex; gap: 10px; width: 100%;
+            display: flex; gap: 8px; width: 100%;
         }
         @media (max-width: 560px) {
             .url-input-row { flex-direction: column; }
         }
         .url-input-field {
             flex: 1; font-size: 16px; font-weight: 600;
-            padding: 15px 16px; border-radius: 16px;
+            padding: 14px 16px; border-radius: 16px;
             background: #14100c; color: var(--text-main);
             border: 2px solid var(--tile-border); outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
         .url-input-field:focus {
             border-color: var(--accent);
             box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .url-history-box {
+            background: rgba(0, 0, 0, 0.32);
+            border: 1.5px solid var(--tile-border);
+            border-radius: 16px;
+            padding: 10px 12px;
+            max-height: 175px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .url-history-item {
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 10px; padding: 8px 12px; border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            cursor: pointer; text-align: left; color: var(--text-main);
+            transition: all 0.18s var(--plane-ease);
+        }
+        .url-history-item:hover {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.10);
+            transform: translateX(2px);
         }
         .ocr-canvas-wrap {
             position: relative; width: 100%; display: flex; justify-content: center;
@@ -441,7 +598,7 @@
             background: linear-gradient(135deg, #16a34a, #15803d);
             cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px;
             box-shadow: 0 8px 26px rgba(22, 163, 74, 0.45);
-            letter-spacing: 0.3px; transition: transform 0.12s, background 0.2s;
+            letter-spacing: 0.3px; transition: transform 0.15s var(--plane-ease), background 0.25s;
         }
         .btn-primary-run:active { transform: scale(0.99); }
         .btn-primary-run.running {
@@ -564,24 +721,39 @@
 </div>
 
 <!-- ========================================================================
-     MODAL PRO NAČTENÍ ČLÁNKU Z URL (SEZNAM ZPRÁVY, NOVINKY, WEB) + VÝTAH
+     MODAL PRO NAČTENÍ ČLÁNKU Z URL (SEZNAM ZPRÁVY, NOVINKY, WEB) + HISTORIE
      ======================================================================== -->
 <div id="urlModal">
     <div class="ocr-modal-card">
         <div class="tile-header" style="margin-bottom:0;">
-            <div class="tile-title">🔗 Načíst článek z URL a vytvořit výtah pro AI Vypravěče</div>
-            <span class="tile-badge">Smart Reader + Extraktor</span>
+            <div class="tile-title">🔗 Načíst čistý článek z URL (Seznam Zprávy, Novinky, web...)</div>
+            <span class="tile-badge">Přesný extraktor bez balastu</span>
         </div>
-        <div style="font-size:13px; color:var(--text-muted); line-height:1.5;">
-            Vlož odkaz na článek (Seznam Zprávy, Novinky.cz, iDNES, Wikipedie, blog...). Aplikace odstraní reklamy a menu, vytáhne to nejdůležitější a připraví článek k poslechu přes <b>🎧 AI Vypravěče</b> se zvukovou kulisou:
+        <div style="font-size:13px; color:var(--text-muted); line-height:1.45;">
+            Vlož odkaz na článek. Extraktor vytáhne <b>pouze čistý text kolem názvu článku</b> (odfiltruje ostatní nadpisy na stránce, reklamy i jiná témata). Pole se po načtení samo vymaže pro další článek:
         </div>
 
         <div class="url-input-row">
-            <input type="url" id="articleUrlInput" class="url-input-field" placeholder="https://www.seznamzpravy.cz/clanek/..." autocomplete="off" onkeydown="if(event.key==='Enter')fetchAndProcessUrlArticle()">
-            <button class="big-tile-btn" style="min-height:54px; padding:10px 18px; flex-direction:row; gap:8px;" onclick="pasteUrlFromClipboard()">
+            <input type="url" id="articleUrlInput" class="url-input-field" placeholder="Vlož sem nový odkaz (např. https://www.seznamzpravy.cz/...)" autocomplete="off" onkeydown="if(event.key==='Enter')fetchAndProcessUrlArticle()">
+            <button class="big-tile-btn" style="min-height:52px; padding:8px 14px; flex-direction:row; gap:6px;" onclick="pasteUrlFromClipboard()" title="Vložit ze schránky">
                 <span class="bt-icon">📋</span>
                 <span class="bt-title">Vložit</span>
             </button>
+            <button class="big-tile-btn" style="min-height:52px; padding:8px 14px; flex-direction:row; gap:6px;" onclick="clearUrlInputField()" title="Vyčistit pole">
+                <span class="bt-icon">🧹</span>
+                <span class="bt-title">Smazat</span>
+            </button>
+        </div>
+
+        <!-- ULOŽENÁ HISTORIE DŘÍVE NAČTENÝCH ČLÁNKŮ -->
+        <div id="urlHistoryWrap" class="collapsible-plane">
+            <div class="collapsible-plane-inner">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <div class="section-label" style="margin:0;">🕓 Předchozí uložené články (1 ťuknutím znovu načteš)</div>
+                    <button class="compact-lamp-btn" style="min-height:28px; padding:4px 10px; font-size:11px;" onclick="clearUrlHistory()">🗑️ Smazat historii</button>
+                </div>
+                <div class="url-history-box" id="urlHistoryList"></div>
+            </div>
         </div>
 
         <div class="section-label" style="margin-top:2px;">🎯 Co chceš z článku připravit k poslechu? (1 ťuknutí)</div>
@@ -589,29 +761,29 @@
             <button class="big-tile-btn active" id="urlModeSummaryBtn" onclick="setUrlExtractMode('summary')">
                 <span class="bt-icon">⚡</span>
                 <span class="bt-title">Výtah toho nejdůležitějšího</span>
-                <span class="bt-sub">Titulek + perex + klíčové věty s fakty (1–2 min)</span>
+                <span class="bt-sub">Titulek + perex + klíčové věty článku (1–2 min)</span>
             </button>
             <button class="big-tile-btn" id="urlModeFullBtn" onclick="setUrlExtractMode('full')">
                 <span class="bt-icon">📰</span>
                 <span class="bt-title">Celý čistý článek</span>
-                <span class="bt-sub">Kompletní text zbavený reklam a rozcestníků</span>
+                <span class="bt-sub">Všechny odstavce článku bez cizích nadpisů a reklam</span>
             </button>
         </div>
 
         <div style="background:rgba(255,255,255,0.03); border:1px solid var(--tile-border); border-radius:14px; padding:10px 14px;">
             <div style="font-size:12px; color:var(--text-muted); margin-bottom:6px;">
-                🤖 <b>Volitelně:</b> Vlastní Gemini API klíč (pokud ho nevyplníš, použije se vestavěný lokální algoritmus TF-IDF zcela zdarma a bez klíče):
+                🤖 <b>Volitelně:</b> Vlastní Gemini API klíč (pokud ho nevyplníš, použije se vestavěný lokální extraktor zdarma):
             </div>
             <input type="password" id="geminiApiKeyInput" class="url-input-field" style="width:100%; padding:10px 14px; font-size:13px;" placeholder="AIzaSy... (nepovinné – uloženo pouze v tvém prohlížeči)">
         </div>
 
         <div class="status-bubble" id="urlModalStatus" style="font-size:14px; padding:12px 16px;">
-            💡 Tip: Po načtení můžeš přímo ve čtečce jedním ťuknutím přepínat mezi <b>⚡ Výtahem</b> a <b>📰 Celým článkem</b>.
+            💡 Tip: Po načtení se článek automaticky uloží do historie výše a pole pro URL se vyprázdní pro další odkaz.
         </div>
 
         <div class="choice-grid-2">
             <button class="big-tile-btn" style="min-height:60px;" onclick="closeUrlModal()">
-                <span class="bt-title">❌ Zrušit</span>
+                <span class="bt-title">❌ Zavřít</span>
             </button>
             <button class="big-tile-btn active" id="urlFetchSubmitBtn" style="min-height:60px; background:linear-gradient(135deg,#16a34a,#15803d);" onclick="fetchAndProcessUrlArticle()">
                 <span class="bt-title">🎧 Vytáhnout článek a číst</span>
@@ -628,7 +800,7 @@
             <div>
                 <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                     <h1 class="brand-name">AtmoRead</h1>
-                    <span class="ver-badge">v6.2.0 REAL AUDIO & LIGHT</span>
+                    <span class="ver-badge">v6.3.0 REAL AUDIO & LIGHT</span>
                 </div>
                 <div class="header-meta" id="dictCounter">100% Ověřené zvuky ze všech oborů + 15–20s dozvuk • Dynamický podkres • Chytrá lampička</div>
             </div>
@@ -752,11 +924,11 @@
             </button>
         </section>
 
-        <!-- DLAŽDICE 3: ČTEČKA POHÁDEK A KNIH + OCR S OŘEZEM + URL VÝTAH -->
+        <!-- DLAŽDICE 3: ČTEČKA POHÁDEK A KNIH + VOLBA DÉLKY (5/15/30 MIN) + TEMPO A HLAS + OCR + URL VÝTAH -->
         <section class="tile tile-story" id="storyTile">
             <div class="tile-header">
                 <div class="tile-title" id="libraryTitle">📚 Knihovna dlouhých pohádek, knih a článků</div>
-                <span class="tile-badge">Ťukni na libovolné slovo pro okamžitý zvuk</span>
+                <span class="tile-badge" id="storyLengthBadge">🌙 Délka: Do 15 minut • Ťukni na slovo pro zvuk</span>
             </div>
             <div class="story-controls">
                 <select id="storySelect" onchange="loadSelectedStory()"></select>
@@ -774,16 +946,108 @@
                     <span class="bt-title">Vložit text</span>
                 </button>
             </div>
-            <div class="article-switch-bar" id="articleModeSwitchBar">
-                <button class="big-tile-btn active" id="readerSwitchSummaryBtn" style="min-height:52px; flex-direction:row; gap:8px;" onclick="switchLoadedArticleVariant('summary')">
-                    <span class="bt-icon">⚡</span>
-                    <span class="bt-title">Výtah toho nejdůležitějšího</span>
-                </button>
-                <button class="big-tile-btn" id="readerSwitchFullBtn" style="min-height:52px; flex-direction:row; gap:8px;" onclick="switchLoadedArticleVariant('full')">
-                    <span class="bt-icon">📰</span>
-                    <span class="bt-title">Celý čistý článek</span>
-                </button>
+
+            <!-- VOLBA DÉLKY POHÁDKY / PŘÍBĚHU (DO 5 MIN / DO 15 MIN / DO 30 MIN) + NASTAVENÍ TEMPA A HLASU AI VYPRAVĚČE -->
+            <div class="reader-settings-panel">
+                <!-- Plynulá rovnina pro volbu délky pohádky (5 / 15 / 30 min) -->
+                <div class="collapsible-plane open" id="storyDurationPlane">
+                    <div class="collapsible-plane-inner">
+                        <div class="section-label" style="margin-top:0;">⏱️ Délka pohádky / příběhu pro AI čtení i vlastní předčítání</div>
+                        <div class="choice-grid-3" style="margin-bottom:6px;">
+                            <button class="big-tile-btn" data-dur="5" style="min-height:58px; flex-direction:row; gap:10px; padding:8px 12px;" onclick="setStoryDuration(5)">
+                                <span class="bt-icon">⚡</span>
+                                <div style="text-align:left;">
+                                    <div class="bt-title">Do 5 minut</div>
+                                    <div class="bt-sub">Krátká verze na dobrou noc</div>
+                                </div>
+                            </button>
+                            <button class="big-tile-btn active" data-dur="15" style="min-height:58px; flex-direction:row; gap:10px; padding:8px 12px;" onclick="setStoryDuration(15)">
+                                <span class="bt-icon">🌙</span>
+                                <div style="text-align:left;">
+                                    <div class="bt-title">Do 15 minut</div>
+                                    <div class="bt-sub">Střední výpravná kapitola</div>
+                                </div>
+                            </button>
+                            <button class="big-tile-btn" data-dur="30" style="min-height:58px; flex-direction:row; gap:10px; padding:8px 12px;" onclick="setStoryDuration(30)">
+                                <span class="bt-icon">🌌</span>
+                                <div style="text-align:left;">
+                                    <div class="bt-title">Do 30 minut</div>
+                                    <div class="bt-sub">Plné uspávací čtení do hluboké noci</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nastavení tempa čtení a barvy hlasu AI Vypravěče -->
+                <div class="reader-settings-row">
+                    <div>
+                        <div class="section-label" style="margin-top:2px;">🐢 Tempo čtení AI Vypravěče</div>
+                        <div class="choice-grid-4">
+                            <button class="big-tile-btn" data-tempo="0.76" style="min-height:54px; padding:7px 6px;" onclick="setTtsTempo(0.76)">
+                                <span class="bt-title">🐢 Uspávací</span>
+                                <span class="bt-sub">Velmi pomalé</span>
+                            </button>
+                            <button class="big-tile-btn active" data-tempo="0.86" style="min-height:54px; padding:7px 6px;" onclick="setTtsTempo(0.86)">
+                                <span class="bt-title">🌙 Klidné</span>
+                                <span class="bt-sub">Pohádkové</span>
+                            </button>
+                            <button class="big-tile-btn" data-tempo="0.96" style="min-height:54px; padding:7px 6px;" onclick="setTtsTempo(0.96)">
+                                <span class="bt-title">📖 Běžné</span>
+                                <span class="bt-sub">Přirozené</span>
+                            </button>
+                            <button class="big-tile-btn" data-tempo="1.10" style="min-height:54px; padding:7px 6px;" onclick="setTtsTempo(1.10)">
+                                <span class="bt-title">⚡ Svižné</span>
+                                <span class="bt-sub">Pro články</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="section-label" style="margin-top:2px;">🎙️ Barva a výběr hlasu AI Vypravěče</div>
+                        <div class="choice-grid-3">
+                            <button class="big-tile-btn active" data-vstyle="kind" style="min-height:54px; padding:7px 6px;" onclick="setTtsVoiceStyle('kind')">
+                                <span class="bt-title">🧸 Pohádkový</span>
+                                <span class="bt-sub">Měkký a vřelý</span>
+                            </button>
+                            <button class="big-tile-btn" data-vstyle="deep" style="min-height:54px; padding:7px 6px;" onclick="setTtsVoiceStyle('deep')">
+                                <span class="bt-title">🍷 Hluboký</span>
+                                <span class="bt-sub">Sametový hlas</span>
+                            </button>
+                            <button class="big-tile-btn" data-vstyle="clear" style="min-height:54px; padding:7px 6px;" onclick="setTtsVoiceStyle('clear')">
+                                <span class="bt-title">✨ Jasný</span>
+                                <span class="bt-sub">Čistý přednes</span>
+                            </button>
+                        </div>
+                        <div class="voice-picker-row">
+                            <select id="ttsVoiceSelect" onchange="onSystemVoiceChange()" style="padding:8px 12px; font-size:13.5px;">
+                                <option value="auto">🎙️ Automatický nejlepší hlas v zařízení</option>
+                            </select>
+                            <button class="big-tile-btn" style="min-height:42px; flex-direction:row; padding:6px 14px; gap:6px;" onclick="previewTtsVoice()">
+                                <span>🔊</span>
+                                <span class="bt-title">Zkusit hlas</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+            <!-- Plynulá rovnina pro přepínání Výtahu / Celého článku u načtených URL článků -->
+            <div class="collapsible-plane" id="articleModeSwitchPlane">
+                <div class="collapsible-plane-inner">
+                    <div class="article-switch-bar" id="articleModeSwitchBar" style="margin-bottom:12px;">
+                        <button class="big-tile-btn active" id="readerSwitchSummaryBtn" style="min-height:52px; flex-direction:row; gap:8px;" onclick="switchLoadedArticleVariant('summary')">
+                            <span class="bt-icon">⚡</span>
+                            <span class="bt-title">Výtah toho nejdůležitějšího</span>
+                        </button>
+                        <button class="big-tile-btn" id="readerSwitchFullBtn" style="min-height:52px; flex-direction:row; gap:8px;" onclick="switchLoadedArticleVariant('full')">
+                            <span class="bt-icon">📰</span>
+                            <span class="bt-title">Celý čistý článek (kolem nadpisu)</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="reader-viewport" id="readerBox"></div>
         </section>
 
@@ -881,8 +1145,8 @@
 
 <script>
 /* ============================================================================
-   ATMOREAD v6.2.0 — HLAVNÍ LOGIKA A DVOUVRSTVÝ REÁLNÝ AUDIO ENGINE
-   (Databáze zvuků, barev, nálad a příběhů se načítá ze souboru data.js)
+   ATMOREAD v6.3.0 — HLAVNÍ LOGIKA A DVOUVRSTVÝ REÁLNÝ AUDIO ENGINE
+   (Databáze zvuků, barev, nálad a příběhů 5/15/30 min se načítá z data.js)
    ============================================================================ */
 
 function normWord(str) {
@@ -890,35 +1154,44 @@ function normWord(str) {
 }
 
 /* ============================================================================
-   SEKCE 1: DVOUVRSTVÝ REÁLNÝ AUDIO ENGINE v6.2.0
-   - 100% ověřené nahrávky (.ogg/.oga z CDN) pro zvířata, stroje, dopravu, nástroje,
-     hudební nástroje, domácnost, zbraně, živly, vesnici, hrad i kavárnu
-   - Dvouvrstvý zvuk: Krátký One-Shot efekt + 15–20s tichá doznívající smyčka prostředí (Tail)
-   - Prioritizace (1. Bouře/boj/vlak/siréna, 2. Zvířata/stroje/nástroje/živly, 3. Kroky/dveře/drobnosti)
-   - Možnost úplného vypnutí zvuků jedním ťuknutím (🔇 Vypnuto)
+   SEKCE 1: DVOUVRSTVÝ REÁLNÝ AUDIO ENGINE v6.3.0 (VYSOKÁ SLYŠITELNOST & DYNAMIKA)
+   - Polyfonní přehrávání One-Shot efektů (nové slovo ve větě nikdy neusekne předchozí zvuk!)
+   - Automatický Sidechain Ducking: při spuštění zvuku z knihovny se podkres dočasně ztiší,
+     a hlasitost AI Vypravěče se vyváží, aby každý zvuk (pes, kočka, meč, vlak, hrom) jasně vynikl
+   - Web Audio API Pre-Amp Boost + okamžitá akustická prezence (0 ms odezva bez čekání na síť)
+   - Přednačítání (Preload) zvuků z vybraného příběhu do mezipaměti prohlížeče
    ============================================================================ */
 const SoundEngine = {
     ctx: null,
     compressor: null,
     reverbNode: null,
     bgGain: null,
+    sfxBoostGain: null,
     pinkNoiseNode: null,
 
     isMuted: false,
-    sfxVolumeLevel: 0.80,
-    bgVolumeLevel: 0.55,
-    tailDurationSec: 17.5, // 15–20s doznívající smyčka prostředí (Tail)
+    sfxVolumeLevel: 0.92,
+    sfxGainMultiplier: 1.85, // Zesílení efektů v kompresoru (až 2.5× na Výrazná)
+    ttsNarratorVolume: 0.66, // Vyvážení hlasitosti AI čtečky vůči zvukům z knihovny
+    bgVolumeLevel: 0.50,
+    tailDurationSec: 17.5,  // 15–20s doznívající smyčka prostředí (Tail)
 
     activeAudioEls: new Set(),
+    activeOneShots: new Set(),
     activeTimers: new Set(),
+    preloadedUrlCache: new Map(),
     cooldownMap: {},
     variationMap: {},
 
     currentOneShot: null,
     currentTailObj: null,
     lastTriggerTime: 0,
+    duckRestoreTimer: null,
     idleWatcherInt: null,
     idleSoundIdx: 0,
+
+    // Sledování zvuků spuštěných v aktuální větě pro dramatickou pauzu AI čtečky za tečkou
+    sentenceSfxEvents: [],
 
     bgMode: 'auto_mood', // Výchozí: Dynamický podkres scény
     currentMoodId: 'meadow',
@@ -933,17 +1206,22 @@ const SoundEngine = {
             this.ctx = new AC();
 
             this.compressor = this.ctx.createDynamicsCompressor();
-            this.compressor.threshold.value = -16;
-            this.compressor.knee.value = 18;
-            this.compressor.ratio.value = 4;
-            this.compressor.attack.value = 0.015;
-            this.compressor.release.value = 0.28;
+            this.compressor.threshold.value = -14;
+            this.compressor.knee.value = 14;
+            this.compressor.ratio.value = 3.5;
+            this.compressor.attack.value = 0.008;
+            this.compressor.release.value = 0.24;
             this.compressor.connect(this.ctx.destination);
 
+            // Speciální zesilovací větev (Pre-Amp Boost) pro 100% slyšitelnost zvukových efektů
+            this.sfxBoostGain = this.ctx.createGain();
+            this.sfxBoostGain.gain.value = this.sfxGainMultiplier;
+            this.sfxBoostGain.connect(this.compressor);
+
             this.reverbNode = this.ctx.createConvolver();
-            this.reverbNode.buffer = this.createDreamReverbBuffer(2.8, 2.3);
+            this.reverbNode.buffer = this.createDreamReverbBuffer(2.6, 2.2);
             const revGain = this.ctx.createGain();
-            revGain.gain.value = 0.45;
+            revGain.gain.value = 0.42;
             this.reverbNode.connect(revGain);
             revGain.connect(this.compressor);
 
@@ -970,25 +1248,79 @@ const SoundEngine = {
         return impulse;
     },
 
+    // Přednačtení zvuků obsažených v textu příběhu pro nulovou prodlevu při čtení
+    preloadStorySounds(wordsArray) {
+        if (!wordsArray || !wordsArray.length) return;
+        const matchedClusters = new Set();
+        const sampleLimit = Math.min(wordsArray.length, 650);
+        for (let i = 0; i < sampleLimit; i++) {
+            const clean = normWord(wordsArray[i]);
+            if (clean.length < 3) continue;
+            for (const cluster of SOUND_LIBRARY) {
+                if (matchedClusters.has(cluster.id)) continue;
+                if (cluster.stems.some(st => doesWordMatchStem(clean, st))) {
+                    matchedClusters.add(cluster.id);
+                    if (cluster.urls && cluster.urls[0] && !this.preloadedUrlCache.has(cluster.urls[0])) {
+                        const a = new Audio();
+                        a.preload = 'auto';
+                        a.src = cluster.urls[0];
+                        this.preloadedUrlCache.set(cluster.urls[0], a);
+                    }
+                    break;
+                }
+            }
+            if (matchedClusters.size >= 24) break;
+        }
+    },
+
+    // Dočasné ztišení podkresu (Sidechain Ducking), aby spuštěný zvuk z knihovny jasně vynikl
+    duckAmbienceForSfx(holdMs = 2500) {
+        if (this.isMuted) return;
+        if (this.bgGain && this.ctx) {
+            this.bgGain.gain.setTargetAtTime(Math.max(0.04, this.bgVolumeLevel * 0.28), this.ctx.currentTime, 0.06);
+        }
+        this.bgLoopAudios.forEach(a => {
+            try { a.volume = Math.min(1.0, this.bgVolumeLevel * 0.16); } catch (e) {}
+        });
+        this.moodCrossfadeAudios.forEach(ctrl => {
+            if (ctrl && ctrl.audio) {
+                try { ctrl.audio.volume = Math.min(1.0, this.bgVolumeLevel * 0.18); } catch (e) {}
+            }
+        });
+
+        if (this.duckRestoreTimer) clearTimeout(this.duckRestoreTimer);
+        this.duckRestoreTimer = setTimeout(() => {
+            if (this.isMuted) return;
+            if (this.bgGain && this.ctx) {
+                this.bgGain.gain.setTargetAtTime(this.bgVolumeLevel, this.ctx.currentTime, 0.45);
+            }
+            this.bgLoopAudios.forEach(a => {
+                try { a.volume = Math.min(0.85, this.bgVolumeLevel * 0.42); } catch (e) {}
+            });
+            this.moodCrossfadeAudios.forEach((ctrl, idx) => {
+                if (ctrl && ctrl.audio) {
+                    const targetVol = Math.min(0.65, this.bgVolumeLevel * 0.48);
+                    try { ctrl.audio.volume = idx === 0 ? targetVol : targetVol * 0.65; } catch (e) {}
+                }
+            });
+        }, holdMs);
+        this.activeTimers.add(this.duckRestoreTimer);
+    },
+
     triggerCluster(cluster, spokenWord = '') {
         const now = Date.now();
         const prio = cluster.priority || 2;
 
-        // Krátký cooldown (900 ms) na stejný zvuk brání dvojímu spuštění z jednoho slova,
-        // ale umožní plynule zkoušet slova za sebou (např. "pes", "kočka", "auto")
-        if (this.cooldownMap[cluster.id] && (now - this.cooldownMap[cluster.id] < 900)) {
+        // Krátký cooldown (750 ms) na ten samý zvuk brání dvojímu spuštění z jednoho slova,
+        // ale různé zvuky ve stejné větě nechá přehrát současně (polyfonně)!
+        if (this.cooldownMap[cluster.id] && (now - this.cooldownMap[cluster.id] < 750)) {
             return;
         }
 
-        // Prioritizace při rychlém čtení více spouštěčů za sebou:
-        // Pokud zrovna doznívá zvuk spuštěný před méně než 1500 ms:
-        if (this.currentOneShot && (now - this.currentOneShot.startTime < 1500)) {
-            if (prio > this.currentOneShot.priority && (now - this.currentOneShot.startTime < 1100)) {
-                return; // Drobné ruchy (prio 3) nepřehluší hlavní bouři/souboj (prio 1)
-            }
-            if (this.currentOneShot.id !== cluster.id) {
-                this.currentOneShot.stopSmoothly(220); // Plynulý přechod na nové vyřčené slovo
-            }
+        // Pouze pokud právě burácí prioritní zvuk 1 (bouře/souboj/výbuch) spuštěný před méně než 550 ms,
+        // vynecháme drobný šelest priority 3. Jinak necháme všechny zvuky přirozeně doznít bez useknutí!
+        if (prio === 3 && this.currentOneShot && this.currentOneShot.priority === 1 && (now - this.currentOneShot.startTime < 550)) {
+            return;
         }
 
         this.cooldownMap[cluster.id] = now;
@@ -1002,16 +1334,34 @@ const SoundEngine = {
 
         this.init();
 
+        const totalDurSec = cluster.dur || 4.8;
+        // Zaznamenáme spuštěný zvuk do aktuální věty pro dramatickou pauzu za tečkou
+        this.sentenceSfxEvents.push({
+            id: cluster.id,
+            label: cluster.label,
+            emoji: cluster.emoji,
+            priority: prio,
+            durMs: totalDurSec * 1000,
+            time: now
+        });
+
+        // Ztišíme podkres, aby zvuk z knihovny vystoupil do popředí
+        this.duckAmbienceForSfx(Math.min(3400, totalDurSec * 680));
+
         const varIdx = (this.variationMap[cluster.id] || 0);
         this.variationMap[cluster.id] = varIdx + 1;
-        const rateShift = [1.0, 0.97, 1.03, 0.99][varIdx % 4];
+        const rateShift = [1.0, 0.98, 1.02, 0.99][varIdx % 4];
 
         // Akustický doprovod pro hudební nástroje (klavír, kytara/harfa, housle, trubka/flétna)
         if (cluster.instrumentChord) {
             this.playInstrumentChord(cluster.instrumentChord);
         }
 
-        // VRSTVA 1: 100% Reálný One-Shot zvuk (.ogg/.oga) s okamžitým nástupem a záložními URL
+        // Okamžitá 0ms akustická prezence v prostoru (zajistí, že i při pomalejším internetu
+        // nebo tichém náběhu .ogg nahrávky uživatel v ten samý zlomek sekundy slyší fyzický nástup zvuku)
+        this.playAcousticPresence(cluster, prio);
+
+        // VRSTVA 1: 100% Reálný One-Shot zvuk (.ogg/.oga) s plnou hlasitostí a záložními URL
         if (cluster.urls && cluster.urls.length > 0) {
             const total = cluster.urls.length;
             const orderedUrls = [];
@@ -1019,24 +1369,27 @@ const SoundEngine = {
                 orderedUrls.push(cluster.urls[(varIdx + k) % total]);
             }
 
-            const targetVol = Math.min(1.0, this.sfxVolumeLevel * (prio === 1 ? 1.0 : (prio === 2 ? 0.92 : 0.76)));
-            const totalDurSec = cluster.dur || 4.6;
+            const prioFactor = prio === 1 ? 1.0 : (prio === 2 ? 0.96 : 0.88);
+            const targetVol = Math.min(1.0, this.sfxVolumeLevel * prioFactor);
 
             const oneShotCtrl = this.playRealAudioWithEnvelope(orderedUrls, {
                 targetVolume: targetVol,
-                fadeInMs: 80,
+                fadeInMs: 30,
                 totalDurationMs: totalDurSec * 1000,
-                fadeOutMs: 1400,
+                fadeOutMs: 1200,
                 playbackRate: rateShift,
-                loop: false
+                loop: false,
+                boostViaWebAudio: true
             });
 
-            this.currentOneShot = {
+            const shotEntry = {
                 id: cluster.id,
                 priority: prio,
                 startTime: now,
                 stopSmoothly: (ms) => oneShotCtrl.fadeOutAndStop(ms)
             };
+            this.currentOneShot = shotEntry;
+            this.activeOneShots.add(shotEntry);
         }
 
         // VRSTVA 2: 15–20s tichá doznívající smyčka prostředí (Tail) s jemným Fade-In a dlouhým Fade-Out
@@ -1044,30 +1397,90 @@ const SoundEngine = {
             const tailUrl = cluster.tailUrls[varIdx % cluster.tailUrls.length];
             const tailDelay = setTimeout(() => {
                 if (!this.isMuted) this.startAmbientTailLoop(tailUrl);
-            }, 550);
+            }, 650);
             this.activeTimers.add(tailDelay);
+        }
+    },
+
+    // Okamžitý akustický tranzient (0 ms latence) posilující vnímání spuštěného zvuku přes řeč
+    playAcousticPresence(cluster, prio) {
+        if (this.isMuted || !this.ctx || !this.sfxBoostGain) return;
+        const now = this.ctx.currentTime;
+        const id = cluster.id || '';
+        const baseV = Math.min(0.45, this.sfxVolumeLevel * (prio === 1 ? 0.34 : 0.24));
+
+        const osc = this.ctx.createOscillator();
+        const g = this.ctx.createGain();
+        const filter = this.ctx.createBiquadFilter();
+
+        if (/thunder|storm|explosion|gunshot|train|tractor|plane|car|dragon|bear|lion/.test(id)) {
+            // Hluboký sub-basový otřes pro bouři, výstřel, vlak, motor, draka či šelmu
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(115, now);
+            osc.frequency.exponentialRampToValueAtTime(38, now + 0.42);
+            filter.type = 'lowpass';
+            filter.frequency.value = 260;
+            g.gain.setValueAtTime(0.001, now);
+            g.gain.linearRampToValueAtTime(baseV * 1.15, now + 0.02);
+            g.gain.exponentialRampToValueAtTime(0.0001, now + 0.48);
+            osc.connect(filter);
+            filter.connect(g);
+            g.connect(this.sfxBoostGain);
+            osc.start(now);
+            osc.stop(now + 0.5);
+        } else if (/magic|bell|coins|sword|glass|clock|phone|siren|scifi/.test(id)) {
+            // Křišťálový kovový / magický záchvěv pro meče, zvony, mince, kouzla, hodiny
+            osc.type = 'sine';
+            const f = /sword|glass/.test(id) ? 1480 : (/bell|clock/.test(id) ? 880 : 1174.66);
+            osc.frequency.setValueAtTime(f, now);
+            osc.frequency.exponentialRampToValueAtTime(f * 1.015, now + 0.35);
+            filter.type = 'bandpass';
+            filter.frequency.value = f;
+            g.gain.setValueAtTime(0.001, now);
+            g.gain.linearRampToValueAtTime(baseV * 0.75, now + 0.015);
+            g.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+            osc.connect(filter);
+            filter.connect(g);
+            g.connect(this.sfxBoostGain);
+            osc.start(now);
+            osc.stop(now + 0.45);
+        } else {
+            // Jemný dřevěný / prostorový akustický impuls pro zvířata, kroky, les, dveře a nástroje
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(320, now);
+            osc.frequency.exponentialRampToValueAtTime(140, now + 0.16);
+            filter.type = 'lowpass';
+            filter.frequency.value = 600;
+            g.gain.setValueAtTime(0.001, now);
+            g.gain.linearRampToValueAtTime(baseV * 0.65, now + 0.012);
+            g.gain.exponentialRampToValueAtTime(0.0001, now + 0.19);
+            osc.connect(filter);
+            filter.connect(g);
+            g.connect(this.sfxBoostGain);
+            osc.start(now);
+            osc.stop(now + 0.21);
         }
     },
 
     playInstrumentChord(chordType) {
         if (this.isMuted) return;
         this.init();
-        const v = Math.min(0.55, this.sfxVolumeLevel * 0.42);
+        const v = Math.min(0.75, this.sfxVolumeLevel * 0.58);
         if (chordType === 'piano') {
             [261.63, 329.63, 392.00, 523.25].forEach((f, idx) => {
-                setTimeout(() => this.playInstrumentNote(f, 2.4, 'clair', v), idx * 55);
+                setTimeout(() => this.playInstrumentNote(f, 2.6, 'clair', v, true), idx * 55);
             });
         } else if (chordType === 'guitar') {
             [196.00, 246.94, 293.66, 392.00, 493.88].forEach((f, idx) => {
-                setTimeout(() => this.playInstrumentNote(f, 2.6, 'harp', v), idx * 45);
+                setTimeout(() => this.playInstrumentNote(f, 2.8, 'harp', v, true), idx * 45);
             });
         } else if (chordType === 'violin') {
             [293.66, 440.00, 587.33].forEach((f, idx) => {
-                setTimeout(() => this.playInstrumentNote(f, 3.0, 'clair', v * 0.9), idx * 90);
+                setTimeout(() => this.playInstrumentNote(f, 3.1, 'clair', v * 0.95, true), idx * 90);
             });
         } else if (chordType === 'brass') {
             [261.63, 392.00, 523.25, 659.25].forEach((f, idx) => {
-                setTimeout(() => this.playInstrumentNote(f, 1.8, 'musicbox', v), idx * 110);
+                setTimeout(() => this.playInstrumentNote(f, 2.0, 'musicbox', v, true), idx * 110);
             });
         }
     },
@@ -1079,14 +1492,14 @@ const SoundEngine = {
             this.currentTailObj.stopSmoothly(2200);
         }
 
-        const tailVol = Math.min(0.65, this.sfxVolumeLevel * 0.28);
+        const tailVol = Math.min(0.72, this.sfxVolumeLevel * 0.34);
         const tailTotalMs = this.tailDurationSec * 1000;
 
         const tailCtrl = this.playRealAudioWithEnvelope(tailUrl, {
             targetVolume: tailVol,
-            fadeInMs: 2600,
+            fadeInMs: 2200,
             totalDurationMs: tailTotalMs,
-            fadeOutMs: 8500,
+            fadeOutMs: 8000,
             playbackRate: 1.0,
             loop: true
         });
@@ -1100,7 +1513,7 @@ const SoundEngine = {
     playRealAudioWithEnvelope(urlOrUrls, opts) {
         const urls = Array.isArray(urlOrUrls) ? urlOrUrls : [urlOrUrls];
         const isOneShot = !opts.loop;
-        const targetV = Math.min(1.0, opts.targetVolume || 0.7);
+        const targetV = Math.min(1.0, opts.targetVolume || 0.85);
 
         let currentAudio = null;
         let stopped = false;
@@ -1120,7 +1533,7 @@ const SoundEngine = {
             }
         };
 
-        const fadeOutAndStop = (durationMs = 1200) => {
+        const fadeOutAndStop = (durationMs = 1100) => {
             if (stopped || !currentAudio) {
                 cleanup();
                 return;
@@ -1142,29 +1555,43 @@ const SoundEngine = {
             this.activeTimers.add(fadeOutInt);
         };
 
-        const tryPlayIndex = (idx) => {
+        const tryPlayIndex = (idx, disableCorsBoost = false) => {
             if (stopped || this.isMuted || idx >= urls.length) {
                 cleanup();
                 return;
             }
-            const audio = new Audio(urls[idx]);
+            const audio = new Audio();
+            if (isOneShot && opts.boostViaWebAudio && !disableCorsBoost) {
+                audio.crossOrigin = 'anonymous';
+            }
+            audio.src = urls[idx];
             currentAudio = audio;
             audio.loop = !!opts.loop;
             if (opts.playbackRate) audio.playbackRate = opts.playbackRate;
 
-            // U krátkých One-Shot zvuků (pes, kočka, výstřel, kladivo) začínáme na 75 % cílové hlasitosti,
-            // aby nebyl useknutý začátek štěknutí nebo úderu! U smyček (loop) začínáme od ticha.
-            const initialVol = isOneShot ? Math.min(1.0, targetV * 0.75) : 0.008;
+            // U krátkých One-Shot zvuků začínáme rovnou na 95 % cílové hlasitosti (žádné utopení začátku štěknutí nebo meče!)
+            const initialVol = isOneShot ? Math.min(1.0, targetV * 0.95) : 0.01;
             audio.volume = initialVol;
             this.activeAudioEls.add(audio);
+
+            // Pokud je povolen Web Audio Pre-Amp Boost, propojíme element do sfxBoostGain (až 2.5× zesílení!)
+            if (isOneShot && opts.boostViaWebAudio && !disableCorsBoost && this.ctx && this.sfxBoostGain) {
+                try {
+                    const mediaSource = this.ctx.createMediaElementSource(audio);
+                    mediaSource.connect(this.sfxBoostGain);
+                } catch (e) {}
+            }
 
             let advancedToFallback = false;
             const fallbackNext = () => {
                 if (advancedToFallback || stopped) return;
                 advancedToFallback = true;
                 this.activeAudioEls.delete(audio);
-                if (idx + 1 < urls.length) {
-                    tryPlayIndex(idx + 1);
+                // Pokud server nepovolil CORS hlavičku pro WebAudio boost, okamžitě přehrajeme tutéž URL přímo na plnou hlasitost
+                if (isOneShot && opts.boostViaWebAudio && !disableCorsBoost) {
+                    tryPlayIndex(idx, true);
+                } else if (idx + 1 < urls.length) {
+                    tryPlayIndex(idx + 1, false);
                 } else {
                     cleanup();
                 }
@@ -1177,28 +1604,32 @@ const SoundEngine = {
                     cleanup();
                     return;
                 }
-                const fadeMs = isOneShot ? Math.min(120, opts.fadeInMs || 80) : (opts.fadeInMs || 2200);
-                const inSteps = Math.max(2, Math.floor(fadeMs / 40));
-                let curStep = 0;
-                fadeInInt = setInterval(() => {
-                    if (stopped || !currentAudio) {
-                        clearInterval(fadeInInt);
-                        return;
-                    }
-                    curStep++;
-                    const v = initialVol + (targetV - initialVol) * (curStep / inSteps);
-                    if (curStep >= inSteps) {
-                        audio.volume = targetV;
-                        clearInterval(fadeInInt);
-                    } else {
-                        audio.volume = Math.min(1.0, Math.max(0, v));
-                    }
-                }, 40);
-                this.activeTimers.add(fadeInInt);
+                if (isOneShot) {
+                    audio.volume = targetV;
+                } else {
+                    const fadeMs = opts.fadeInMs || 2000;
+                    const inSteps = Math.max(2, Math.floor(fadeMs / 40));
+                    let curStep = 0;
+                    fadeInInt = setInterval(() => {
+                        if (stopped || !currentAudio) {
+                            clearInterval(fadeInInt);
+                            return;
+                        }
+                        curStep++;
+                        const v = initialVol + (targetV - initialVol) * (curStep / inSteps);
+                        if (curStep >= inSteps) {
+                            audio.volume = targetV;
+                            clearInterval(fadeInInt);
+                        } else {
+                            audio.volume = Math.min(1.0, Math.max(0, v));
+                        }
+                    }, 40);
+                    this.activeTimers.add(fadeInInt);
+                }
 
-                const fadeStart = Math.max(450, (opts.totalDurationMs || 4800) - (opts.fadeOutMs || 1400));
+                const fadeStart = Math.max(600, (opts.totalDurationMs || 4800) - (opts.fadeOutMs || 1200));
                 fadeOutTimer = setTimeout(() => {
-                    fadeOutAndStop(opts.fadeOutMs || 1400);
+                    fadeOutAndStop(opts.fadeOutMs || 1200);
                 }, fadeStart);
                 this.activeTimers.add(fadeOutTimer);
             }).catch(() => {
@@ -1210,7 +1641,7 @@ const SoundEngine = {
             };
         };
 
-        tryPlayIndex(0);
+        tryPlayIndex(0, false);
 
         return {
             get audio() { return currentAudio; },
@@ -1233,10 +1664,10 @@ const SoundEngine = {
 
                 showAutoBadge(`${item.emoji} ${item.label}`);
                 this.playRealAudioWithEnvelope(item.url, {
-                    targetVolume: Math.min(0.42, this.sfxVolumeLevel * 0.26),
-                    fadeInMs: 1200,
+                    targetVolume: Math.min(0.55, this.sfxVolumeLevel * 0.36),
+                    fadeInMs: 900,
                     totalDurationMs: 5200,
-                    fadeOutMs: 2400,
+                    fadeOutMs: 2200,
                     playbackRate: 1.0,
                     loop: false
                 });
@@ -1286,9 +1717,10 @@ const SoundEngine = {
         });
     },
 
-    playInstrumentNote(freq, duration = 2.6, timbre = 'musicbox', vol = 0.40) {
+    playInstrumentNote(freq, duration = 2.6, timbre = 'musicbox', vol = 0.40, routeToSfxBoost = false) {
         if (this.isMuted || !this.ctx || !this.bgGain || freq <= 0) return;
         const now = this.ctx.currentTime;
+        const targetNode = (routeToSfxBoost && this.sfxBoostGain) ? this.sfxBoostGain : this.bgGain;
 
         const osc1 = this.ctx.createOscillator();
         const osc2 = this.ctx.createOscillator();
@@ -1319,8 +1751,8 @@ const SoundEngine = {
         osc1.connect(filter);
         osc2.connect(g2);
         filter.connect(g1);
-        g1.connect(this.bgGain);
-        g2.connect(this.bgGain);
+        g1.connect(targetNode);
+        g2.connect(targetNode);
 
         osc1.start(now); osc1.stop(now + duration + 0.06);
         osc2.start(now); osc2.stop(now + duration * 0.5);
@@ -1464,7 +1896,6 @@ const SoundEngine = {
         // B) ATMOSFÉRA A HUDBA PRO DOSPĚLÉ ČTENÁŘE (Detektivky, Fantasy, Romány)
         // ====================================================================
         else if (preset === 'jazz_noir') {
-            // Detektivní noční klavír (septakordy) + jemný déšť na střeše
             const noirChords = [
                 { b: 146.83, n1: 220.00, n2: 261.63, n3: 329.63 }, // Dm9
                 { b: 196.00, n1: 246.94, n2: 293.66, n3: 349.23 }, // G7
@@ -1486,22 +1917,18 @@ const SoundEngine = {
             this.addLoopAudio('https://actions.google.com/sounds/v1/weather/rain_on_roof.ogg', 0.38);
         }
         else if (preset === 'cafe_lounge') {
-            // Pařížská kavárna + jemný déšť za oknem
             this.addLoopAudio('https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg', 0.46);
             this.addLoopAudio('https://actions.google.com/sounds/v1/weather/light_rain.ogg', 0.26);
         }
         else if (preset === 'fireplace_storm') {
-            // Praskající krb v křesle + vzdálené hřmění a vítr
             this.addLoopAudio('https://actions.google.com/sounds/v1/ambiences/fire.ogg', 0.52);
             this.addLoopAudio('https://actions.google.com/sounds/v1/weather/distant_thunder.ogg', 0.32);
         }
         else if (preset === 'night_train') {
-            // Noční expres: rytmická jízda vlakem + déšť na okně kupé
             this.addLoopAudio('https://actions.google.com/sounds/v1/transportation/train_passing_by.ogg', 0.42);
             this.addLoopAudio('https://actions.google.com/sounds/v1/weather/rain_on_roof.ogg', 0.30);
         }
         else if (preset === 'fantasy_tavern') {
-            // Středověký hrad, oheň v krbu a baladická loutna
             const luteNotes = [
                 220.00, 261.63, 329.63, 440.00, 392.00, 329.63,
                 196.00, 246.94, 293.66, 392.00, 329.63, 246.94,
@@ -1519,7 +1946,6 @@ const SoundEngine = {
             this.addLoopAudio('https://actions.google.com/sounds/v1/ambiences/fire.ogg', 0.40);
         }
         else if (preset === 'deep_focus') {
-            // Hluboké soustředění: noční oceán + teplý šum
             this.startPinkNoiseGenerator();
             this.addLoopAudio('https://actions.google.com/sounds/v1/water/ocean_wave_rock_beach.ogg', 0.44);
         }
@@ -1599,6 +2025,7 @@ const SoundEngine = {
             try { a.pause(); a.currentTime = 0; } catch (e) {}
         });
         this.activeAudioEls.clear();
+        this.activeOneShots.clear();
         this.activeTimers.forEach(t => { clearTimeout(t); clearInterval(t); });
         this.activeTimers.clear();
         selectAmbience('off');
@@ -1610,11 +2037,15 @@ const SoundEngine = {
 };
 
 /* ============================================================================
-   SEKCE 2: ROZCESTNÍK, DYNAMICKÁ NÁLADA, LAMPIČKA A VYHODNOCOVÁNÍ SLOV
+   SEKCE 2: ROZCESTNÍK, DÉLKA POHÁDEK (5/15/30 MIN), TEMPO, HLAS A SLOVA
    ============================================================================ */
 let currentLang = 'cs';
-let currentProfile = 'kids'; // 'kids' | 'adults'
-let currentMode = 'free';    // 'free' | 'read' | 'tts' | 'silent'
+let currentProfile = 'kids';       // 'kids' | 'adults'
+let currentMode = 'free';          // 'free' | 'read' | 'tts' | 'silent'
+let currentStoryDuration = 15;     // 5 | 15 | 30 (minut čtení)
+let ttsTempoMultiplier = 0.86;     // 0.76 (Uspávací) | 0.86 (Klidné) | 0.96 (Běžné) | 1.10 (Svižné)
+let ttsVoiceStyle = 'kind';        // 'kind' (Pohádkový) | 'deep' (Hluboký) | 'clear' (Jasný)
+let selectedSystemVoiceURI = 'auto';
 let selectedLampModeId = 'candle';
 let isSessionRunning = false;
 let recognition = null;
@@ -1652,8 +2083,11 @@ function selectProfileHub(target) {
         ? '📚 Knihovna pro dospělé (Fantasy, Detektivky, Romány a Články)'
         : '📚 Knihovna dlouhých pohádek na spaní';
 
+    // Výchozí styl hlasu podle profilu (pro děti Pohádkový, pro dospělé Hluboký sametový)
+    setTtsVoiceStyle(currentProfile === 'adults' ? 'deep' : 'kind', true);
+
     populateStoryDropdown();
-    loadSelectedStory();
+    loadSelectedStory(true);
     renderAmbienceTiles();
 
     if (SoundEngine.bgMode === 'auto_mood') {
@@ -1662,16 +2096,13 @@ function selectProfileHub(target) {
 
     setStatus(currentProfile === 'adults'
         ? '🍷 Režim knih pro dospělé aktivován (dospělá atmosféra: kavárna, noční klavír, krb, expres, šerm).'
-        : '🌙 Dětské pohádky na spaní aktivovány (dlouhé pohádky, zvířátka, stroje a ukolébavky).');
+        : '🌙 Dětské pohádky na spaní aktivovány (volba délky 5/15/30 min, zvířátka, stroje a ukolébavky).');
 }
 
 function doesWordMatchStem(cleanWord, rawStem) {
     const nSt = normWord(rawStem);
     if (!nSt) return false;
     if (cleanWord === nSt) return true;
-    // Krátké 3-písmenné kořeny (např. pes, psa, kun, vlk, had, mys, les, mec, luk, sip, boj, lev)
-    // povolují skloňování do +3 znaků (např. pes -> pejsek má vlastní kořen pejs, psa -> psovi),
-    // ale nechytnou dlouhá nepříbuzná slova
     if (nSt.length <= 3) {
         return cleanWord.startsWith(nSt) && (cleanWord.length - nSt.length <= 2);
     }
@@ -1680,7 +2111,7 @@ function doesWordMatchStem(cleanWord, rawStem) {
 
 function checkWordTriggers(rawWord) {
     const clean = normWord(rawWord);
-    if (!clean || clean.length < 3) return;
+    if (!clean || clean.length < 3) return false;
 
     // 1. Vyhodnocení dynamické nálady pro plynulý crossfade podkresu
     evaluateDynamicMood(clean);
@@ -1696,7 +2127,6 @@ function checkWordTriggers(rawWord) {
     }
 
     // 3. Vyhledání všech odpovídajících zvuků a výběr nejlepší shody
-    // Preferujeme přesnou shodu kořene / delší kořen a vyšší prioritu (1 > 2 > 3)
     let bestCluster = null;
     let bestScore = -1;
 
@@ -1718,7 +2148,9 @@ function checkWordTriggers(rawWord) {
 
     if (bestCluster) {
         SoundEngine.triggerCluster(bestCluster, rawWord);
+        return true;
     }
+    return false;
 }
 
 function evaluateDynamicMood(cleanWord) {
@@ -1803,8 +2235,6 @@ function renderAmbienceTiles() {
             : '🎠 Dynamický podkres scény & Ukolébavky';
     }
 
-    // Pokud přepneme mezi dětmi a dospělými a předchozí podkres v novém režimu neexistuje,
-    // nastavíme výchozí "Dynamický podkres scény" (auto_mood)
     if (!list.some(item => item.id === SoundEngine.bgMode)) {
         SoundEngine.bgMode = 'auto_mood';
         if (isSessionRunning && !SoundEngine.isMuted) {
@@ -1851,6 +2281,7 @@ function setVolumePreset(level) {
 
     if (level === 'off') {
         SoundEngine.isMuted = true;
+        SoundEngine.ttsNarratorVolume = 1.0;
         if (badge) badge.innerText = '🔇 Zvuky vypnuty';
         if (SoundEngine.currentOneShot) {
             SoundEngine.currentOneShot.stopSmoothly(150);
@@ -1864,6 +2295,7 @@ function setVolumePreset(level) {
             try { a.pause(); a.currentTime = 0; } catch (e) {}
         });
         SoundEngine.activeAudioEls.clear();
+        SoundEngine.activeOneShots.clear();
         SoundEngine.moodCrossfadeAudios = [];
         SoundEngine.bgLoopAudios.forEach(a => {
             try { a.pause(); a.currentTime = 0; } catch (e) {}
@@ -1879,17 +2311,24 @@ function setVolumePreset(level) {
     const wasMuted = SoundEngine.isMuted;
     SoundEngine.isMuted = false;
 
+    // Vyvážený poměr mezi zvukovými efekty (sfx + boost) a hlasitostí AI Vypravěče (ttsVol),
+    // aby zvuky z knihovny nikdy nezanikly za syntezátorem řeči!
     const map = {
-        soft:   { sfx: 0.45, bg: 0.32, tail: 15.0, label: '🔉 Jemná hlasitost' },
-        medium: { sfx: 0.82, bg: 0.55, tail: 17.5, label: '🔊 Střední hlasitost' },
-        strong: { sfx: 1.00, bg: 0.82, tail: 20.0, label: '📢 Výrazná hlasitost' }
+        soft:   { sfx: 0.62, boost: 1.15, ttsVol: 0.82, bg: 0.28, tail: 15.0, label: '🔉 Jemná hlasitost' },
+        medium: { sfx: 0.92, boost: 1.85, ttsVol: 0.66, bg: 0.48, tail: 17.5, label: '🔊 Střední hlasitost' },
+        strong: { sfx: 1.00, boost: 2.50, ttsVol: 0.50, bg: 0.72, tail: 20.0, label: '📢 Výrazná (Kino dynamika)' }
     };
     const cfg = map[level] || map.medium;
     SoundEngine.sfxVolumeLevel = cfg.sfx;
+    SoundEngine.sfxGainMultiplier = cfg.boost;
+    SoundEngine.ttsNarratorVolume = cfg.ttsVol;
     SoundEngine.bgVolumeLevel = cfg.bg;
     SoundEngine.tailDurationSec = cfg.tail;
     if (badge) badge.innerText = cfg.label;
 
+    if (SoundEngine.sfxBoostGain && SoundEngine.ctx) {
+        SoundEngine.sfxBoostGain.gain.setTargetAtTime(cfg.boost, SoundEngine.ctx.currentTime, 0.05);
+    }
     if (SoundEngine.bgGain && SoundEngine.ctx) {
         SoundEngine.bgGain.gain.setTargetAtTime(cfg.bg, SoundEngine.ctx.currentTime, 0.1);
     }
@@ -1920,7 +2359,7 @@ function setSleepTimerPreset(minutes) {
         remSec--;
         if (remSec <= 60 && remSec > 0 && !SoundEngine.isMuted) {
             const ratio = remSec / 60;
-            SoundEngine.sfxVolumeLevel = Math.max(0.05, 0.80 * ratio);
+            SoundEngine.sfxVolumeLevel = Math.max(0.05, 0.85 * ratio);
             if (SoundEngine.bgGain && SoundEngine.ctx) {
                 SoundEngine.bgGain.gain.setTargetAtTime(SoundEngine.bgVolumeLevel * ratio, SoundEngine.ctx.currentTime, 0.5);
             }
@@ -1934,7 +2373,7 @@ function setSleepTimerPreset(minutes) {
 }
 
 /* ============================================================================
-   SEKCE 4: REŽIMY ČTENÍ A OPRAVENÝ AI VYPRAVĚČ (100% SYNCHRO I NA ANDROIDU)
+   SEKCE 4: REŽIMY ČTENÍ, VOLBA DÉLKY (5/15/30 MIN), TEMPO, HLAS A AI VYPRAVĚČ
    ============================================================================ */
 function switchMode(mode) {
     stopActiveSession();
@@ -1944,8 +2383,182 @@ function switchMode(mode) {
         b.classList.toggle('active', b.dataset.mode === mode);
     });
 
-    document.getElementById('storyTile').classList.toggle('visible', mode !== 'free');
+    // Plynulá animace rozbalení / sbalení rovniny (žádné blikání display:none)
+    const storyTile = document.getElementById('storyTile');
+    if (storyTile) {
+        storyTile.classList.toggle('visible', mode !== 'free');
+    }
     updateMainButtonLabel();
+}
+
+function setStoryDuration(mins) {
+    currentStoryDuration = mins;
+    document.querySelectorAll('[data-dur]').forEach(b => {
+        b.classList.toggle('active', parseInt(b.dataset.dur, 10) === mins);
+    });
+
+    const wasRunning = isSessionRunning && (currentMode === 'tts' || currentMode === 'silent');
+    if (wasRunning) stopActiveSession();
+
+    loadSelectedStory(true);
+
+    const labelMap = {
+        5: '⚡ Krátká verze pohádky (do 5 minut)',
+        15: '🌙 Střední výpravná verze (do 15 minut)',
+        30: '🌌 Dlouhá uspávací verze do hluboké noci (do 30 minut)'
+    };
+    setStatus(`${labelMap[mins] || labelMap[15]} je připravena ke čtení.`);
+
+    if (wasRunning) {
+        setTimeout(() => startActiveSession(), 200);
+    }
+}
+
+function setTtsTempo(mult) {
+    ttsTempoMultiplier = mult;
+    document.querySelectorAll('[data-tempo]').forEach(b => {
+        b.classList.toggle('active', Math.abs(parseFloat(b.dataset.tempo) - mult) < 0.01);
+    });
+
+    // Pokud AI Vypravěč zrovna čte, plynule aplikujeme nové tempo od aktuální věty
+    if (isSessionRunning && currentMode === 'tts') {
+        window.speechSynthesis.cancel();
+        if (ttsWordTimer) clearTimeout(ttsWordTimer);
+        if (ttsSentenceTimer) clearTimeout(ttsSentenceTimer);
+        startAiStoryReading();
+    } else {
+        const names = { 0.76: '🐢 Uspávací', 0.86: '🌙 Klidné', 0.96: '📖 Běžné', 1.1: '⚡ Svižné' };
+        setStatus(`⏱️ Tempo čtení AI Vypravěče nastaveno na: ${names[mult] || (mult + '×')}.`);
+    }
+}
+
+function setTtsVoiceStyle(style, silentUpdate = false) {
+    ttsVoiceStyle = style;
+    document.querySelectorAll('[data-vstyle]').forEach(b => {
+        b.classList.toggle('active', b.dataset.vstyle === style);
+    });
+
+    if (!silentUpdate) {
+        if (isSessionRunning && currentMode === 'tts') {
+            window.speechSynthesis.cancel();
+            if (ttsWordTimer) clearTimeout(ttsWordTimer);
+            if (ttsSentenceTimer) clearTimeout(ttsSentenceTimer);
+            startAiStoryReading();
+        } else {
+            const names = { kind: '🧸 Pohádkový laskavý', deep: '🍷 Hluboký sametový', clear: '✨ Jasný přirozený' };
+            setStatus(`🎙️ Charakter hlasu AI Vypravěče nastaven na: ${names[style] || style}.`);
+        }
+    }
+}
+
+function populateSystemVoices() {
+    if (!('speechSynthesis' in window)) return;
+    const sel = document.getElementById('ttsVoiceSelect');
+    if (!sel) return;
+
+    const allVoices = window.speechSynthesis.getVoices() || [];
+    if (!allVoices.length) return;
+
+    const prevVal = sel.value || selectedSystemVoiceURI;
+    sel.innerHTML = '<option value="auto">🎙️ Automatický nejlepší hlas v zařízení</option>';
+
+    // Upřednostníme české a slovenské hlasy + anglické hlasy pro EN režim
+    const targetPrefix = currentLang === 'cs' ? ['cs', 'sk'] : ['en'];
+    const matching = allVoices.filter(v => targetPrefix.some(p => (v.lang || '').toLowerCase().startsWith(p)));
+    const listToShow = matching.length > 0 ? matching : allVoices.slice(0, 15);
+
+    listToShow.forEach(v => {
+        const opt = document.createElement('option');
+        opt.value = v.voiceURI;
+        const qualityBadge = /natural|online|neural|google|microsoft/i.test(v.name) ? '★ ' : '';
+        opt.innerText = `${qualityBadge}${v.name} (${v.lang})`;
+        sel.appendChild(opt);
+    });
+
+    if ([...sel.options].some(o => o.value === prevVal)) {
+        sel.value = prevVal;
+    }
+}
+
+function onSystemVoiceChange() {
+    const sel = document.getElementById('ttsVoiceSelect');
+    if (!sel) return;
+    selectedSystemVoiceURI = sel.value || 'auto';
+    if (isSessionRunning && currentMode === 'tts') {
+        window.speechSynthesis.cancel();
+        if (ttsWordTimer) clearTimeout(ttsWordTimer);
+        if (ttsSentenceTimer) clearTimeout(ttsSentenceTimer);
+        startAiStoryReading();
+    }
+}
+
+function resolveBestUtteranceVoice() {
+    if (!('speechSynthesis' in window)) return null;
+    const voices = window.speechSynthesis.getVoices() || [];
+    if (!voices.length) return null;
+
+    if (selectedSystemVoiceURI && selectedSystemVoiceURI !== 'auto') {
+        const exact = voices.find(v => v.voiceURI === selectedSystemVoiceURI);
+        if (exact) return exact;
+    }
+
+    const langPref = currentLang === 'cs' ? 'cs' : 'en';
+    const candidates = voices.filter(v => (v.lang || '').toLowerCase().startsWith(langPref));
+    if (!candidates.length) return null;
+
+    // Pokud uživatel zvolil Hluboký hlas a v systému je mužský hlas (např. Antonín), nebo Pohádkový (Vlasta/Zuzana)
+    if (ttsVoiceStyle === 'deep') {
+        const male = candidates.find(v => /antonin|antonín|jakub|male|david|daniel/i.test(v.name));
+        if (male) return male;
+    } else if (ttsVoiceStyle === 'kind') {
+        const female = candidates.find(v => /vlasta|zuzana|female|google/i.test(v.name));
+        if (female) return female;
+    }
+
+    // Jinak vybereme nejkvalitnější Natural / Online hlas
+    const natural = candidates.find(v => /natural|online|neural|microsoft|google/i.test(v.name));
+    return natural || candidates[0];
+}
+
+function applyVoiceStyleAndTempo(utterance, progressRatio = 0) {
+    utterance.lang = currentLang === 'cs' ? 'cs-CZ' : 'en-US';
+    const chosenVoice = resolveBestUtteranceVoice();
+    if (chosenVoice) utterance.voice = chosenVoice;
+
+    // Jemné zpomalení ke konci dlouhé pohádky pro přirozené uspávání
+    const sleepSlowdown = currentProfile === 'kids' ? (progressRatio * 0.05) : (progressRatio * 0.02);
+    const baseRate = Math.max(0.68, Math.min(1.25, ttsTempoMultiplier - sleepSlowdown));
+
+    if (ttsVoiceStyle === 'kind') {
+        utterance.rate = baseRate;
+        utterance.pitch = 1.03;
+    } else if (ttsVoiceStyle === 'deep') {
+        utterance.rate = Math.max(0.68, baseRate * 0.96);
+        utterance.pitch = 0.84;
+    } else {
+        utterance.rate = baseRate;
+        utterance.pitch = 0.96;
+    }
+
+    // Klíčové: vyvážená hlasitost vypravěče, aby zvukové efekty z knihovny měly prostor a byly jasně slyšet!
+    utterance.volume = SoundEngine.isMuted ? 1.0 : SoundEngine.ttsNarratorVolume;
+    return utterance.rate;
+}
+
+function previewTtsVoice() {
+    if (!('speechSynthesis' in window)) return;
+    SoundEngine.init();
+    window.speechSynthesis.cancel();
+    const sampleText = currentLang === 'cs'
+        ? (currentProfile === 'adults'
+            ? 'Venku za oknem kavárny tiše pršelo, v krbu praskal oheň a noční vlak houkal v dálce.'
+            : 'Bylo nebylo, v hlubokém lese pod stříbrným měsícem tiše vrněla malá kočička a v dálce zahoukala sova.')
+        : 'Once upon a time, under the silver moon, a gentle breeze whispered through the quiet forest.';
+
+    const u = new SpeechSynthesisUtterance(sampleText);
+    applyVoiceStyleAndTempo(u, 0);
+    window.speechSynthesis.speak(u);
+    setStatus('🔊 Ukázka zvoleného hlasu a tempa AI Vypravěče...');
 }
 
 function updateMainButtonLabel() {
@@ -2039,7 +2652,6 @@ function startVoiceRecognition() {
                 const clean = normWord(word);
                 if (clean.length < 3) continue;
 
-                // Každé slovo na dané pozici ve větě vyhodnotíme pouze tehdy, když je nové nebo se zpřesnilo
                 if (processedSpeechWords[i][wIdx] !== clean) {
                     processedSpeechWords[i][wIdx] = clean;
                     checkWordTriggers(word);
@@ -2061,18 +2673,19 @@ function startVoiceRecognition() {
 }
 
 /* ============================================================================
-   OPRAVENÝ AI VYPRAVĚČ (TTS):
-   - Čte po větách s přirozenými pauzami na nádech a zlidštěnou intonací
-   - Vlastní synchronizační časovač podle počtu slabik/znaků (100% funkční na Androidu v Chrome,
-     kde u češtiny nefunguje utterance.onboundary)
+   ROZHLASOVÝ AI VYPRAVĚČ v6.3.0:
+   - Respektuje zvolené Tempo (Uspávací / Klidné / Běžné / Svižné) a Hlas
+   - Vyvažuje hlasitost řeči vůči zvukům z knihovny, aby každý zvuk jasně vynikl
+   - DRAMATICKÁ PAUZA ZA VĚTOU: Pokud ve větě zazněl jeden nebo více zvuků,
+     AI Vypravěč na tečce za větou chvilku počká (1,6 s až 3,2 s), aby zvuky
+     mohly v klidu doznít jako ve filmové či rozhlasové inscenaci!
    ============================================================================ */
-function estimateWordDurationMs(word, rate = 0.88) {
+function estimateWordDurationMs(word, rate = 0.86) {
     const clean = normWord(word);
-    // Počet samohlásek / slabik + délka slova určuje přesný čas vyslovení
     const syllables = Math.max(1, (word.match(/[aeiouyáéěíóúůýřlnr]/gi) || []).length);
     let ms = (115 + syllables * 78 + clean.length * 14) / rate;
-    if (/[,;–—]/.test(word)) ms += 180;
-    return Math.max(190, Math.min(950, ms));
+    if (/[,;–—]/.test(word)) ms += 190 / rate;
+    return Math.max(175, Math.min(1050, ms));
 }
 
 function startAiStoryReading() {
@@ -2083,7 +2696,7 @@ function startAiStoryReading() {
     }
     window.speechSynthesis.cancel();
 
-    if (!storyWordsData.length) loadSelectedStory();
+    if (!storyWordsData.length) loadSelectedStory(false);
 
     // Seskupíme slova do vět s přesnými indexy slov pro 100% synchronizaci odbarvování a zvuků
     const sentences = [];
@@ -2094,14 +2707,25 @@ function startAiStoryReading() {
         const w = storyWordsData[i];
         curWords.push(w);
         curIndices.push(i);
-        if (/[.!?…]+["„“»']*$/.test(w) || curWords.length >= 22) {
-            sentences.push({ text: curWords.join(' '), indices: [...curIndices], words: [...curWords] });
+        const endsWithPunct = /[.!?…]+["„“»')]*$/.test(w);
+        if (endsWithPunct || curWords.length >= 22) {
+            sentences.push({
+                text: curWords.join(' '),
+                indices: [...curIndices],
+                words: [...curWords],
+                isFullSentenceEnd: endsWithPunct
+            });
             curWords = [];
             curIndices = [];
         }
     }
     if (curWords.length > 0) {
-        sentences.push({ text: curWords.join(' '), indices: [...curIndices], words: [...curWords] });
+        sentences.push({
+            text: curWords.join(' '),
+            indices: [...curIndices],
+            words: [...curWords],
+            isFullSentenceEnd: true
+        });
     }
 
     if (!sentences.length) {
@@ -2110,7 +2734,7 @@ function startAiStoryReading() {
         return;
     }
 
-    setStatus('🎧 AI vypravěč čte s přirozenou intonací a přesnou synchronizací slov i zvuků...');
+    setStatus('🎧 AI Vypravěč předčítá příběh s filmovou dynamikou a pauzami pro dozvuk zvuků...');
 
     let sPtr = 0;
     const speakNextSentence = () => {
@@ -2122,19 +2746,17 @@ function startAiStoryReading() {
         }
 
         const sent = sentences[sPtr++];
-        const utterance = new SpeechSynthesisUtterance(sent.text);
-        utterance.lang = currentLang === 'cs' ? 'cs-CZ' : 'en-US';
+        // Vyčistíme seznam zvuků spuštěných v této větě
+        SoundEngine.sentenceSfxEvents = [];
 
-        // Zlidštění hlasu: jemná variace tempa a výšky podle pozice v příběhu (ke konci klidnější)
+        const utterance = new SpeechSynthesisUtterance(sent.text);
         const progress = sent.indices[0] / Math.max(1, storyWordsData.length);
-        const rate = Math.max(0.80, 0.89 - progress * 0.06);
-        utterance.rate = rate;
-        utterance.pitch = currentProfile === 'adults' ? 0.90 : 0.95;
+        const rate = applyVoiceStyleAndTempo(utterance, progress);
 
         let localWordPtr = 0;
         let boundaryFired = false;
 
-        // Vlastní synchronizační časovač podle délky slov a slabik (100% funkční na Androidu v Chrome)
+        // Vlastní synchronizační časovač podle délky slov a slabik (100% funkční na Androidu i Desktopu)
         const stepWordSync = () => {
             if (!isSessionRunning || currentMode !== 'tts') return;
             if (localWordPtr >= sent.indices.length) return;
@@ -2147,17 +2769,17 @@ function startAiStoryReading() {
 
             localWordPtr++;
             if (localWordPtr < sent.indices.length && !boundaryFired) {
-                const dur = estimateWordDurationMs( wordStr, rate );
+                const dur = estimateWordDurationMs(wordStr, rate);
                 ttsWordTimer = setTimeout(stepWordSync, dur);
             }
         };
 
         utterance.onstart = () => {
             if (!isSessionRunning || currentMode !== 'tts') return;
+            setStatus('🎧 AI Vypravěč čte... (zvuky mají přednost a po tečce dostanou prostor doznít)');
             stepWordSync();
         };
 
-        // Pokud prohlížeč (např. desktop) nativní onboundary podporuje, zpřesníme ukazatel bez dvojího spuštění
         utterance.onboundary = (e) => {
             if (e.name === 'word') {
                 boundaryFired = true;
@@ -2178,7 +2800,6 @@ function startAiStoryReading() {
 
         utterance.onend = () => {
             if (ttsWordTimer) { clearTimeout(ttsWordTimer); ttsWordTimer = null; }
-            // Доčteme případná zbývající slova věty, pokud syntezátor skončil dříve
             while (localWordPtr < sent.indices.length && isSessionRunning && currentMode === 'tts') {
                 const gIdx = sent.indices[localWordPtr];
                 highlightWordAt(gIdx);
@@ -2186,9 +2807,30 @@ function startAiStoryReading() {
                 localWordPtr++;
             }
             if (!isSessionRunning || currentMode !== 'tts') return;
-            // Přirozená lidská pauza na nádech mezi větami (550–750 ms)
-            const breathPause = 560 + Math.floor(Math.random() * 180);
-            ttsSentenceTimer = setTimeout(speakNextSentence, breathPause);
+
+            // VÝPOČET DYNAMICKÉ ROZHLASOVÉ PAUZY ZA TEČKOU:
+            // Pokud ve větě zazněl 1 nebo více zvuků, počkáme, aby si je posluchač vychutnal v plné kráse!
+            const events = SoundEngine.sentenceSfxEvents || [];
+            let pauseMs = Math.round((560 + Math.random() * 180) / Math.max(0.75, rate));
+
+            if (events.length > 0 && !SoundEngine.isMuted && sent.isFullSentenceEnd) {
+                const now = Date.now();
+                const lastEv = events[events.length - 1];
+                const elapsedSinceLast = Math.max(0, now - lastEv.time);
+                const remainingBodyMs = Math.max(0, Math.min(2800, (lastEv.durMs * 0.62) - elapsedSinceLast));
+                const hasDramaticPrio1 = events.some(ev => ev.priority === 1);
+
+                if (events.length >= 2 || hasDramaticPrio1) {
+                    pauseMs = Math.max(2200, Math.min(3200, 1450 + remainingBodyMs + (events.length - 1) * 450));
+                } else {
+                    pauseMs = Math.max(1500, Math.min(2400, 1050 + remainingBodyMs));
+                }
+
+                const uniqueNames = [...new Set(events.map(e => `${e.emoji} ${e.label}`))].slice(0, 3).join(', ');
+                setStatus(`🎭 Doznívá zvuková scéna za větou (${uniqueNames})...`);
+            }
+
+            ttsSentenceTimer = setTimeout(speakNextSentence, pauseMs);
         };
 
         utterance.onerror = () => {
@@ -2214,10 +2856,14 @@ function startSilentPacer() {
             return;
         }
         const raw = storyWordsData[currentWordIndex];
+        const triggered = checkWordTriggers(raw);
         highlightWordAt(currentWordIndex);
-        checkWordTriggers(raw);
 
-        const delay = estimateWordDurationMs(raw, 0.92) + (/[.!?…]/.test(raw) ? 420 : 0);
+        const isEndSentence = /[.!?…]/.test(raw);
+        let delay = estimateWordDurationMs(raw, ttsTempoMultiplier);
+        if (isEndSentence) {
+            delay += triggered ? 1350 : 480;
+        }
         currentWordIndex++;
         silentInterval = setTimeout(stepNextWord, delay);
     };
@@ -2225,56 +2871,100 @@ function startSilentPacer() {
 }
 
 /* ============================================================================
-   SEKCE 5: ČTEČKA A OPRAVENÉ OCR PRO STRÁNKY S ILUSTRACEMI (CROP + PRAHOVÁNÍ)
+   SEKCE 5: ČTEČKA (5/15/30 MIN), PLYNULÉ ANIMACE ROVNINY A OCR S OŘEZEM
    ============================================================================ */
-function loadSelectedStory() {
+function loadSelectedStory(animatePlane = true) {
     const list = STORIES[getStoryKey()] || STORIES.kids_cs;
     const idx = parseInt(document.getElementById('storySelect').value || '0', 10);
     const story = list[idx] || list[0];
-    const switchBar = document.getElementById('articleModeSwitchBar');
-    if (story) {
-        if (switchBar) {
-            if (story.isUrlArticle && story.summaryText && story.fullText) {
-                switchBar.classList.add('active');
-                const variant = story.activeVariant || 'summary';
-                document.getElementById('readerSwitchSummaryBtn').classList.toggle('active', variant === 'summary');
-                document.getElementById('readerSwitchFullBtn').classList.toggle('active', variant === 'full');
-                renderStoryText(variant === 'full' ? story.fullText : story.summaryText);
-            } else {
-                switchBar.classList.remove('active');
-                renderStoryText(story.text);
-            }
+    if (!story) return;
+
+    const switchPlane = document.getElementById('articleModeSwitchPlane');
+    const durPlane = document.getElementById('storyDurationPlane');
+    const lenBadge = document.getElementById('storyLengthBadge');
+
+    let finalText = story.text || '';
+
+    if (story.isUrlArticle && story.summaryText && story.fullText) {
+        // U načteného článku z URL plynule rozbalíme lištu Výtah/Celý článek a sbalíme volbu 5/15/30 min
+        if (switchPlane) switchPlane.classList.add('open');
+        if (durPlane) durPlane.classList.remove('open');
+        const variant = story.activeVariant || 'summary';
+        document.getElementById('readerSwitchSummaryBtn').classList.toggle('active', variant === 'summary');
+        document.getElementById('readerSwitchFullBtn').classList.toggle('active', variant === 'full');
+        finalText = variant === 'full' ? story.fullText : story.summaryText;
+        const wCount = finalText.trim().split(/\s+/).length;
+        const estMin = Math.max(1, Math.round(wCount / 115));
+        if (lenBadge) lenBadge.innerText = `📰 Článek (~${estMin} min, ${wCount} slov) • Ťukni na slovo pro zvuk`;
+    } else {
+        if (switchPlane) switchPlane.classList.remove('open');
+        const isCustomOrOcr = !!story.isCustom;
+        if (durPlane) durPlane.classList.toggle('open', !isCustomOrOcr);
+
+        if (!isCustomOrOcr && typeof getStoryTextByDuration === 'function') {
+            finalText = getStoryTextByDuration(story, currentStoryDuration, currentProfile, currentLang);
         } else {
-            renderStoryText(story.text);
+            finalText = story.text || '';
+        }
+
+        const wCount = finalText.trim().split(/\s+/).length;
+        const durIcon = currentStoryDuration === 5 ? '⚡ Do 5 min' : (currentStoryDuration === 30 ? '🌌 Do 30 min' : '🌙 Do 15 min');
+        if (lenBadge) {
+            lenBadge.innerText = isCustomOrOcr
+                ? `📖 Vlastní text (${wCount} slov) • Ťukni na slovo pro zvuk`
+                : `${durIcon} (${wCount} slov) • Ťukni na slovo pro zvuk`;
         }
     }
+
+    renderStoryText(finalText, animatePlane);
 }
 
-function renderStoryText(text) {
+function renderStoryText(text, animatePlane = false) {
     const box = document.getElementById('readerBox');
-    box.innerHTML = '';
-    storyWordsData = text.trim().split(/\s+/);
-    currentWordIndex = 0;
+    if (!box) return;
 
-    storyWordsData.forEach((word, idx) => {
-        const span = document.createElement('span');
-        span.className = 'w-tok';
-        span.id = `w-${idx}`;
-        span.innerText = word;
+    const populateTokens = () => {
+        box.innerHTML = '';
+        storyWordsData = text.trim().split(/\s+/);
+        currentWordIndex = 0;
 
-        const clean = normWord(word);
-        const hasSfx = clean.length >= 3 && SOUND_LIBRARY.some(c => c.stems.some(s => doesWordMatchStem(clean, s)));
-        if (hasSfx) span.classList.add('trig-sfx');
+        storyWordsData.forEach((word, idx) => {
+            const span = document.createElement('span');
+            span.className = 'w-tok';
+            span.id = `w-${idx}`;
+            span.innerText = word;
 
-        span.onclick = () => {
-            currentWordIndex = idx;
-            highlightWordAt(idx);
-            checkWordTriggers(word);
-        };
+            const clean = normWord(word);
+            const hasSfx = clean.length >= 3 && SOUND_LIBRARY.some(c => c.stems.some(s => doesWordMatchStem(clean, s)));
+            if (hasSfx) span.classList.add('trig-sfx');
 
-        box.appendChild(span);
-        box.appendChild(document.createTextNode(' '));
-    });
+            span.onclick = () => {
+                currentWordIndex = idx;
+                highlightWordAt(idx);
+                checkWordTriggers(word);
+            };
+
+            box.appendChild(span);
+            box.appendChild(document.createTextNode(' '));
+        });
+
+        // Přednačteme zvuky obsažené v příběhu pro nulovou latenci při čtení
+        SoundEngine.preloadStorySounds(storyWordsData);
+    };
+
+    if (animatePlane && box.childNodes.length > 0) {
+        box.style.opacity = '0';
+        box.style.transform = 'perspective(900px) rotateX(-3deg) translateY(6px)';
+        setTimeout(() => {
+            populateTokens();
+            requestAnimationFrame(() => {
+                box.style.opacity = '1';
+                box.style.transform = 'perspective(900px) rotateX(0deg) translateY(0)';
+            });
+        }, 140);
+    } else {
+        populateTokens();
+    }
 }
 
 function highlightWordAt(idx) {
@@ -2467,10 +3157,10 @@ async function confirmOcrRecognize() {
         const cleaned = (res.data.text || '').replace(/\s+/g, ' ').trim();
         if (cleaned.length > 8) {
             const key = getStoryKey();
-            STORIES[key].unshift({ title: '📷 Vyfocená stránka knihy (oříznutý text)', text: cleaned });
+            STORIES[key].unshift({ title: '📷 Vyfocená stránka knihy (oříznutý text)', text: cleaned, isCustom: true });
             populateStoryDropdown();
             document.getElementById('storySelect').value = '0';
-            loadSelectedStory();
+            loadSelectedStory(true);
             setStatus('✅ Text ze stránky (mimo ilustrace) byl úspěšně přečten a napojen na reálné zvuky!');
         } else {
             setStatus('⚠️ V oříznuté oblasti nebyl rozpoznán text. Zkus vyznačit větší odstavec.');
@@ -2484,18 +3174,23 @@ function promptCustomText() {
     const txt = prompt('Vlož vlastní text pohádky nebo kapitoly knihy:');
     if (txt && txt.trim().length > 5) {
         const key = getStoryKey();
-        STORIES[key].unshift({ title: '✍️ Vlastní vložený příběh', text: txt.trim() });
+        STORIES[key].unshift({ title: '✍️ Vlastní vložený příběh', text: txt.trim(), isCustom: true });
         populateStoryDropdown();
         document.getElementById('storySelect').value = '0';
-        loadSelectedStory();
+        loadSelectedStory(true);
         setStatus('✅ Vlastní příběh byl vložen a připraven ke čtení.');
     }
 }
 
 /* ============================================================================
-   SEKCE 5B: NAČTENÍ ČLÁNKU Z URL (SEZNAM ZPRÁVY, NOVINKY, WEB) + VÝTAH NEJDŮLEŽITĚJŠÍHO
+   SEKCE 5B: PŘESNÁ EXTRAKCE ČLÁNKU Z URL (SEZNAM ZPRÁVY, NOVINKY, MÉDIUM, WEB)
+   - Vytáhne výhradně čisté odstavce článku kolem hlavního nadpisu (žádné cizí nadpisy,
+     žádné upoutávky „Čtěte také / Nejčtenější / Mohlo by vás zajímat“ ani menu stránky)
+   - Automatické vymazání pole URL po načtení i při otevření okna
+   - Ukládání historie načtených článků v localStorage pro okamžité znovunačtení jedním ťuknutím
    ============================================================================ */
 let urlExtractMode = 'summary'; // 'summary' | 'full'
+const URL_HISTORY_STORAGE_KEY = 'atmoread_url_history_v63';
 
 const CZ_EN_STOPWORDS = new Set([
     'a','i','o','u','v','z','s','k','na','do','po','od','za','pro','při','před','nad','pod','mezi',
@@ -2512,15 +3207,37 @@ function openUrlModal() {
     const savedKey = localStorage.getItem('atmoread_gemini_key') || '';
     const keyInput = document.getElementById('geminiApiKeyInput');
     if (keyInput && savedKey) keyInput.value = savedKey;
+
+    // Automaticky vyprázdníme pole pro URL při otevření okna, aby uživatel nemusel mazat starý odkaz!
+    const inp = document.getElementById('articleUrlInput');
+    if (inp) inp.value = '';
+
+    const statusEl = document.getElementById('urlModalStatus');
+    if (statusEl) {
+        statusEl.innerText = 'Vlož nový odkaz (pole je automaticky vyčištěné) nebo vyber dříve načtený článek z historie níže.';
+    }
+
+    renderUrlHistoryList();
     document.getElementById('urlModal').classList.add('active');
     setTimeout(() => {
-        const inp = document.getElementById('articleUrlInput');
         if (inp) inp.focus();
-    }, 80);
+    }, 90);
 }
 
 function closeUrlModal() {
     document.getElementById('urlModal').classList.remove('active');
+}
+
+function clearUrlInputField() {
+    const inp = document.getElementById('articleUrlInput');
+    if (inp) {
+        inp.value = '';
+        inp.focus();
+    }
+    const statusEl = document.getElementById('urlModalStatus');
+    if (statusEl) {
+        statusEl.innerText = '🧹 Pole pro URL bylo vyčištěno. Můžeš vložit další odkaz.';
+    }
 }
 
 async function pasteUrlFromClipboard() {
@@ -2531,9 +3248,129 @@ async function pasteUrlFromClipboard() {
             document.getElementById('urlModalStatus').innerText = '📋 Odkaz byl vložen ze schránky. Klepni na zelené tlačítko dole!';
         }
     } catch (e) {
-        document.getElementById('articleUrlInput').focus();
-        document.getElementById('urlModalStatus').innerText = 'ℹ️ Podrž prst v poli pro URL (nebo stiskni Ctrl+V) a vlož odkaz.';
+        const inp = document.getElementById('articleUrlInput');
+        if (inp) {
+            inp.value = '';
+            inp.focus();
+        }
+        document.getElementById('urlModalStatus').innerText = 'ℹ️ Pole je připravené – podrž v něm prst (nebo stiskni Ctrl+V) a vlož odkaz.';
     }
+}
+
+function getSavedUrlHistory() {
+    try {
+        const raw = localStorage.getItem(URL_HISTORY_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+        return [];
+    }
+}
+
+function saveArticleToHistory(entry) {
+    try {
+        let list = getSavedUrlHistory();
+        // Odstraníme případný starší záznam se stejnou URL nebo stejným titulkem
+        list = list.filter(item => item.url !== entry.url && item.title !== entry.title);
+        list.unshift({
+            url: entry.url,
+            title: entry.title,
+            summaryText: entry.summaryText,
+            fullText: entry.fullText,
+            savedAt: new Date().toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' })
+        });
+        if (list.length > 10) list = list.slice(0, 10);
+        localStorage.setItem(URL_HISTORY_STORAGE_KEY, JSON.stringify(list));
+        renderUrlHistoryList();
+    } catch (e) {}
+}
+
+function clearUrlHistory() {
+    try {
+        localStorage.removeItem(URL_HISTORY_STORAGE_KEY);
+    } catch (e) {}
+    renderUrlHistoryList();
+    const statusEl = document.getElementById('urlModalStatus');
+    if (statusEl) statusEl.innerText = '🗑️ Historie předchozích článků byla vymazána.';
+}
+
+function removeSingleHistoryItem(idx, ev) {
+    if (ev) ev.stopPropagation();
+    try {
+        const list = getSavedUrlHistory();
+        list.splice(idx, 1);
+        localStorage.setItem(URL_HISTORY_STORAGE_KEY, JSON.stringify(list));
+        renderUrlHistoryList();
+    } catch (e) {}
+}
+
+function renderUrlHistoryList() {
+    const wrap = document.getElementById('urlHistoryWrap');
+    const listEl = document.getElementById('urlHistoryList');
+    if (!wrap || !listEl) return;
+
+    const history = getSavedUrlHistory();
+    if (!history.length) {
+        wrap.classList.remove('open');
+        listEl.innerHTML = '';
+        return;
+    }
+
+    wrap.classList.add('open');
+    listEl.innerHTML = '';
+
+    history.forEach((item, idx) => {
+        const row = document.createElement('div');
+        row.className = 'url-history-item';
+        row.onclick = () => loadArticleFromHistory(idx);
+
+        let domain = '';
+        try { domain = new URL(item.url).hostname.replace(/^www\./, ''); } catch (e) { domain = item.url; }
+
+        row.innerHTML = `
+            <span style="font-size:18px;">📰</span>
+            <div style="flex:1; min-width:0;">
+                <div class="uh-title">${item.title}</div>
+                <div class="uh-url">${domain} • uloženo v ${item.savedAt || 'dnes'}</div>
+            </div>
+            <button class="uh-del" title="Odstranit z historie" onclick="removeSingleHistoryItem(${idx}, event)">✕</button>
+        `;
+        listEl.appendChild(row);
+    });
+}
+
+function loadArticleFromHistory(idx) {
+    const history = getSavedUrlHistory();
+    const item = history[idx];
+    if (!item) return;
+
+    const activeText = urlExtractMode === 'full' ? item.fullText : item.summaryText;
+    const key = getStoryKey();
+
+    // Odstraníme duplicitní výskyt ve STORIES, pokud už tam je
+    STORIES[key] = (STORIES[key] || []).filter(s => s.sourceUrl !== item.url);
+    STORIES[key].unshift({
+        title: `🔗 ${item.title.slice(0, 62)}${item.title.length > 62 ? '…' : ''}`,
+        text: activeText,
+        summaryText: item.summaryText,
+        fullText: item.fullText,
+        activeVariant: urlExtractMode,
+        isUrlArticle: true,
+        sourceUrl: item.url
+    });
+
+    populateStoryDropdown();
+    document.getElementById('storySelect').value = '0';
+
+    switchMode('tts');
+    loadSelectedStory(true);
+    closeUrlModal();
+
+    showAutoBadge('🕘 Načteno z historie článků');
+    setStatus(`✅ Článek „${item.title}“ načten z historie! Spouštím 🎧 AI Vypravěče...`);
+
+    if (isSessionRunning) stopActiveSession();
+    startActiveSession();
 }
 
 function setUrlExtractMode(mode) {
@@ -2553,24 +3390,105 @@ function switchLoadedArticleVariant(variant) {
 
     story.activeVariant = variant === 'full' ? 'full' : 'summary';
     story.text = story.activeVariant === 'full' ? story.fullText : story.summaryText;
-    loadSelectedStory();
+    loadSelectedStory(true);
 
     setStatus(story.activeVariant === 'summary'
         ? '⚡ Zobrazen výtah toho nejdůležitějšího z článku. Klepni na SPUSTIT pro čtení AI Vypravěčem!'
-        : '📰 Zobrazen celý čistý článek bez reklam. Klepni na SPUSTIT pro čtení AI Vypravěčem!');
+        : '📰 Zobrazen celý čistý článek (pouze odstavce kolem nadpisu bez cizích témat).');
 
     if (wasRunning) {
         setTimeout(() => startActiveSession(), 180);
     }
 }
 
-function cleanNoiseLines(rawText) {
-    const lines = rawText.split(/\r?\n/);
-    const cleaned = [];
-    for (let line of lines) {
-        let l = line
-            .replace(/!\[[^\]]*\]\([^)]*\)/g, '') // pryč obrázky v markdownu
-            .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1') // z odkazů [text](url) necháme jen čitelný text
+function cleanSiteSuffixFromTitle(rawTitle) {
+    return (rawTitle || '')
+        .replace(/\s*[-|–—•]\s*(Seznam Zprávy|Seznam\.cz|Novinky\.cz|Médium\.cz|Medium\.cz|Proženy\.cz|Sport\.cz|Super\.cz|Garáž\.cz|Kupi\.cz|iDNES\.cz|Aktuálně\.cz|ČT24|Deník\.cz|HN\.cz|Reflex\.cz|E15\.cz).*$/i, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+/* ============================================================================
+   CHIRURGICKÝ EXTRAKTOR ČISTÉHO ČLÁNKU KOLEM NADPISU (SPECIÁLNĚ VYLADĚNÝ PRO SEZNAM):
+   1. Najde v textu hlavní nadpis článku a zahodí vše nad ním (horní lišty, počasí, cizí upoutávky).
+   2. Okamžitě ukončí čtení, jakmile narazí na konec článku („Související“, „Čtěte také“, „Další články“,
+      „Nejčtenější“, „Mohlo by vás zajímat“, „Diskuze“, „Témata“, „Výběr z portálu“).
+   3. Zahodí všechny řádky, které jsou z více než 36 % tvořené odkazy [Jiný nadpis](https://...),
+      protože na Seznamu jsou odkazy na jiná témata právě klikací nadpisy.
+   4. Ponechá výhradně skutečné větné odstavce končící větnou interpunkcí (. ! ? … „ “ "),
+      čímž 100% odfiltruje osamocené nadpisy jiných článků, které tečkou nekončí!
+   ============================================================================ */
+function extractPureArticleFromMarkdown(rawMarkdown, cleanTitle) {
+    const lines = rawMarkdown.split(/\r?\n/);
+
+    // 1. Najdeme řádek s hlavním nadpisem článku, abychom přeskočili celou hlavičku webu Seznam.cz
+    let startIdx = 0;
+    const titleWords = (cleanTitle || '').split(/\s+/).map(w => normWord(w)).filter(w => w.length >= 4);
+
+    if (titleWords.length >= 2) {
+        for (let i = 0; i < Math.min(lines.length, 140); i++) {
+            const rawLine = lines[i].trim();
+            // Hledáme nadpis (# Nadpis nebo výrazný řádek), který obsahuje klíčová slova titulku a není to jen seznam odkazů
+            const normLine = normWord(rawLine);
+            const matchCount = titleWords.filter(tw => normLine.includes(tw)).length;
+            if (matchCount >= Math.min(3, titleWords.length) && rawLine.length < 240) {
+                startIdx = i + 1;
+                break;
+            }
+        }
+    }
+
+    const paragraphs = [];
+    const seenNormSet = new Set();
+    const normTitleFull = normWord(cleanTitle);
+
+    // Fráze označující konec samotného článku a začátek boxů s jinými články na Seznamu
+    const STOP_SECTION_REGEX = /^(#+\s*|\*\*|__)?(související|čtěte také|dále čtěte|další články|nejčtenější|mohlo by vás zajímat|doporučujeme|kam dál|z dalšího obsahu|více k tématu|více z rubriky|témata|štítky|klíčová slova|diskuze|diskuse|komentáře|vstoupit do diskuze|anketa|sledujte nás|odebírejte|přihlaste se k odběru|výběr z|další zprávy|přehled zpráv|hlavní zprávy|zprávy z domova|nejnovější články|podobné články|Mohlo by vám uniknout)/i;
+
+    // Fráze metadat, popisků fotek a navigace, které vždy přeskočíme
+    const NOISE_LINE_REGEX = /^(title:|url source:|markdown content:|published time:|image \d+|foto:|zdroj:|autor:|aktualizováno|publikováno|před \d+|dnes \d+|včera \d+|sdílet|kopírovat odkaz|poslechnout|audioverze|článek si můžete|doba čtení|reklama|inzerce|sponzorováno|partner článku|cookies|nastavení soukromí|přihlásit se|hlavní stránka|seznam zprávy|novinky\.cz)/i;
+
+    for (let i = startIdx; i < lines.length; i++) {
+        let rawLine = lines[i].trim();
+        if (!rawLine) continue;
+
+        // Přeskočíme čisté obrázky v markdownu ![alt](url)
+        rawLine = rawLine.replace(/!\[[^\]]*\]\([^)]*\)/g, '').trim();
+        if (!rawLine) continue;
+
+        // Kontrola, zda jsme nenarazili na sekci „Související / Další články / Nejčtenější / Diskuze“
+        const strippedHeader = rawLine.replace(/^[#*>-\s]+/, '').trim();
+        if (STOP_SECTION_REGEX.test(strippedHeader)) {
+            if (paragraphs.length >= 2) {
+                // Už máme hlavní tělo článku, takže jakákoliv sekce „Další články / Mohlo by vás zajímat“ znamená konec článku!
+                break;
+            } else {
+                // Pokud je to vložený box „Čtěte také“ hned po perexu, přeskočíme tento řádek
+                continue;
+            }
+        }
+
+        // Pokud řádek začíná odrážkou a odkazem (* [Jiný článek](http...)), je to upoutávka na jiný článek -> pryč!
+        if (/^([*+-]|\d+\.)\s*\[[^\]]+\]\([^)]+\)/.test(rawLine)) {
+            continue;
+        }
+
+        // Spočítáme podíl znaků uvnitř markdown odkazů [text](url) vůči celkové délce řádku.
+        // Na Seznamu jsou cizí nadpisy a rozcestníky celé zabalené v odkazu, zatímco běžný odstavec má jen čistý text.
+        let linkedChars = 0;
+        const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+        let m;
+        while ((m = linkRegex.exec(rawLine)) !== null) {
+            linkedChars += m[0].length;
+        }
+        if (linkedChars > 0 && (linkedChars / rawLine.length) > 0.36) {
+            continue;
+        }
+
+        // Vyčistíme markdown syntaxi
+        const isSubheading = /^#{2,3}\s+/.test(rawLine);
+        let cleanLine = rawLine
+            .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
             .replace(/https?:\/\/\S+/g, '')
             .replace(/^#+\s*/, '')
             .replace(/\*\*([^*]+)\*\*/g, '$1')
@@ -2578,19 +3496,43 @@ function cleanNoiseLines(rawText) {
             .replace(/\s+/g, ' ')
             .trim();
 
-        if (l.length < 32) continue;
-        if (/^(title:|url source:|markdown content:|published time:|image \d+|čtěte také|související|reklama|inzerce|sdílet|autor:|foto:|zdroj:|diskuse|komentáře|přečtěte si|více k tématu|mohlo by vás zajímat|cookies|přihlásit)/i.test(l)) {
+        if (!cleanLine) continue;
+        if (NOISE_LINE_REGEX.test(cleanLine)) continue;
+        if ((cleanLine.match(/\|/g) || []).length >= 2) continue;
+
+        // Neopakujeme samotný hlavní titulek článku
+        const normClean = normWord(cleanLine);
+        if (!normClean || normClean === normTitleFull) continue;
+        if (seenNormSet.has(normClean)) continue;
+
+        // Pokud jde o skutečný mezititulek uvnitř článku (## Mezititulek), zkontrolujeme, že za ním následuje dlouhý odstavec
+        if (isSubheading && cleanLine.length >= 12 && cleanLine.length <= 95 && paragraphs.length >= 1) {
+            const nextLines = lines.slice(i + 1, i + 4).join(' ');
+            if (nextLines.length > 140) {
+                const formattedSub = /[.!?…]$/.test(cleanLine) ? cleanLine : (cleanLine + '.');
+                seenNormSet.add(normClean);
+                paragraphs.push(formattedSub);
+            }
             continue;
         }
-        // Vynecháme řádky, které vypadají jako navigační menu s mnoha svislítky
-        if ((l.match(/\|/g) || []).length >= 2) continue;
-        cleaned.push(l);
+
+        // KLÍČOVÝ FILTR PROTI CIZÍM NADPISŮM ZE SEZNAMU:
+        // Skutečný odstavec článku má minimálně 48 znaků (alespoň 7 slov) A KONČÍ VĚTNOU INTERPUNKCÍ (. ! ? … „ “ ").
+        // Nadpisy jiných článků na stránce (např. „Vláda schválila rozpočet“) tečkou nekončí!
+        const wordCount = cleanLine.split(/\s+/).length;
+        const endsWithSentencePunct = /[.!?…»“"”')]$/.test(cleanLine);
+
+        if (cleanLine.length >= 48 && wordCount >= 7 && endsWithSentencePunct) {
+            seenNormSet.add(normClean);
+            paragraphs.push(cleanLine);
+        }
     }
-    return cleaned;
+
+    return paragraphs;
 }
 
 async function fetchCleanArticleFromUrl(targetUrl) {
-    // 1. Primární čtečkový extraktor r.jina.ai (skvělý na Seznam Zprávy, Novinky, iDNES, blogy)
+    // 1. Primární čtečkový extraktor r.jina.ai s chirurgickým filtrem kolem nadpisu článku
     try {
         const jinaUrl = 'https://r.jina.ai/' + targetUrl;
         const resp = await fetch(jinaUrl, {
@@ -2601,12 +3543,12 @@ async function fetchCleanArticleFromUrl(targetUrl) {
             let title = '';
             const titleMatch = raw.match(/^Title:\s*(.+)$/m);
             if (titleMatch && titleMatch[1]) {
-                title = titleMatch[1].replace(/\s*[-|–—]\s*(Seznam Zprávy|Novinky\.cz|iDNES\.cz|Aktuálně\.cz).*$/i, '').trim();
+                title = cleanSiteSuffixFromTitle(titleMatch[1]);
             }
             const bodyStart = raw.indexOf('Markdown Content:');
             const contentPart = bodyStart !== -1 ? raw.slice(bodyStart + 17) : raw;
-            const paragraphs = cleanNoiseLines(contentPart);
-            if (paragraphs.join(' ').length > 160) {
+            const paragraphs = extractPureArticleFromMarkdown(contentPart, title);
+            if (paragraphs.join(' ').length > 140) {
                 return { title: title || 'Článek z webu', paragraphs };
             }
         }
@@ -2614,7 +3556,7 @@ async function fetchCleanArticleFromUrl(targetUrl) {
         // Pokračujeme na záložní DOM extraktor
     }
 
-    // 2. Záložní extraktor přes CORS proxy + DOMParser (pro případy výpadku r.jina.ai)
+    // 2. Záložní extraktor přes CORS proxy + DOMParser se zaměřením přímo na kontejner článku Seznamu
     const proxies = [
         `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`,
         `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
@@ -2634,25 +3576,59 @@ async function fetchCleanArticleFromUrl(targetUrl) {
             if (!html || html.length < 200) continue;
 
             const doc = new DOMParser().parseFromString(html, 'text/html');
-            doc.querySelectorAll('script, style, nav, footer, aside, header, form, iframe, noscript, svg, .ad, .advert, .related, .discussion').forEach(el => el.remove());
 
             const h1 = doc.querySelector('h1');
-            const docTitle = (h1 ? h1.textContent : doc.title || 'Článek z webu')
-                .replace(/\s*[-|–—]\s*(Seznam Zprávy|Novinky\.cz|iDNES\.cz|Aktuálně\.cz).*$/i, '')
-                .replace(/\s+/g, ' ')
-                .trim();
+            const docTitle = cleanSiteSuffixFromTitle(h1 ? h1.textContent : (doc.title || 'Článek z webu'));
+
+            // Odstraníme veškeré boxy s jinými články, reklamy, postranní panely, patičky a diskuze
+            doc.querySelectorAll(
+                'script, style, nav, footer, aside, header, form, iframe, noscript, svg, figure, figcaption, ' +
+                '[data-dot*="related"], [data-dot*="recommend"], [data-dot*="most-read"], [data-dot*="ad"], ' +
+                '[data-dot*="social"], [data-dot*="discussion"], [data-dot*="author"], [data-dot*="tag"], ' +
+                '.ad, .advert, .related, .discussion, .recommended, .more-articles, .sidebar'
+            ).forEach(el => el.remove());
 
             const paragraphs = [];
-            const metaDesc = doc.querySelector('meta[name="description"], meta[property="og:description"]');
+            const seenNorm = new Set();
+
+            // Perex z meta description (na Seznamu vždy obsahuje čisté shrnutí článku bez cizích odkazů)
+            const metaDesc = doc.querySelector('meta[property="og:description"], meta[name="description"]');
             if (metaDesc && metaDesc.getAttribute('content')) {
                 const desc = metaDesc.getAttribute('content').replace(/\s+/g, ' ').trim();
-                if (desc.length > 40) paragraphs.push(desc);
+                if (desc.length >= 45 && /[.!?…»“"”')]$/.test(desc)) {
+                    paragraphs.push(desc);
+                    seenNorm.add(normWord(desc));
+                }
             }
 
-            const root = doc.querySelector('article, main, [role="main"]') || doc.body;
-            root.querySelectorAll('p').forEach(p => {
+            // Specifické selektory pro tělo článku na Seznam Zprávy, Novinky.cz, Médium.cz a běžných webech
+            const articleContainer =
+                doc.querySelector('[data-dot="ogm-article-content"]') ||
+                doc.querySelector('[data-dot="mol-article-body"]') ||
+                doc.querySelector('[itemprop="articleBody"]') ||
+                doc.querySelector('article') ||
+                doc.querySelector('main') ||
+                doc.body;
+
+            const pNodes = articleContainer.querySelectorAll('p[data-dot="mol-paragraph"], p');
+            pNodes.forEach(p => {
+                // Pokud je odstavec uvnitř odkazu <a>, jde o kartu jiného článku -> přeskočit!
+                if (p.closest('a')) return;
+
                 const txt = (p.textContent || '').replace(/\s+/g, ' ').trim();
-                if (txt.length >= 45 && !paragraphs.includes(txt)) {
+                if (txt.length < 48) return;
+
+                // Zkontrolujeme, kolik textu v odstavci tvoří odkazy <a>
+                let linkLen = 0;
+                p.querySelectorAll('a').forEach(a => { linkLen += (a.textContent || '').length; });
+                if (linkLen > txt.length * 0.36) return;
+
+                // Musí končit větnou interpunkcí (odfiltruje cizí nadpisy)
+                if (!/[.!?…»“"”')]$/.test(txt)) return;
+
+                const nTxt = normWord(txt);
+                if (!seenNorm.has(nTxt)) {
+                    seenNorm.add(nTxt);
                     paragraphs.push(txt);
                 }
             });
@@ -2669,7 +3645,6 @@ async function fetchCleanArticleFromUrl(targetUrl) {
 function buildLocalSmartSummary(title, paragraphs) {
     if (!paragraphs || !paragraphs.length) return title;
 
-    // 1. Vždy zachováme titulek a úvodní perex (v českém zpravodajství jako Seznam Zprávy nese hlavní shrnutí)
     const perex = paragraphs[0];
     const remainingText = paragraphs.slice(1).join(' ');
     const rawSentences = remainingText.match(/[^.!?…]+[.!?…]+/g) || [];
@@ -2678,7 +3653,6 @@ function buildLocalSmartSummary(title, paragraphs) {
         return `${title}. ${paragraphs.join(' ')}`;
     }
 
-    // 2. Spočítáme frekvenci klíčových slov (TF-IDF vážení) v celém článku
     const wordFreq = {};
     const allWords = paragraphs.join(' ').split(/\s+/);
     for (const w of allWords) {
@@ -2687,22 +3661,20 @@ function buildLocalSmartSummary(title, paragraphs) {
         wordFreq[clean] = (wordFreq[clean] || 0) + 1;
     }
 
-    // Bonus pro slova z titulku (hlavní téma článku)
+    // Výrazný bonus pro slova z hlavního nadpisu článku (zaručí, že výtah drží přesně téma nadpisu!)
     for (const tw of title.split(/\s+/)) {
         const clean = normWord(tw);
         if (clean.length >= 4 && !CZ_EN_STOPWORDS.has(clean)) {
-            wordFreq[clean] = (wordFreq[clean] || 0) + 4;
+            wordFreq[clean] = (wordFreq[clean] || 0) + 6;
         }
     }
 
-    // 3. Ohodnotíme každou větu podle informační hustoty, faktů (čísla/jména) a pozice v textu
     const scored = rawSentences.map((sent, idx) => {
         const trimmed = sent.replace(/\s+/g, ' ').trim();
         const words = trimmed.split(/\s+/);
-        if (words.length < 6 || words.length > 48 || trimmed.length < 40) {
+        if (words.length < 6 || words.length > 48 || trimmed.length < 42) {
             return { idx, text: trimmed, score: -1 };
         }
-        // Odfiltrujeme věty z perexu, abychom je neopakovali
         if (perex.includes(trimmed.slice(0, 30))) {
             return { idx, text: trimmed, score: -1 };
         }
@@ -2712,20 +3684,16 @@ function buildLocalSmartSummary(title, paragraphs) {
             const clean = normWord(w);
             if (wordFreq[clean]) score += wordFreq[clean];
         }
-        // Normalizace délkou věty, aby nevyhrávala jen nejdelší souvětí
         score = score / Math.pow(words.length, 0.65);
 
-        // Bonus za konkrétní fakta, čísla, letopočty, procenta nebo přímou řeč
         if (/\d+/.test(trimmed)) score *= 1.22;
         if (/[„“"]/.test(trimmed)) score *= 1.12;
-        // Mírný bonus pro první třetinu článku a závěrečné shrnutí
-        if (idx < rawSentences.length * 0.3) score *= 1.18;
-        if (idx >= rawSentences.length - 2) score *= 1.1;
+        if (idx < rawSentences.length * 0.35) score *= 1.20;
+        if (idx >= rawSentences.length - 2) score *= 1.10;
 
         return { idx, text: trimmed, score };
     }).filter(item => item.score > 0);
 
-    // 4. Vybereme 5 nejvýznamnějších vět a seřadíme je chronologicky, jak šly v článku za sebou
     scored.sort((a, b) => b.score - a.score);
     const topSentences = scored.slice(0, 5).sort((a, b) => a.idx - b.idx).map(s => s.text);
 
@@ -2734,7 +3702,7 @@ function buildLocalSmartSummary(title, paragraphs) {
 
 async function summarizeWithGeminiApi(title, fullText, apiKey) {
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
-    const prompt = `Jsi poutavý český rozhlasový vypravěč v aplikaci AtmoRead. Vytvoř z následujícího článku přehledný, čtivý a souvislý mluvený výtah toho nejdůležitějšího v češtině (na 1 až 2 minuty poslechu, cca 6 až 9 vět). Nepoužívej odrážky, hvězdičky ani markdown, piš plynulé věty vhodné pro přímé čtení hlasovým syntezátorem. Začni názvem článku.\n\nNázev: ${title}\n\nText článku:\n${fullText.slice(0, 14000)}`;
+    const prompt = `Jsi poutavý český rozhlasový vypravěč v aplikaci AtmoRead. Vytvoř z následujícího článku přehledný, čtivý a souvislý mluvený výtah toho nejdůležitějšího v češtině (na 1 až 2 minuty poslechu, cca 6 až 9 vět). Soustřeď se výhradně na hlavní téma v názvu článku a ignoruj jakékoli vedlejší odkazy. Nepoužívej odrážky, hvězdičky ani markdown, piš plynulé věty vhodné pro přímé čtení hlasovým syntezátorem. Začni názvem článku.\n\nNázev: ${title}\n\nText článku:\n${fullText.slice(0, 14000)}`;
 
     const resp = await fetch(endpoint, {
         method: 'POST',
@@ -2771,7 +3739,7 @@ async function fetchAndProcessUrlArticle() {
     }
 
     submitBtn.disabled = true;
-    statusEl.innerText = '⏳ Stahuji článek, odstraňuji reklamy a sestavuji výtah toho nejdůležitějšího...';
+    statusEl.innerText = '⏳ Vytahuji čistý text přesně kolem nadpisu článku (odstraňuji cizí nadpisy a reklamy)...';
 
     try {
         const { title, paragraphs } = await fetchCleanArticleFromUrl(rawUrl);
@@ -2789,9 +3757,21 @@ async function fetchAndProcessUrlArticle() {
             summaryText = buildLocalSmartSummary(title, paragraphs);
         }
 
+        // Uložíme článek do trvalé historie v localStorage
+        saveArticleToHistory({
+            url: rawUrl,
+            title: title,
+            summaryText: summaryText,
+            fullText: fullCleanText
+        });
+
+        // Automaticky vyprázdníme vstupní pole pro URL, aby při příštím otevření bylo čisté!
+        urlInput.value = '';
+
         const activeText = urlExtractMode === 'full' ? fullCleanText : summaryText;
         const key = getStoryKey();
 
+        STORIES[key] = (STORIES[key] || []).filter(s => s.sourceUrl !== rawUrl);
         STORIES[key].unshift({
             title: `🔗 ${title.slice(0, 62)}${title.length > 62 ? '…' : ''}`,
             text: activeText,
@@ -2805,15 +3785,14 @@ async function fetchAndProcessUrlArticle() {
         populateStoryDropdown();
         document.getElementById('storySelect').value = '0';
 
-        // Automaticky přepneme do režimu AI Vypravěče (TTS), aby se otevřela čtečka a mohl článek rovnou číst
+        // Automaticky přepneme do režimu AI Vypravěče (TTS), aby se plynule rozbalila čtečka a začala číst
         switchMode('tts');
-        loadSelectedStory();
+        loadSelectedStory(true);
         closeUrlModal();
 
-        showAutoBadge(urlExtractMode === 'summary' ? '⚡ Výtah článku připraven' : '📰 Celý článek připraven');
-        setStatus(`✅ Článek „${title}“ je připraven! Spouštím 🎧 AI Vypravěče se zvukovou kulisou...`);
+        showAutoBadge(urlExtractMode === 'summary' ? '⚡ Výtah článku připraven' : '📰 Čistý článek připraven');
+        setStatus(`✅ Článek „${title}“ (čistý text kolem nadpisu) je připraven! Spouštím 🎧 AI Vypravěče...`);
 
-        // Rovnou spustíme AI Vypravěče (uživatel právě kliknul na tlačítko, takže audio kontext je odemčený)
         if (isSessionRunning) stopActiveSession();
         startActiveSession();
     } catch (err) {
@@ -2839,8 +3818,9 @@ function setStatus(msg) {
 function toggleLanguage() {
     currentLang = currentLang === 'cs' ? 'en' : 'cs';
     document.getElementById('langBtn').innerHTML = `<span>🌐</span><span class="bt-title">${currentLang.toUpperCase()}</span>`;
+    populateSystemVoices();
     populateStoryDropdown();
-    loadSelectedStory();
+    loadSelectedStory(true);
 }
 
 function populateStoryDropdown() {
@@ -2859,11 +3839,9 @@ function initUI() {
     const totalStems = SOUND_LIBRARY.reduce((acc, c) => acc + c.stems.length, 0)
                      + DYNAMIC_AURA_PALETTE.reduce((acc, p) => acc + p.stems.length, 0);
     document.getElementById('dictCounter').innerText =
-        `100% Ověřené zvuky (${SOUND_LIBRARY.length} okruhů, ${totalStems}+ kořenů) • 15–20s Tail • Dynamický podkres`;
+        `100% Ověřené zvuky (${SOUND_LIBRARY.length} okruhů, ${totalStems}+ kořenů) • 5/15/30 min příběhy • Rozhlasová dynamika`;
 
-    // Vykreslení 4 smysluplných barev lampičky:
-    // - V hlavní dlaždici (lampModeTilesMain) jako kompaktní nadstavba (.compact-lamp-btn)
-    // - V celoobrazovkové lampičce (lampModeTilesModal) jako velké dlaždice (.big-tile-btn)
+    // Vykreslení 4 smysluplných barev lampičky
     const mainLampWrap = document.getElementById('lampModeTilesMain');
     if (mainLampWrap) {
         mainLampWrap.innerHTML = '';
@@ -2897,13 +3875,28 @@ function initUI() {
         });
     }
 
+    // Načtení systémových hlasů pro AI Vypravěče
+    if ('speechSynthesis' in window) {
+        populateSystemVoices();
+        window.speechSynthesis.onvoiceschanged = () => populateSystemVoices();
+    }
+
+    // Pokud uživatel klikne do pole URL a už tam něco bylo, při dvojkliku / vybrání usnadníme vložení
+    const urlInp = document.getElementById('articleUrlInput');
+    if (urlInp) {
+        urlInp.addEventListener('focus', () => {
+            urlInp.select();
+        });
+    }
+
     // Výchozí podkres: Dynamický podkres scény ('auto_mood')
     SoundEngine.bgMode = 'auto_mood';
     renderAmbienceTiles();
+    renderUrlHistoryList();
 
     selectLampMode('candle');
     populateStoryDropdown();
-    loadSelectedStory();
+    loadSelectedStory(false);
     initOcrCanvasDrag();
 }
 
