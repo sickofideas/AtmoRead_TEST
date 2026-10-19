@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AtmoRead v6.3.0 — Živá atmosféra pro pohádky, knihy i články</title>
+    <title>AtmoRead v6.3.1 — Živá atmosféra pro pohádky, knihy i články</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="data.js"></script>
     <style>
@@ -504,8 +504,8 @@
             font-weight: bold; box-shadow: 0 0 14px var(--accent);
         }
 
-        /* MODAL PRO OŘEZ FOTKY (OCR) A MODAL PRO NAČTENÍ ČLÁNKU Z URL (S PLYNULOU ANIMACÍ ROVNINY) */
-        #ocrModal, #urlModal {
+        /* MODAL PRO OŘEZ FOTKY (OCR), NAČTENÍ ČLÁNKU Z URL A UŽIVATELSKOU NÁPOVĚDU (S PLYNULOU ANIMACÍ ROVNINY) */
+        #ocrModal, #urlModal, #helpModal {
             position: fixed; inset: 0; z-index: 400;
             background: rgba(6, 5, 4, 0.88);
             display: flex; flex-direction: column; align-items: center;
@@ -514,12 +514,12 @@
             opacity: 0; visibility: hidden; pointer-events: none;
             transition: opacity 0.32s var(--plane-ease), visibility 0.32s;
         }
-        #ocrModal.active, #urlModal.active {
+        #ocrModal.active, #urlModal.active, #helpModal.active {
             opacity: 1; visibility: visible; pointer-events: auto;
         }
         .ocr-modal-card {
             background: var(--tile-bg); border: 2px solid var(--accent);
-            border-radius: 26px; padding: 20px; width: 100%; max-width: 740px;
+            border-radius: 26px; padding: 20px; width: 100%; max-width: 760px;
             display: flex; flex-direction: column; gap: 12px;
             max-height: 94vh; overflow-y: auto;
             transform: perspective(1000px) rotateX(-6deg) translateY(18px) scale(0.96);
@@ -527,8 +527,42 @@
             transition: transform 0.36s var(--plane-ease);
         }
         #ocrModal.active .ocr-modal-card,
-        #urlModal.active .ocr-modal-card {
+        #urlModal.active .ocr-modal-card,
+        #helpModal.active .ocr-modal-card {
             transform: perspective(1000px) rotateX(0deg) translateY(0) scale(1);
+        }
+        .help-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        @media (max-width: 680px) {
+            .help-grid { grid-template-columns: 1fr; }
+        }
+        .help-step-card {
+            background: rgba(255, 255, 255, 0.045);
+            border: 1.5px solid var(--tile-border);
+            border-radius: 16px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .help-step-title {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--accent-soft);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .help-step-text {
+            font-size: 12.8px;
+            line-height: 1.48;
+            color: var(--text-muted);
+        }
+        .help-step-text b {
+            color: var(--text-main);
         }
         .url-input-row {
             display: flex; gap: 8px; width: 100%;
@@ -792,6 +826,66 @@
     </div>
 </div>
 
+<!-- ========================================================================
+     MODÁLNÍ OKNO: STRUČNÁ A JASNÁ UŽIVATELSKÁ NÁPOVĚDA (CO A JAK FUNGUJE)
+     ======================================================================== -->
+<div id="helpModal">
+    <div class="ocr-modal-card">
+        <div class="tile-header" style="margin-bottom:2px;">
+            <div class="tile-title">❓ Jak AtmoRead funguje (Stručný průvodce)</div>
+            <span class="tile-badge">Přehled za 30 sekund</span>
+        </div>
+        <p style="font-size:13.5px; color:var(--text-muted); line-height:1.45;">
+            AtmoRead promění čtení pohádek, knih i webových článků v živý zvukový a světelný zážitek. Vše ovládáš <b>jedním ťuknutím na velké dlaždice</b>.
+        </p>
+
+        <div class="help-grid">
+            <div class="help-step-card">
+                <div class="help-step-title">🎭 1. Horní rozcestník (3 karty)</div>
+                <div class="help-step-text">
+                    • <b>🌙 Dětské pohádky:</b> Teplý medový vzhled, pohádky na 5 / 15 / 30 min a ukolébavky.<br>
+                    • <b>🍷 Knihy pro dospělé:</b> Břidlicový vzhled, detektivky, fantasy, kavárna, krb, vlak a šerm.<br>
+                    • <b>🕯️ Noční lampička:</b> Rozsvítí 100 % displeje pro čtení papírové knihy nebo usínání.
+                </div>
+            </div>
+
+            <div class="help-step-card">
+                <div class="help-step-title">🧭 2. Jak číst nebo poslouchat (4 režimy)</div>
+                <div class="help-step-text">
+                    • <b>🎙️ Jen zvuky kolem:</b> Čteš papírovou knihu (nebo vyprávíš z hlavy). Mikrofon zachytí slova (<i>pes, kočka, bouřka, meč, auto</i>) a sám pustí reálný zvuk.<br>
+                    • <b>📖 Čtu z displeje:</b> Čteš nahlas text na obrazovce, aplikace sleduje tvůj hlas.<br>
+                    • <b>🎧 AI Vypravěč:</b> Aplikace sama plynule předčítá vybraným hlasem a tempem.<br>
+                    • <b>🤫 Tiché čtení:</b> Čteš očima bez mikrofonu, zvuky a barvy se spouštějí samy.
+                </div>
+            </div>
+
+            <div class="help-step-card">
+                <div class="help-step-title">📥 3. Kde a jak nahrát vlastní čtení</div>
+                <div class="help-step-text">
+                    V dlaždici <b>📚 Knihovna</b> (zobrazí se po přepnutí na Čtu z displeje / AI Vypravěč / Tiché čtení) najdeš 4 možnosti:<br>
+                    • <b>📚 Roletka příběhů + 5/15/30 min:</b> Vestavěné pohádky a knihy s volbou délky.<br>
+                    • <b>🔗 Článek z URL:</b> Vlož odkaz (např. ze Seznam Zpráv či Novinek) – vytáhne čistý text kolem nadpisu nebo stručný výtah.<br>
+                    • <b>📷 Vyfotit stránku:</b> Vyfoť papírovou knihu, prstem označ odstavec mimo obrázky a čti.<br>
+                    • <b>✍️ Vložit text:</b> Zkopíruj a vlož libovolný vlastní text.
+                </div>
+            </div>
+
+            <div class="help-step-card">
+                <div class="help-step-title">🔊 4. Zvuky, Podkres a Hlavní tlačítko</div>
+                <div class="help-step-text">
+                    • <b>Podtržená slova v textu:</b> Na každé podtržené slovo můžeš ťuknout prstem a zvuk okamžitě zazní.<br>
+                    • <b>Plynulý dozvuk (Fade-Out):</b> Každý zvuk trvá přirozeně podle atmosféry a vždy jemně dozní do ticha.<br>
+                    • <b>Spodní lišta:</b> Velkým zeleným tlačítkem dole vše <b>SPUSTÍŠ</b> nebo <b>ZASTAVÍŠ</b>. Červené tlačítko <b>🛑 STOP VŠE</b> okamžitě ztiší celkový zvuk.
+                </div>
+            </div>
+        </div>
+
+        <button class="big-tile-btn active" style="min-height:56px; margin-top:4px; background:linear-gradient(135deg,#16a34a,#15803d);" onclick="closeHelpModal()">
+            <span class="bt-title">👍 Rozumím, jdeme číst a poslouchat!</span>
+        </button>
+    </div>
+</div>
+
 <div class="app-wrapper">
     <!-- HLAVIČKA -->
     <header class="top-header">
@@ -800,16 +894,19 @@
             <div>
                 <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                     <h1 class="brand-name">AtmoRead</h1>
-                    <span class="ver-badge">v6.3.0 REAL AUDIO & LIGHT</span>
+                    <span class="ver-badge">v6.3.1 REAL AUDIO & LIGHT</span>
                 </div>
-                <div class="header-meta" id="dictCounter">100% Ověřené zvuky ze všech oborů + 15–20s dozvuk • Dynamický podkres • Chytrá lampička</div>
+                <div class="header-meta" id="dictCounter">100% Ověřené zvuky ze všech oborů + plynulý Fade-Out • Dvojitý plynulý AI Vypravěč • Chytrá lampička</div>
             </div>
         </div>
-        <div style="display:flex; gap:10px;">
-            <button class="big-tile-btn" style="min-height:48px; padding:8px 16px; flex-direction:row; gap:8px;" onclick="togglePureLamp(true)">
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="big-tile-btn" style="min-height:48px; padding:8px 14px; flex-direction:row; gap:6px; border-color:var(--accent);" onclick="openHelpModal()">
+                <span>❓</span><span class="bt-title">Jak to funguje</span>
+            </button>
+            <button class="big-tile-btn" style="min-height:48px; padding:8px 14px; flex-direction:row; gap:6px;" onclick="togglePureLamp(true)">
                 <span>🕯️</span><span class="bt-title">100% Lampička</span>
             </button>
-            <button class="big-tile-btn" style="min-height:48px; padding:8px 16px; flex-direction:row; gap:8px;" onclick="toggleLanguage()" id="langBtn">
+            <button class="big-tile-btn" style="min-height:48px; padding:8px 14px; flex-direction:row; gap:6px;" onclick="toggleLanguage()" id="langBtn">
                 <span>🌐</span><span class="bt-title">CZ</span>
             </button>
         </div>
@@ -858,6 +955,35 @@
             <span class="hub-tag">☀️ Nadstavba</span>
         </button>
     </section>
+
+    <!-- RYCHLÁ ROZBALOVACÍ LIŠTA NÁPOVĚDY (PLYNULÁ ROVNINA) -->
+    <div style="margin-bottom:14px;">
+        <button class="big-tile-btn" style="width:100%; min-height:46px; flex-direction:row; justify-content:space-between; padding:8px 16px;" onclick="toggleInlineQuickHelp()">
+            <span style="display:flex; align-items:center; gap:8px;">
+                <span style="font-size:18px;">💡</span>
+                <span class="bt-title">Rychlá nápověda: Kde nahrát článek, fotku knihy nebo vlastní text a co jak funguje?</span>
+            </span>
+            <span class="tile-badge" id="quickHelpArrow">Rozbalit přehled ▼</span>
+        </button>
+        <div class="collapsible-plane" id="quickHelpPlane">
+            <div class="collapsible-plane-inner">
+                <div class="help-grid" style="padding-top:10px;">
+                    <div class="help-step-card">
+                        <div class="help-step-title">🎙️ Čtení vlastní knihy vs. 🎧 AI Vypravěč</div>
+                        <div class="help-step-text">
+                            Chceš-li číst papírovou knihu a mít kolem sebe zvuky na vyřčená slova, nech zapnuté <b>🎙️ Jen zvuky kolem</b> a klepni dole na <b>SPUSTIT</b>. Chceš-li, aby aplikace četla sama, zvol <b>🎧 AI Vypravěč</b>, vyber délku (<b>5 / 15 / 30 min</b>), tempo a hlas.
+                        </div>
+                    </div>
+                    <div class="help-step-card">
+                        <div class="help-step-title">🔗 Nahrání článku z URL, 📷 Fotky stránky a ✍️ Textu</div>
+                        <div class="help-step-text">
+                             přepni na <b>🎧 AI Vypravěč</b> (nebo použij tlačítko <b>🔗 Načíst článek z URL</b>). V okně <b>🔗 Článek z URL</b> vložíš odkaz ze Seznamu/webu (vytáhne čistý text kolem nadpisu a uloží ho do historie). Přes <b>📷 Vyfotit stránku</b> ořízneš fotku knihy mimo ilustrace a přes <b>✍️ Vložit text</b> vložíš cokoliv ze schránky.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- ====================================================================
          HLAVNÍ DLAŽDICOVÉ SCHÉMA (BEZ POSUVNÍKŮ)
@@ -1307,6 +1433,43 @@ const SoundEngine = {
         this.activeTimers.add(this.duckRestoreTimer);
     },
 
+    // Výpočet přirozené délky zvuku a dlouhého plynulého Fade-Outu podle atmosféry + jemné náhody
+    computeOrganicSoundEnvelope(cluster) {
+        const prio = cluster.priority || 2;
+        const baseDur = cluster.dur || 5.0;
+
+        // Základní délka podle zvolené hlasitosti / atmosféry (Jemná / Střední / Výrazná)
+        let minSec = 4.2, maxSec = 6.2;
+        if (this.sfxVolumeLevel <= 0.65) {
+            minSec = 3.8; maxSec = 5.4; // Jemná atmosféra
+        } else if (this.sfxVolumeLevel >= 0.96) {
+            minSec = 5.0; maxSec = 7.5; // Výrazná atmosféra
+        }
+
+        // U klidných uspávacích scén a ukolébavek prodloužíme plynulé doznívání
+        if (/brahms|twinkle|clair|harp|chimes|pinknoise/.test(this.bgMode) || this.currentMoodId === 'home') {
+            minSec += 0.4;
+            maxSec += 0.7;
+        }
+
+        // Prioritní dramatické zvuky (hrom, vlak, zvon, meč) mají o trochu delší dozvuk
+        if (prio === 1) {
+            minSec += 0.5;
+            maxSec += 0.8;
+        }
+
+        // Náhodná organická variace v rozmezí minSec..maxSec (nikdy moc krátká ani nekonečně dlouhá)
+        const randomSpan = minSec + Math.random() * (maxSec - minSec);
+        const totalSec = Math.max(3.8, Math.min(7.8, (baseDur * 0.35) + (randomSpan * 0.65)));
+        const totalDurationMs = Math.round(totalSec * 1000);
+
+        // Fade-Out zabírá celých 62 % doby trvání zvuku (cca 2,5 až 4,6 sekundy plynulého slábnutí do ticha!),
+        // takže žádný zvuk nikdy neskončí useknutím po 1,5 sekundě!
+        const fadeOutMs = Math.round(totalDurationMs * 0.62);
+
+        return { totalDurationMs, fadeOutMs };
+    },
+
     triggerCluster(cluster, spokenWord = '') {
         const now = Date.now();
         const prio = cluster.priority || 2;
@@ -1334,34 +1497,34 @@ const SoundEngine = {
 
         this.init();
 
-        const totalDurSec = cluster.dur || 4.8;
-        // Zaznamenáme spuštěný zvuk do aktuální věty pro dramatickou pauzu za tečkou
+        const { totalDurationMs, fadeOutMs } = this.computeOrganicSoundEnvelope(cluster);
+
+        // Zaznamenáme spuštěný zvuk do aktuální věty
         this.sentenceSfxEvents.push({
             id: cluster.id,
             label: cluster.label,
             emoji: cluster.emoji,
             priority: prio,
-            durMs: totalDurSec * 1000,
+            durMs: totalDurationMs,
             time: now
         });
 
-        // Ztišíme podkres, aby zvuk z knihovny vystoupil do popředí
-        this.duckAmbienceForSfx(Math.min(3400, totalDurSec * 680));
+        // Dočasně ztišíme podkres, aby zvuk z knihovny vystoupil čistě do popředí
+        this.duckAmbienceForSfx(Math.min(3400, Math.round(totalDurationMs * 0.58)));
 
         const varIdx = (this.variationMap[cluster.id] || 0);
         this.variationMap[cluster.id] = varIdx + 1;
-        const rateShift = [1.0, 0.98, 1.02, 0.99][varIdx % 4];
+        const rateShift = [1.0, 0.97, 1.02, 0.95][varIdx % 4];
 
         // Akustický doprovod pro hudební nástroje (klavír, kytara/harfa, housle, trubka/flétna)
         if (cluster.instrumentChord) {
             this.playInstrumentChord(cluster.instrumentChord);
         }
 
-        // Okamžitá 0ms akustická prezence v prostoru (zajistí, že i při pomalejším internetu
-        // nebo tichém náběhu .ogg nahrávky uživatel v ten samý zlomek sekundy slyší fyzický nástup zvuku)
+        // Okamžitá 0ms akustická prezence v prostoru
         this.playAcousticPresence(cluster, prio);
 
-        // VRSTVA 1: 100% Reálný One-Shot zvuk (.ogg/.oga) s plnou hlasitostí a záložními URL
+        // VRSTVA 1: 100% Reálný zvuk (.ogg/.oga) s organickou délkou a dlouhým logaritmickým Fade-Outem
         if (cluster.urls && cluster.urls.length > 0) {
             const total = cluster.urls.length;
             const orderedUrls = [];
@@ -1374,12 +1537,12 @@ const SoundEngine = {
 
             const oneShotCtrl = this.playRealAudioWithEnvelope(orderedUrls, {
                 targetVolume: targetVol,
-                fadeInMs: 30,
-                totalDurationMs: totalDurSec * 1000,
-                fadeOutMs: 1200,
+                fadeInMs: 65,
+                totalDurationMs: totalDurationMs,
+                fadeOutMs: fadeOutMs,
                 playbackRate: rateShift,
                 loop: false,
-                boostViaWebAudio: true
+                softExtendShortFiles: true
             });
 
             const shotEntry = {
@@ -1414,7 +1577,6 @@ const SoundEngine = {
         const filter = this.ctx.createBiquadFilter();
 
         if (/thunder|storm|explosion|gunshot|train|tractor|plane|car|dragon|bear|lion/.test(id)) {
-            // Hluboký sub-basový otřes pro bouři, výstřel, vlak, motor, draka či šelmu
             osc.type = 'triangle';
             osc.frequency.setValueAtTime(115, now);
             osc.frequency.exponentialRampToValueAtTime(38, now + 0.42);
@@ -1429,7 +1591,6 @@ const SoundEngine = {
             osc.start(now);
             osc.stop(now + 0.5);
         } else if (/magic|bell|coins|sword|glass|clock|phone|siren|scifi/.test(id)) {
-            // Křišťálový kovový / magický záchvěv pro meče, zvony, mince, kouzla, hodiny
             osc.type = 'sine';
             const f = /sword|glass/.test(id) ? 1480 : (/bell|clock/.test(id) ? 880 : 1174.66);
             osc.frequency.setValueAtTime(f, now);
@@ -1445,7 +1606,6 @@ const SoundEngine = {
             osc.start(now);
             osc.stop(now + 0.45);
         } else {
-            // Jemný dřevěný / prostorový akustický impuls pro zvířata, kroky, les, dveře a nástroje
             osc.type = 'sine';
             osc.frequency.setValueAtTime(320, now);
             osc.frequency.exponentialRampToValueAtTime(140, now + 0.16);
@@ -1489,7 +1649,7 @@ const SoundEngine = {
         if (this.isMuted) return;
         if (this.currentTailObj) {
             if (this.currentTailObj.url === tailUrl) return;
-            this.currentTailObj.stopSmoothly(2200);
+            this.currentTailObj.stopSmoothly(2500);
         }
 
         const tailVol = Math.min(0.72, this.sfxVolumeLevel * 0.34);
@@ -1499,7 +1659,7 @@ const SoundEngine = {
             targetVolume: tailVol,
             fadeInMs: 2200,
             totalDurationMs: tailTotalMs,
-            fadeOutMs: 8000,
+            fadeOutMs: 9000,
             playbackRate: 1.0,
             loop: true
         });
@@ -1510,6 +1670,14 @@ const SoundEngine = {
         };
     },
 
+    /* ========================================================================
+       SAMETOVÝ AUDIO PŘEHRÁVAČ S LOGARITMICKÝM FADE-OUTEM (NIKDY NEUSEKNE ZVUK!):
+       - Používá logaritmickou křivku slábnutí Math.pow(1 - p, 2.25) s krokem 30 ms,
+         která přesně odpovídá lidskému sluchu v decibelech.
+       - Pokud je samotný zdrojový .ogg soubor krátký (např. jen 1,5 s), automaticky
+         zapne jemné doznívání (soft-loop během fade-outu nebo včasný fade-out před koncem souboru),
+         takže žádný zvuk nikdy neskončí tvrdým zaříznutím!
+       ======================================================================== */
     playRealAudioWithEnvelope(urlOrUrls, opts) {
         const urls = Array.isArray(urlOrUrls) ? urlOrUrls : [urlOrUrls];
         const isOneShot = !opts.loop;
@@ -1517,6 +1685,7 @@ const SoundEngine = {
 
         let currentAudio = null;
         let stopped = false;
+        let isFadingOut = false;
         let fadeInInt = null;
         let fadeOutTimer = null;
         let fadeOutInt = null;
@@ -1533,65 +1702,67 @@ const SoundEngine = {
             }
         };
 
-        const fadeOutAndStop = (durationMs = 1100) => {
+        const fadeOutAndStop = (durationMs = 2400) => {
             if (stopped || !currentAudio) {
                 cleanup();
                 return;
             }
-            if (fadeInInt) clearInterval(fadeInInt);
-            if (fadeOutInt) clearInterval(fadeOutInt);
-            const steps = Math.max(5, Math.floor(durationMs / 55));
-            const startVol = currentAudio.volume;
+            if (isFadingOut && durationMs > 800) return; // Už plynule doznívá
+            isFadingOut = true;
+
+            if (fadeInInt) { clearInterval(fadeInInt); fadeInInt = null; }
+            if (fadeOutTimer) { clearTimeout(fadeOutTimer); fadeOutTimer = null; }
+            if (fadeOutInt) { clearInterval(fadeOutInt); fadeOutInt = null; }
+
+            const intervalMs = 30;
+            const steps = Math.max(8, Math.floor(durationMs / intervalMs));
+            const startVol = Math.max(0.02, currentAudio.volume);
             let step = 0;
+
             fadeOutInt = setInterval(() => {
+                if (stopped || !currentAudio) {
+                    clearInterval(fadeOutInt);
+                    return;
+                }
                 step++;
-                const nextV = startVol * (1 - step / steps);
-                if (nextV <= 0.008 || step >= steps || !currentAudio) {
+                const progress = Math.min(1, step / steps);
+                // Exponenciální / logaritmická křivka pro přirozené doznívání do úplného ticha
+                const curvedVol = startVol * Math.pow(1 - progress, 2.25);
+
+                if (curvedVol <= 0.003 || step >= steps) {
+                    currentAudio.volume = 0;
                     cleanup();
                 } else {
-                    currentAudio.volume = Math.max(0, nextV);
+                    currentAudio.volume = Math.max(0, curvedVol);
                 }
-            }, 55);
+            }, intervalMs);
             this.activeTimers.add(fadeOutInt);
         };
 
-        const tryPlayIndex = (idx, disableCorsBoost = false) => {
+        const tryPlayIndex = (idx) => {
             if (stopped || this.isMuted || idx >= urls.length) {
                 cleanup();
                 return;
             }
-            const audio = new Audio();
-            if (isOneShot && opts.boostViaWebAudio && !disableCorsBoost) {
-                audio.crossOrigin = 'anonymous';
-            }
-            audio.src = urls[idx];
+            const audio = new Audio(urls[idx]);
             currentAudio = audio;
-            audio.loop = !!opts.loop;
+            // Pokud má zvuk přirozeně doznít v čase podle atmosféry (softExtendShortFiles),
+            // zapneme loop=true, aby se krátký 1,5s soubor neusekl, ale plynule během svého druhého
+            // průchodu zeslábl do ticha!
+            audio.loop = !!opts.loop || !!opts.softExtendShortFiles;
             if (opts.playbackRate) audio.playbackRate = opts.playbackRate;
 
-            // U krátkých One-Shot zvuků začínáme rovnou na 95 % cílové hlasitosti (žádné utopení začátku štěknutí nebo meče!)
-            const initialVol = isOneShot ? Math.min(1.0, targetV * 0.95) : 0.01;
+            const initialVol = isOneShot ? Math.min(1.0, targetV * 0.88) : 0.01;
             audio.volume = initialVol;
             this.activeAudioEls.add(audio);
-
-            // Pokud je povolen Web Audio Pre-Amp Boost, propojíme element do sfxBoostGain (až 2.5× zesílení!)
-            if (isOneShot && opts.boostViaWebAudio && !disableCorsBoost && this.ctx && this.sfxBoostGain) {
-                try {
-                    const mediaSource = this.ctx.createMediaElementSource(audio);
-                    mediaSource.connect(this.sfxBoostGain);
-                } catch (e) {}
-            }
 
             let advancedToFallback = false;
             const fallbackNext = () => {
                 if (advancedToFallback || stopped) return;
                 advancedToFallback = true;
                 this.activeAudioEls.delete(audio);
-                // Pokud server nepovolil CORS hlavičku pro WebAudio boost, okamžitě přehrajeme tutéž URL přímo na plnou hlasitost
-                if (isOneShot && opts.boostViaWebAudio && !disableCorsBoost) {
-                    tryPlayIndex(idx, true);
-                } else if (idx + 1 < urls.length) {
-                    tryPlayIndex(idx + 1, false);
+                if (idx + 1 < urls.length) {
+                    tryPlayIndex(idx + 1);
                 } else {
                     cleanup();
                 }
@@ -1599,37 +1770,53 @@ const SoundEngine = {
 
             audio.onerror = fallbackNext;
 
+            // Jakmile prohlížeč zjistí skutečnou délku nahrávky (.ogg), přizpůsobíme obálku tak,
+            // aby u ultra-krátkých impulsů (pod 1,3 s) nebo středních nahrávek vždy proběhl sametový Fade-Out!
+            audio.addEventListener('loadedmetadata', () => {
+                if (stopped || !isOneShot || ! isFinite(audio.duration) || audio.duration <= 0) return;
+                const fileMs = audio.duration * 1000;
+                if (fileMs < 1350) {
+                    // Velmi krátký jednorázový zvuk (např. jedno krátké štěknutí 0.9s): neopakujeme ho dokola,
+                    // ale spustíme jemný fade-out v poslední polovině souboru, aby nebyl useknutý
+                    audio.loop = false;
+                    const earlyStart = Math.max(180, Math.round(fileMs * 0.38));
+                    const earlyFadeDur = Math.max(350, Math.round(fileMs * 0.60));
+                    if (fadeOutTimer) clearTimeout(fadeOutTimer);
+                    fadeOutTimer = setTimeout(() => fadeOutAndStop(earlyFadeDur), earlyStart);
+                    this.activeTimers.add(fadeOutTimer);
+                }
+            }, { once: true });
+
             audio.play().then(() => {
                 if (stopped || this.isMuted) {
                     cleanup();
                     return;
                 }
-                if (isOneShot) {
-                    audio.volume = targetV;
-                } else {
-                    const fadeMs = opts.fadeInMs || 2000;
-                    const inSteps = Math.max(2, Math.floor(fadeMs / 40));
-                    let curStep = 0;
-                    fadeInInt = setInterval(() => {
-                        if (stopped || !currentAudio) {
-                            clearInterval(fadeInInt);
-                            return;
-                        }
-                        curStep++;
-                        const v = initialVol + (targetV - initialVol) * (curStep / inSteps);
-                        if (curStep >= inSteps) {
-                            audio.volume = targetV;
-                            clearInterval(fadeInInt);
-                        } else {
-                            audio.volume = Math.min(1.0, Math.max(0, v));
-                        }
-                    }, 40);
-                    this.activeTimers.add(fadeInInt);
-                }
+                const fadeMs = isOneShot ? (opts.fadeInMs || 65) : (opts.fadeInMs || 2000);
+                const inSteps = Math.max(2, Math.floor(fadeMs / 30));
+                let curStep = 0;
+                fadeInInt = setInterval(() => {
+                    if (stopped || !currentAudio || isFadingOut) {
+                        clearInterval(fadeInInt);
+                        return;
+                    }
+                    curStep++;
+                    const v = initialVol + (targetV - initialVol) * (curStep / inSteps);
+                    if (curStep >= inSteps) {
+                        audio.volume = targetV;
+                        clearInterval(fadeInInt);
+                    } else {
+                        audio.volume = Math.min(1.0, Math.max(0, v));
+                    }
+                }, 30);
+                this.activeTimers.add(fadeInInt);
 
-                const fadeStart = Math.max(600, (opts.totalDurationMs || 4800) - (opts.fadeOutMs || 1200));
+                const totalMs = opts.totalDurationMs || 5200;
+                const fOutMs = opts.fadeOutMs || Math.round(totalMs * 0.60);
+                const fadeStart = Math.max(550, totalMs - fOutMs);
+
                 fadeOutTimer = setTimeout(() => {
-                    fadeOutAndStop(opts.fadeOutMs || 1200);
+                    fadeOutAndStop(fOutMs);
                 }, fadeStart);
                 this.activeTimers.add(fadeOutTimer);
             }).catch(() => {
@@ -1641,7 +1828,7 @@ const SoundEngine = {
             };
         };
 
-        tryPlayIndex(0, false);
+        tryPlayIndex(0);
 
         return {
             get audio() { return currentAudio; },
@@ -2673,19 +2860,68 @@ function startVoiceRecognition() {
 }
 
 /* ============================================================================
-   ROZHLASOVÝ AI VYPRAVĚČ v6.3.0:
-   - Respektuje zvolené Tempo (Uspávací / Klidné / Běžné / Svižné) a Hlas
-   - Vyvažuje hlasitost řeči vůči zvukům z knihovny, aby každý zvuk jasně vynikl
-   - DRAMATICKÁ PAUZA ZA VĚTOU: Pokud ve větě zazněl jeden nebo více zvuků,
-     AI Vypravěč na tečce za větou chvilku počká (1,6 s až 3,2 s), aby zvuky
-     mohly v klidu doznít jako ve filmové či rozhlasové inscenaci!
+   UŽIVATELSKÁ NÁPOVĚDA (MODÁLNÍ OKNO + RYCHLÁ ROZBALOVACÍ ROVNINA)
    ============================================================================ */
+function openHelpModal() {
+    const m = document.getElementById('helpModal');
+    if (m) m.classList.add('active');
+}
+
+function closeHelpModal() {
+    const m = document.getElementById('helpModal');
+    if (m) m.classList.remove('active');
+}
+
+function toggleInlineQuickHelp() {
+    const plane = document.getElementById('quickHelpPlane');
+    const arrow = document.getElementById('quickHelpArrow');
+    if (!plane) return;
+    const isOpen = plane.classList.toggle('open');
+    if (arrow) {
+        arrow.innerText = isOpen ? 'Sbalit přehled ▲' : 'Rozbalit přehled ▼';
+    }
+}
+
+/* ============================================================================
+   DVOJITÝ PLYNULÝ AI VYPRAVĚČ v6.3.1 (DUAL-BUFFER A/B PRE-SYNTHESIS PIPELINE):
+   - Odstraňuje nepřirozené mezery uprostřed vět (žádné umělé sekání po 22 slovech!)
+   - Čistí typografické znaky (pomlčky —, –, uvozovky „“), na kterých se české TTS zasekává
+   - DVOJITÝ ZÁSOBNÍK NA POZADÍ (Slot A + Slot B): Zatímco vypravěč čte aktuální větu (Slot A),
+     následující věta (Slot B) se už v předstihu přednačítá do fronty syntezátoru na pozadí!
+     Díky tomu na sebe věty navazují okamžitě bez 1s záseků.
+   ============================================================================ */
+function cleanTextForSmoothTts(rawText) {
+    return (rawText || '')
+        .replace(/[„“”"«»]/g, '')           // Odstranění uvozovek, které v TTS dělají umělé záseky
+        .replace(/\s*[—–]\s*/g, ', ')       // Dlouhé pomlčky nahradíme přirozenou čárkou
+        .replace(/\.{2,}|…/g, '.')          // Trojtečky uprostřed čtení sjednotíme
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function countSentenceTriggerWords(wordsArr) {
+    let count = 0;
+    const seenClusters = new Set();
+    for (const w of wordsArr) {
+        const clean = normWord(w);
+        if (clean.length < 3) continue;
+        for (const c of SOUND_LIBRARY) {
+            if (!seenClusters.has(c.id) && c.stems.some(st => doesWordMatchStem(clean, st))) {
+                seenClusters.add(c.id);
+                count++;
+                break;
+            }
+        }
+    }
+    return count;
+}
+
 function estimateWordDurationMs(word, rate = 0.86) {
     const clean = normWord(word);
     const syllables = Math.max(1, (word.match(/[aeiouyáéěíóúůýřlnr]/gi) || []).length);
-    let ms = (115 + syllables * 78 + clean.length * 14) / rate;
-    if (/[,;–—]/.test(word)) ms += 190 / rate;
-    return Math.max(175, Math.min(1050, ms));
+    let ms = (108 + syllables * 74 + clean.length * 13) / rate;
+    if (/[,;]/.test(word)) ms += 110 / rate;
+    return Math.max(160, Math.min(920, ms));
 }
 
 function startAiStoryReading() {
@@ -2695,10 +2931,13 @@ function startAiStoryReading() {
         return;
     }
     window.speechSynthesis.cancel();
+    if (ttsWordTimer) { clearTimeout(ttsWordTimer); ttsWordTimer = null; }
+    if (ttsSentenceTimer) { clearTimeout(ttsSentenceTimer); ttsSentenceTimer = null; }
 
     if (!storyWordsData.length) loadSelectedStory(false);
 
-    // Seskupíme slova do vět s přesnými indexy slov pro 100% synchronizaci odbarvování a zvuků
+    // 1. Seskupíme slova výhradně po celých přirozených větách (nikdy nesekáme uprostřed věty po 22 slovech!).
+    // Pouze pokud je souvětí extrémně dlouhé (nad 44 slov), rozdělíme ho na čárce/spojce a označíme jako plynulé pokračování.
     const sentences = [];
     let curWords = [];
     let curIndices = [];
@@ -2707,24 +2946,35 @@ function startAiStoryReading() {
         const w = storyWordsData[i];
         curWords.push(w);
         curIndices.push(i);
-        const endsWithPunct = /[.!?…]+["„“»')]*$/.test(w);
-        if (endsWithPunct || curWords.length >= 22) {
+
+        const endsWithSentencePunct = /[.!?…]+["„“»')]*$/.test(w);
+        const endsWithCommaClause = curWords.length >= 42 && /[,;]$/.test(w);
+
+        if (endsWithSentencePunct || endsWithCommaClause || curWords.length >= 56) {
+            const rawJoined = curWords.join(' ');
             sentences.push({
-                text: curWords.join(' '),
+                rawText: rawJoined,
+                ttsText: cleanTextForSmoothTts(rawJoined),
                 indices: [...curIndices],
                 words: [...curWords],
-                isFullSentenceEnd: endsWithPunct
+                isFullSentenceEnd: endsWithSentencePunct,
+                sfxCountEstimate: countSentenceTriggerWords(curWords),
+                queued: false
             });
             curWords = [];
             curIndices = [];
         }
     }
     if (curWords.length > 0) {
+        const rawJoined = curWords.join(' ');
         sentences.push({
-            text: curWords.join(' '),
+            rawText: rawJoined,
+            ttsText: cleanTextForSmoothTts(rawJoined),
             indices: [...curIndices],
             words: [...curWords],
-            isFullSentenceEnd: true
+            isFullSentenceEnd: true,
+            sfxCountEstimate: countSentenceTriggerWords(curWords),
+            queued: false
         });
     }
 
@@ -2734,29 +2984,28 @@ function startAiStoryReading() {
         return;
     }
 
-    setStatus('🎧 AI Vypravěč předčítá příběh s filmovou dynamikou a pauzami pro dozvuk zvuků...');
+    setStatus('🎧 AI Vypravěč čte plynule s dvojitým přednačítáním na pozadí (bez záseků)...');
 
-    let sPtr = 0;
-    const speakNextSentence = () => {
+    // DVOJITÝ ZÁSOBNÍK (Slot A / Slot B):
+    // Funkce připraví a vloží větu do fronty speechSynthesis. Jakmile se Slot A začne číst (onstart),
+    // okamžitě na pozadí předřadíme do syntezátoru Slot B, aby prohlížeč vygeneroval zvuk dopředu
+    // a přešel na další větu s nulovou prodlevou!
+    const enqueueSentenceSlot = (sIdx) => {
         if (!isSessionRunning || currentMode !== 'tts') return;
-        if (sPtr >= sentences.length) {
-            stopActiveSession();
-            setStatus('😴 Příběh je dočtený. Dobrou noc a sladké sny!');
-            return;
-        }
+        if (sIdx >= sentences.length) return;
 
-        const sent = sentences[sPtr++];
-        // Vyčistíme seznam zvuků spuštěných v této větě
-        SoundEngine.sentenceSfxEvents = [];
+        const sent = sentences[sIdx];
+        if (sent.queued) return;
+        sent.queued = true;
 
-        const utterance = new SpeechSynthesisUtterance(sent.text);
+        const utterance = new SpeechSynthesisUtterance(sent.ttsText || sent.rawText);
         const progress = sent.indices[0] / Math.max(1, storyWordsData.length);
         const rate = applyVoiceStyleAndTempo(utterance, progress);
 
         let localWordPtr = 0;
         let boundaryFired = false;
 
-        // Vlastní synchronizační časovač podle délky slov a slabik (100% funkční na Androidu i Desktopu)
+        // Vlastní plynulý časovač slov (100% funkční na Androidu i Desktopu)
         const stepWordSync = () => {
             if (!isSessionRunning || currentMode !== 'tts') return;
             if (localWordPtr >= sent.indices.length) return;
@@ -2774,17 +3023,30 @@ function startAiStoryReading() {
             }
         };
 
+        // Určíme, zda má tato věta na konci počkat kvůli více zvukům (dramatická tečka),
+        // nebo zda má na ni další věta (Slot B) plynule navázat z přednačteného zásobníku bez prodlevy!
+        const needsDramaticPauseAfter = (!SoundEngine.isMuted && sent.isFullSentenceEnd && sent.sfxCountEstimate >= 2);
+
         utterance.onstart = () => {
             if (!isSessionRunning || currentMode !== 'tts') return;
-            setStatus('🎧 AI Vypravěč čte... (zvuky mají přednost a po tečce dostanou prostor doznít)');
+            if (ttsWordTimer) { clearTimeout(ttsWordTimer); ttsWordTimer = null; }
+            SoundEngine.sentenceSfxEvents = [];
+            setStatus('🎧 AI Vypravěč plynule čte (dvojitý zásobník A/B běží na pozadí)...');
             stepWordSync();
+
+            // KLÍČOVÝ PRINCIP DVOJITÉHO ČTENÍ NA POZADÍ:
+            // Pokud za touto větou není vícezvuková dramatická pauza, okamžitě už během čtení této věty
+            // vložíme do syntezátoru následující větu (Slot B), aby se na pozadí připravila a navázala bez mezery!
+            if (!needsDramaticPauseAfter && (sIdx + 1 < sentences.length)) {
+                enqueueSentenceSlot(sIdx + 1);
+            }
         };
 
         utterance.onboundary = (e) => {
             if (e.name === 'word') {
                 boundaryFired = true;
                 if (ttsWordTimer) { clearTimeout(ttsWordTimer); ttsWordTimer = null; }
-                const prefix = sent.text.slice(0, e.charIndex);
+                const prefix = (sent.ttsText || sent.rawText).slice(0, e.charIndex);
                 const wOffset = prefix.trim() ? prefix.trim().split(/\s+/).length : 0;
                 const boundedOffset = Math.min(sent.indices.length - 1, wOffset);
                 if (boundedOffset >= localWordPtr) {
@@ -2808,42 +3070,38 @@ function startAiStoryReading() {
             }
             if (!isSessionRunning || currentMode !== 'tts') return;
 
-            // VÝPOČET DYNAMICKÉ ROZHLASOVÉ PAUZY ZA TEČKOU:
-            // Pokud ve větě zazněl 1 nebo více zvuků, počkáme, aby si je posluchač vychutnal v plné kráse!
-            const events = SoundEngine.sentenceSfxEvents || [];
-            let pauseMs = Math.round((560 + Math.random() * 180) / Math.max(0.75, rate));
-
-            if (events.length > 0 && !SoundEngine.isMuted && sent.isFullSentenceEnd) {
-                const now = Date.now();
-                const lastEv = events[events.length - 1];
-                const elapsedSinceLast = Math.max(0, now - lastEv.time);
-                const remainingBodyMs = Math.max(0, Math.min(2800, (lastEv.durMs * 0.62) - elapsedSinceLast));
-                const hasDramaticPrio1 = events.some(ev => ev.priority === 1);
-
-                if (events.length >= 2 || hasDramaticPrio1) {
-                    pauseMs = Math.max(2200, Math.min(3200, 1450 + remainingBodyMs + (events.length - 1) * 450));
-                } else {
-                    pauseMs = Math.max(1500, Math.min(2400, 1050 + remainingBodyMs));
-                }
-
-                const uniqueNames = [...new Set(events.map(e => `${e.emoji} ${e.label}`))].slice(0, 3).join(', ');
-                setStatus(`🎭 Doznívá zvuková scéna za větou (${uniqueNames})...`);
+            if (sIdx + 1 >= sentences.length) {
+                stopActiveSession();
+                setStatus('😴 Příběh je dočtený. Dobrou noc a sladké sny!');
+                return;
             }
 
-            ttsSentenceTimer = setTimeout(speakNextSentence, pauseMs);
+            // Pokud nebyl další slot předřazen (protože ve větě zaznělo více zvuků a je za ní tečka),
+            // necháme krátký prostor (820 ms) pro dozvuk scény a hned spustíme další dvojici vět A/B
+            if (!sentences[sIdx + 1].queued) {
+                const events = SoundEngine.sentenceSfxEvents || [];
+                const uniqueNames = [...new Set(events.map(e => `${e.emoji} ${e.label}`))].slice(0, 3).join(', ');
+                if (uniqueNames) {
+                    setStatus(`🎭 Zvuková scéna (${uniqueNames}) – plynule navazuji...`);
+                }
+                ttsSentenceTimer = setTimeout(() => {
+                    enqueueSentenceSlot(sIdx + 1);
+                }, 820);
+            }
         };
 
         utterance.onerror = () => {
             if (ttsWordTimer) clearTimeout(ttsWordTimer);
-            if (isSessionRunning && currentMode === 'tts') {
-                ttsSentenceTimer = setTimeout(speakNextSentence, 400);
+            if (isSessionRunning && currentMode === 'tts' && (sIdx + 1 < sentences.length) && !sentences[sIdx + 1].queued) {
+                ttsSentenceTimer = setTimeout(() => enqueueSentenceSlot(sIdx + 1), 150);
             }
         };
 
         window.speechSynthesis.speak(utterance);
     };
 
-    speakNextSentence();
+    // Nastartujeme první slot A (ten si v onstart automaticky přednačte slot B na pozadí)
+    enqueueSentenceSlot(0);
 }
 
 function startSilentPacer() {

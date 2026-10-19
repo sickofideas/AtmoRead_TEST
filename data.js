@@ -1,9 +1,9 @@
 /* ============================================================================
-   AtmoRead v6.3.0 — DATA.JS
+   AtmoRead v6.3.1 — DATA.JS
    Robustní databáze 100% ověřených reálných zvuků (One-Shot + 15-20s Tail),
    priorit, barevných aur, dynamických nálad, ukolébavek (pro děti),
    atmosfér (pro dospělé) a pohádek/knih s volitelnou délkou (do 5 / 15 / 30 min).
-   Verzování: SemVer (MAJOR.MINOR.PATCH) — v6.3.0
+   Verzování: SemVer (MAJOR.MINOR.PATCH) — v6.3.1
    ============================================================================ */
 
 /* 1. ČTYŘI SMYSLUPLNÉ REŽIMY VYSOCE SVÍTIVÉ LAMPIČKY */
