@@ -1,7 +1,9 @@
 /* ============================================================================
-   AtmoRead v6.0.0 — DATA.JS
-   Databáze 100% reálných zvuků (One-Shot + 15-20s Tail), priorit, barevných aur,
-   dynamických nálad, ukolébavek a dlouhých pohádek i knih pro dospělé.
+   AtmoRead v6.2.0 — DATA.JS
+   Robustní databáze 100% ověřených reálných zvuků (One-Shot + 15-20s Tail),
+   priorit, barevných aur, dynamických nálad, ukolébavek (pro děti),
+   atmosfér (pro dospělé) a dlouhých pohádek i knih.
+   Verzování: SemVer (MAJOR.MINOR.PATCH) — v6.2.0
    ============================================================================ */
 
 /* 1. ČTYŘI SMYSLUPLNÉ REŽIMY VYSOCE SVÍTIVÉ LAMPIČKY */
@@ -9,28 +11,28 @@ const LAMP_MODES = [
     {
         id: 'cream',
         name: '📖 Čtecí krémová',
-        desc: 'Vysoká svítivost na čtení papírové knihy',
+        desc: 'Na čtení knihy',
         rgb: [255, 244, 214],
         hex: '#fff4d6'
     },
     {
         id: 'candle',
-        name: '🕯️ Teplá svíčka (1800K)',
-        desc: 'Zlatavé jantarové světlo bez modré složky',
+        name: '🕯️ Svíčka (1800K)',
+        desc: 'Zlatavé světlo',
         rgb: [255, 155, 35],
         hex: '#ff9b23'
     },
     {
         id: 'red',
         name: '🍎 Spánková červená',
-        desc: '100% podpora melatoninu a klidného usínání',
+        desc: 'Pro melatonin',
         rgb: [225, 38, 24],
         hex: '#e12618'
     },
     {
         id: 'dynamic',
-        name: '✨ Dynamická (podle děje)',
-        desc: 'Barva pokoje reaguje na slova v příběhu',
+        name: '✨ Dynamická',
+        desc: 'Podle děje',
         rgb: [245, 158, 11],
         hex: '#f59e0b'
     }
@@ -60,7 +62,7 @@ const DYNAMIC_AURA_PALETTE = [
     },
     {
         id: 'dyn_magic', name: '🔮 Tajemná kouzelná fialová', rgb: [185, 120, 255],
-        stems: ['fialov','fialk','kouzl','car','zazrak','vil','zavoj','zrcadl','tajemn','carodej','sudic','pran','strib','stín','magic','fairy','spell','witch']
+        stems: ['fialov','fialk','kouzl','car','zazrak','vil','zavoj','zrcadl','tajemn','carodej','sudic','pran','strib','stín','vesmir','raket','magic','fairy','spell','witch','space']
     },
     {
         id: 'dyn_rose', name: '🌸 Královská růžová', rgb: [244, 114, 182],
@@ -97,7 +99,7 @@ const MOOD_SCENES = {
             'https://actions.google.com/sounds/v1/weather/distant_thunder.ogg',
             'https://actions.google.com/sounds/v1/weather/wind_through_window.ogg'
         ],
-        stems: ['bour','hrom','blesk','vichr','mec','boj','souboj','rytir','drak','cert','strach','utik','utek','kletb','strel','vrah','detektiv','stín','nebezpec','battle','storm','sword','danger']
+        stems: ['bour','hrom','blesk','vichr','mec','boj','souboj','rytir','drak','cert','strach','utik','utek','kletb','strel','vrah','detektiv','stín','nebezpec','vybuch','valk','battle','storm','sword','danger']
     },
     home: {
         id: 'home',
@@ -110,12 +112,12 @@ const MOOD_SCENES = {
     },
     cafe: {
         id: 'cafe',
-        name: '☕ Kavárna a vlak',
+        name: '☕ Kavárna a město',
         urls: [
             'https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg',
             'https://actions.google.com/sounds/v1/weather/rain_on_roof.ogg'
         ],
-        stems: ['kavarn','kav','salek','caj','vino','sklenic','vlak','nadraz','kolej','kupe','novin','dopis','ulic','lamp','kabát','detektiv','román','cafe','coffee','train','station','letter']
+        stems: ['kavarn','kav','salek','caj','vino','sklenic','vlak','nadraz','kolej','kupe','novin','dopis','ulic','lamp','kabat','detektiv','roman','kancelar','pocitac','auto','mest','cafe','coffee','train','station','letter','city']
     }
 };
 
@@ -134,129 +136,186 @@ const IDLE_FILLER_SOUNDS = {
 };
 
 /* ============================================================================
-   3. KVALITNÍ UKOLÉBAVKY A USPÁVACÍ REŽIMY
+   3. PODKRESY ROZDĚLENÉ PRO DĚTI (UKOLÉBAVKY) A PRO DOSPĚLÉ (ATMOSFÉRA PRO ČTENÍ)
+   Výchozí aktivní režim: 'auto_mood' (Dynamický podkres scény)
    ============================================================================ */
 const LULLABY_LIST = [
-    { id: 'off',       icon: '🔇', title: 'Bez hudby',          desc: 'Pouze zvuky příběhu' },
-    { id: 'auto_mood', icon: '🎭', title: 'Dynamický podkres',  desc: 'Mění se sám podle děje' },
+    { id: 'off',       icon: '🔇', title: 'Bez podkresu',         desc: 'Pouze zvuky příběhu' },
+    { id: 'auto_mood', icon: '🎭', title: 'Dynamický podkres',    desc: 'Mění se sám podle děje' },
     { id: 'brahms',    icon: '🎠', title: 'Brahmsova ukolébavka', desc: 'Klasická hrací skříňka' },
-    { id: 'twinkle',   icon: '✨', title: 'Twinkle Twinkle',    desc: 'Třpytivá hvězdička' },
-    { id: 'clair',     icon: '🌙', title: 'Clair de Lune',      desc: 'Jemný měsíční svit' },
-    { id: 'harp',      icon: '🎹', title: 'Pohádková harfa',    desc: 'Hřejivé akordy harfy' },
-    { id: 'chimes',    icon: '🎐', title: 'Zvonkohra ve větru', desc: 'Křišťálové tóny a vánek' },
-    { id: 'pinknoise', icon: '🌊', title: 'Růžový šum a moře',  desc: 'Hluboké uspávání miminek' }
+    { id: 'twinkle',   icon: '✨', title: 'Twinkle Twinkle',      desc: 'Třpytivá hvězdička' },
+    { id: 'clair',     icon: '🌙', title: 'Clair de Lune',        desc: 'Jemný měsíční svit' },
+    { id: 'harp',      icon: '🎹', title: 'Pohádková harfa',      desc: 'Hřejivé akordy harfy' },
+    { id: 'chimes',    icon: '🎐', title: 'Zvonkohra ve větru',   desc: 'Křišťálové tóny a vánek' },
+    { id: 'pinknoise', icon: '🌊', title: 'Růžový šum a moře',    desc: 'Hluboké uspávání miminek' }
+];
+
+const ADULT_AMBIENCE_LIST = [
+    { id: 'off',             icon: '🔇', title: 'Bez podkresu',           desc: 'Pouze zvuky z děje' },
+    { id: 'auto_mood',       icon: '🎭', title: 'Dynamický podkres',      desc: 'Mění se sám podle děje' },
+    { id: 'jazz_noir',       icon: '🎷', title: 'Noční klavír & Déšť',    desc: 'Detektivní noir a kapky' },
+    { id: 'cafe_lounge',     icon: '☕', title: 'Pařížská kavárna',       desc: 'Šum kavárny, šálky a déšť' },
+    { id: 'fireplace_storm', icon: '🔥', title: 'Praskající krb & Bouřka', desc: 'Oheň a vzdálené hřmění' },
+    { id: 'night_train',     icon: '🚂', title: 'Noční expres',           desc: 'Jízda vlakem do noci' },
+    { id: 'fantasy_tavern',  icon: '🏰', title: 'Středověký hrad & Loutna', desc: 'Fantasy struny a ohniště' },
+    { id: 'deep_focus',      icon: '🌊', title: 'Noční oceán & Ambient',  desc: 'Hluboké soustředění u moře' }
 ];
 
 /* ============================================================================
-   4. 100% REÁLNÉ ZVUKOVÉ EFEKTY (ONE-SHOT + 15-20s TAIL SMYČKA + PRIORITA 1-3)
+   4. ROBUSTNÍ KNIHOVNA 100% OVĚŘENÝCH ZVUKŮ ZE VŠECH OBORŮ
+   (Zvířata, příroda, živly, zbraně, stroje, doprava, dílna, nástroje,
+    hudební nástroje, domácnost, kancelář, sport a lidské projevy)
    Priority:
-     1 = Dominantní zvrat / bouře / boj / drak / vlak (nejvyšší přednost)
-     2 = Zvířata / postavy / oheň / voda / kouzla / zvony / kavárna
-     3 = Kroky / dveře / nádobí / drobné ruchy
+     1 = Dominantní zvrat / bouře / boj / výbuch / vlak / siréna
+     2 = Zvířata / stroje / auta / nástroje / hudební nástroje / živly
+     3 = Kroky / dveře / nádobí / psaní / drobné ruchy
    ============================================================================ */
 const SOUND_LIBRARY = [
-    // --- PRIORITA 1: BOUŘE, BOJ, DRAK, VLAK, NAPĚTÍ ---
+    // ========================================================================
+    // PRIORITA 1: BOUŘE, ZBRANĚ, VÝBUCHY, DRAK, VLAK, SIRÉNA, NAPĚTÍ
+    // ========================================================================
     {
         id: 'thunder', emoji: '⛈️', label: 'Bouřka a hrom', priority: 1,
         stems: ['bour','bourk','bouri','hrom','zahrm','hrmi','hromobit','blesk','zablesk','mracn','thunder','storm','lightning'],
         urls: [
             'https://actions.google.com/sounds/v1/weather/rolling_thunder.ogg',
-            'https://actions.google.com/sounds/v1/weather/distant_thunder.ogg',
-            'https://actions.google.com/sounds/v1/weather/thunder_crack.ogg'
+            'https://actions.google.com/sounds/v1/weather/thunder_crack.ogg',
+            'https://actions.google.com/sounds/v1/weather/distant_thunder.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/weather/light_rain.ogg'],
-        dur: 6.0
+        dur: 5.8
     },
     {
         id: 'sword', emoji: '⚔️', label: 'Šerm a souboj mečů', priority: 1,
-        stems: ['mec','savl','dyk','stit','brnen','zbroj','prilb','rytir','souboj','bitv','boj','sek','tal','usek','kopi','sip','luk','kus','straz','vojak','zaklinac','sword','knight','shield','armor','battle','blade','duel'],
+        stems: ['mec','savl','dyk','kord','rapir','stit','brnen','zbroj','prilb','rytir','souboj','bitv','boj','sekn','sekal','usek','kopi','halapartn','sip','luk','kuse','straz','vojak','zaklinac','serm','sword','knight','shield','armor','battle','blade','duel','arrow'],
         urls: [
             'https://actions.google.com/sounds/v1/weapons/sword_clang.ogg',
-            'https://actions.google.com/sounds/v1/impacts/metal_clash.ogg',
-            'https://actions.google.com/sounds/v1/impacts/metal_hit_with_ring.ogg'
+            'https://actions.google.com/sounds/v1/sports/metal_strike.ogg',
+            'https://actions.google.com/sounds/v1/impacts/crash_metal_sliding_on_metal.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/weather/wind_through_window.ogg'],
         dur: 4.2
     },
     {
-        id: 'dragon', emoji: '🐉', label: 'Drak / Medvěd / Šelma', priority: 1,
-        stems: ['drak','drac','san','sane','hlavy','obr','obr','otesan','lidozrout','netvor','oblud','medved','medvid','lev','lva','lvi','tygr','zarv','rval','vrc','zavrc','dragon','giant','ogre','bear','lion','roar','monster'],
+        id: 'gunfire', emoji: '🔫', label: 'Výstřel a střelná zbraň', priority: 1,
+        stems: ['pistol','revolver','pusk','flint','kulovnic','samopal','kulomet','zbran','vystrel','strelb','strelil','palb','naboj','kulk','brokovnic','odstrel','gun','pistol','rifle','shot','shoot','bullet','weapon','firearm'],
         urls: [
-            'https://actions.google.com/sounds/v1/animals/bear_growl_long.ogg',
-            'https://actions.google.com/sounds/v1/animals/lion_roar.ogg',
-            'https://actions.google.com/sounds/v1/animals/tiger_roar.ogg'
+            'https://actions.google.com/sounds/v1/weapons/rifle_shot_echo.ogg',
+            'https://actions.google.com/sounds/v1/weapons/gunfire.ogg',
+            'https://actions.google.com/sounds/v1/weapons/single_gunshot.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/weather/wind_through_window.ogg'],
+        dur: 4.2
+    },
+    {
+        id: 'explosion', emoji: '💥', label: 'Výbuch, dělo a kanón', priority: 1,
+        stems: ['vybuch','exploz','bomb','granat','dynamit','minomet','delo','dela','kanon','raketomet','detonac','vyhodil','explosion','explode','bomb','cannon','artillery','blast','grenade'],
+        urls: [
+            'https://actions.google.com/sounds/v1/weapons/big_explosion_cut_off.ogg',
+            'https://actions.google.com/sounds/v1/weapons/howitzer_cannon_fire.ogg',
+            'https://actions.google.com/sounds/v1/weapons/artillery_fire_distant.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/ambiences/fire.ogg'],
-        dur: 5.0
+        dur: 5.2
+    },
+    {
+        id: 'dragon', emoji: '🐉', label: 'Drak / Medvěd / Lev / Šelma', priority: 1,
+        stems: ['drak','drac','sane','obri','obrovi','otesan','lidozrout','netvor','oblud','priser','monstr','medved','medvid','lev','lva','lvi','lvem','tygr','leopard','panter','zarv','rval','dragon','giant','ogre','bear','lion','tiger','roar','monster','beast'],
+        urls: [
+            'https://actions.google.com/sounds/v1/animals/animal_bark_and_growl.ogg',
+            'https://actions.google.com/sounds/v1/animals/dog_growling.ogg',
+            'https://actions.google.com/sounds/v1/animals/dog_snarling.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/ambiences/fire.ogg'],
+        dur: 4.8
     },
     {
         id: 'train', emoji: '🚂', label: 'Vlak a železnice', priority: 1,
-        stems: ['vlak','lokomotiv','vagon','kupe','kolej','nadraz','peron','piskot','houk','parn','expres','cestujic','train','railway','station','locomotive'],
+        stems: ['vlak','vlaku','vlakem','lokomotiv','vagon','kupe','kolej','nadraz','peron','zeleznic','parn','expres','rychlik','pendolin','strojvedouc','train','railway','station','locomotive','railroad'],
         urls: [
             'https://actions.google.com/sounds/v1/transportation/train_horn.ogg',
-            'https://actions.google.com/sounds/v1/transportation/train_passing_by.ogg'
+            'https://actions.google.com/sounds/v1/transportation/train_passing_by.ogg',
+            'https://actions.google.com/sounds/v1/cartoon/wooden_train_whistle.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/transportation/train_passing_by.ogg'],
         dur: 5.5
     },
     {
-        id: 'suspense', emoji: '🕵️', label: 'Napětí a tajemství', priority: 1,
-        stems: ['tajemstv','stín','podezrel','stopa','dukaz','vrazd','detektiv','komisar','strach','lek','vylek','temnot','nocn','hrozb','kletb','duch','strasidl','mystery','detective','shadow','fear','ghost'],
+        id: 'siren', emoji: '🚨', label: 'Siréna, policie, hasiči a sanitka', priority: 1,
+        stems: ['siren','houkack','polici','policejn','sanitk','zachrank','hasic','pozar','poplach','alarm','majak','nehod','siren','ambulance','police','emergency','alarm'],
         urls: [
-            'https://actions.google.com/sounds/v1/weather/low_thunder_rolls.ogg',
+            'https://actions.google.com/sounds/v1/emergency/ambulance_siren.ogg',
+            'https://actions.google.com/sounds/v1/emergency/emergency_siren_short_burst.ogg',
+            'https://actions.google.com/sounds/v1/emergency/ambulance_siren_distant.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/ambiences/outdoor_suburb_traffic.ogg'],
+        dur: 4.8
+    },
+    {
+        id: 'suspense', emoji: '🕵️', label: 'Napětí a tajemství', priority: 1,
+        stems: ['tajemstv','stín','podezrel','stopa','dukaz','vrazd','detektiv','komisar','vysetrov','strach','lek','vylek','temnot','hrozb','kletb','duch','strasidl','prizrak','mystery','detective','shadow','fear','ghost','horror'],
+        urls: [
+            'https://actions.google.com/sounds/v1/science_fiction/suspense_builder.ogg',
+            'https://actions.google.com/sounds/v1/science_fiction/forboding_resonance.ogg',
             'https://actions.google.com/sounds/v1/doors/creaking_wooden_door.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/weather/wind_through_window.ogg'],
-        dur: 5.2
+        dur: 5.0
     },
 
-    // --- PRIORITA 2: REÁLNÁ ZVÍŘATA ---
+    // ========================================================================
+    // PRIORITA 2: 100% OVĚŘENÁ ZVÍŘATA
+    // ========================================================================
     {
-        id: 'dog', emoji: '🐶', label: 'Pes', priority: 2,
-        stems: ['pes','pejs','pejsek','psa','psovi','psem','psi','sten','stek','zastek','haf','ohar','voris','hlidac','smeck','dog','bark','puppy','hound'],
+        id: 'dog', emoji: '🐶', label: 'Pes a štěkot', priority: 2,
+        stems: ['pes','pejs','pejsek','psa','psovi','psu','psem','psi','psik','sten','stenat','stek','zastek','haf','hafan','ohar','voris','hlidac','čokl','jezevcik','ovcak','dog','dogs','bark','barking','puppy','hound','woof'],
         urls: [
             'https://actions.google.com/sounds/v1/animals/dog_barking.ogg',
-            'https://actions.google.com/sounds/v1/ambiences/outdoor_ambience_dog_barking.ogg'
+            'https://actions.google.com/sounds/v1/animals/animal_bark_and_growl.ogg',
+            'https://actions.google.com/sounds/v1/animals/distant_dog_barking.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/ambiences/summer_forest.ogg'],
         dur: 4.2
     },
     {
-        id: 'wolf', emoji: '🐺', label: 'Vlk v lese', priority: 2,
-        stems: ['vlk','vlc','vlka','vlku','vlkem','vlci','vyje','zavyl','vyti','tesak','selm','wolf','wolves','howl'],
+        id: 'wolf', emoji: '🐺', label: 'Vlk a vrčení šelmy', priority: 2,
+        stems: ['vlk','vlc','vlka','vlku','vlkem','vlci','vlcic','smeck','vyje','zavyl','vyti','vrc','zavrc','tesak','selm','hyen','sakal','wolf','wolves','howl','growl','pack'],
         urls: [
-            'https://actions.google.com/sounds/v1/animals/wolf_howl.ogg',
-            'https://actions.google.com/sounds/v1/animals/dog_howling.ogg',
-            'https://actions.google.com/sounds/v1/animals/dog_growling.ogg'
+            'https://actions.google.com/sounds/v1/animals/dog_growling.ogg',
+            'https://actions.google.com/sounds/v1/animals/dog_snarling.ogg',
+            'https://actions.google.com/sounds/v1/animals/animal_bark_and_growl.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/weather/forest_wind_summer.ogg'],
-        dur: 5.0
+        dur: 4.8
     },
     {
-        id: 'cat', emoji: '🐱', label: 'Kočka / Kocour', priority: 2,
-        stems: ['kock','kocic','kote','kotat','kocour','mnouk','zamnouk','vrni','prede','tichoslap','cat','kitten','meow','purr'],
+        id: 'cat', emoji: '🐱', label: 'Kočka, kocour a mňoukání', priority: 2,
+        stems: ['kock','kocic','kote','kotat','kotatk','kocour','mnouk','zamnouk','mnau','vrni','zavrni','prede','tichoslap','mick','mourek','cat','cats','kitten','kitty','meow','purr'],
         urls: [
-            'https://actions.google.com/sounds/v1/animals/cat_purr_close.ogg',
-            'https://actions.google.com/sounds/v1/animals/cat_meow.ogg'
+            'https://upload.wikimedia.org/wikipedia/commons/6/62/Meow.ogg',
+            'https://upload.wikimedia.org/wikipedia/commons/0/0c/Meow_domestic_cat.ogg',
+            'https://upload.wikimedia.org/wikipedia/commons/9/9c/Audio_file_of_cat_meowing.ogg',
+            'https://actions.google.com/sounds/v1/animals/cat_purr_close.ogg'
         ],
-        tailUrls: ['https://actions.google.com/sounds/v1/ambiences/fire.ogg'],
+        tailUrls: ['https://actions.google.com/sounds/v1/animals/cat_purr_close.ogg'],
         dur: 4.2
     },
     {
-        id: 'horse', emoji: '🐴', label: 'Kůň a klus kopyt', priority: 2,
-        stems: ['kun','kone','koni','konik','konic','hrebec','klisn','hrib','or','reht','zareht','kopyt','cval','klus','juras','sedl','uzd','horse','pony','gallop','stallion'],
+        id: 'horse', emoji: '🐴', label: 'Kůň, klus kopyt a kočár', priority: 2,
+        stems: ['kun','kone','koni','konem','konik','konic','hrebec','klisn','hrib','hribat','reht','zareht','kopyt','cval','klus','juras','sedl','uzd','staj','kocar','bryck','povoz','sprezen','horse','horses','pony','gallop','stallion','mare','carriage','hooves'],
         urls: [
-            'https://actions.google.com/sounds/v1/animals/horse_whinny.ogg',
-            'https://actions.google.com/sounds/v1/animals/horse_gallop.ogg',
-            'https://actions.google.com/sounds/v1/animals/horse_snort.ogg'
+            'https://actions.google.com/sounds/v1/transportation/horse_and_carriage.ogg',
+            'https://actions.google.com/sounds/v1/transportation/horse_team.ogg',
+            'https://actions.google.com/sounds/v1/animals/horse_eating_grass.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/weather/light_breeze.ogg'],
-        dur: 4.5
+        dur: 5.0
     },
     {
         id: 'bird', emoji: '🐦', label: 'Zpěv ptáčků a holoubků', priority: 2,
-        stems: ['ptak','ptac','zpev','zazpiv','cvrlik','pip','vlastov','slavik','skrivan','holub','holoub','hrdlic','cap','labut','kridl','peri','pero','ohnivak','vrabc','sykor','bird','chirp','dove','pigeon','swan'],
+        stems: ['ptak','ptac','zpev','zazpiv','cvrlik','pip','vlastov','slavik','skrivan','holub','holoub','hrdlic','cap','labut','kridl','peri','ohnivak','vrabc','sykor','kos','papous','datel','bird','birds','chirp','dove','pigeon','swan','sparrow','woodpecker'],
         urls: [
+            'https://actions.google.com/sounds/v1/animals/june_songbirds.ogg',
             'https://actions.google.com/sounds/v1/ambiences/spring_day_forest.ogg',
             'https://actions.google.com/sounds/v1/animals/woodpecker_pecking_fast.ogg'
         ],
@@ -264,91 +323,325 @@ const SOUND_LIBRARY = [
         dur: 4.8
     },
     {
-        id: 'owl', emoji: '🦉', label: 'Noční sova a les', priority: 2,
-        stems: ['sov','sovi','vyr','syc','houk','zahouk','huu','rozark','owl','hoot'],
+        id: 'owl', emoji: '🦉', label: 'Noční sova a houkání', priority: 2,
+        stems: ['sov','sova','sovy','sove','sovou','sovi','sovic','vyr','puštik','sycek','zahouk','huu','rozark','owl','owls','hoot'],
         urls: [
             'https://actions.google.com/sounds/v1/animals/owl_hooting.ogg',
-            'https://actions.google.com/sounds/v1/ambiences/crickets_with_distant_traffic.ogg'
+            'https://actions.google.com/sounds/v1/animals/afternoon_crickets_long.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/weather/forest_wind_summer.ogg'],
         dur: 4.8
     },
     {
-        id: 'crow', emoji: '🐦‍⬛', label: 'Krkavec a vrána', priority: 2,
-        stems: ['krkav','vran','havran','krak','zakrak','krahuj','jestrab','orel','orl','sokol','crow','raven','hawk','eagle'],
+        id: 'crow', emoji: '🐦‍⬛', label: 'Krkavec, vrána a orel', priority: 2,
+        stems: ['krkav','vran','havran','krak','zakrak','krahuj','jestrab','orel','orl','sokol','sup','crow','crows','raven','hawk','eagle','falcon'],
         urls: [
             'https://actions.google.com/sounds/v1/animals/crow_call.ogg',
+            'https://actions.google.com/sounds/v1/animals/crows_caw_in_field.ogg',
             'https://actions.google.com/sounds/v1/animals/crows_picking_at_carcass.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/weather/light_breeze.ogg'],
-        dur: 4.0
+        dur: 4.2
     },
     {
-        id: 'frog', emoji: '🐸', label: 'Žabka u rybníka', priority: 2,
-        stems: ['zab','zabic','kvak','zakvak','kunk','ropuch','pulec','frog','toad','croak'],
+        id: 'frog', emoji: '🐸', label: 'Žába a kvákání u rybníka', priority: 2,
+        stems: ['zab','zaba','zaby','zabe','zabou','zabic','zabak','kvak','zakvak','kunk','ropuch','pulec','mokrad','baz','frog','frogs','toad','croak'],
         urls: [
-            'https://actions.google.com/sounds/v1/animals/frogs.ogg',
+            'https://upload.wikimedia.org/wikipedia/commons/a/a9/De-Frosch2.ogg',
+            'https://upload.wikimedia.org/wikipedia/commons/9/9f/Single_Frog_Croak.oga',
+            'https://upload.wikimedia.org/wikipedia/commons/6/60/Night_Chorus_of_Frogs_and_Toads_in_Niger_Delta.ogg',
             'https://actions.google.com/sounds/v1/water/small_stream_flowing.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/water/small_stream_flowing.ogg'],
         dur: 4.5
     },
     {
-        id: 'pig', emoji: '🐷', label: 'Prasátko na dvorku', priority: 2,
-        stems: ['pras','prase','prasatk','cunik','pasik','kanec','knour','chrocht','zachrocht','rypac','pig','piglet','oink','boar'],
+        id: 'pig', emoji: '🐷', label: 'Prasátko a chlívek', priority: 2,
+        stems: ['pras','prase','prasat','prasatk','cunik','pasik','kanec','knour','svin','chrocht','zachrocht','rypac','chliv','pig','pigs','piglet','oink','boar','hog'],
         urls: [
-            'https://actions.google.com/sounds/v1/animals/pig_grunt.ogg',
+            'https://actions.google.com/sounds/v1/animals/animal_squealing.ogg',
             'https://actions.google.com/sounds/v1/ambiences/barnyard_with_animals.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/ambiences/barnyard_with_animals.ogg'],
-        dur: 4.4
+        dur: 4.5
     },
     {
-        id: 'cow_sheep', emoji: '🐑', label: 'Ovečka, kráva a pastvina', priority: 2,
-        stems: ['krav','tele','telat','vul','byk','buc','zabuc','ovc','ovec','beran','beran','jehn','bec','zabec','koz','kozic','kuzl','mec','osel','oslik','cow','cattle','moo','sheep','lamb','goat'],
+        id: 'cow_sheep', emoji: '🐑', label: 'Ovečka, kráva, koza a pastvina', priority: 2,
+        stems: ['krav','tele','telat','vul','byk','buc','zabuc','ovc','ovce','ovci','ovec','oveck','beran','jehn','jehnat','bec','zabec','koz','koza','kozy','kozic','kuzl','osel','oslik','pastv','stado','cow','cattle','moo','bull','sheep','lamb','goat','donkey'],
         urls: [
+            'https://upload.wikimedia.org/wikipedia/commons/2/28/Sheep_bleat.ogg',
+            'https://upload.wikimedia.org/wikipedia/commons/1/13/Sheep_bleating.ogg',
             'https://actions.google.com/sounds/v1/ambiences/farm_morning_with_sheep.ogg',
-            'https://actions.google.com/sounds/v1/animals/cattle_moo.ogg',
-            'https://actions.google.com/sounds/v1/animals/sheep_bleat.ogg'
+            'https://actions.google.com/sounds/v1/ambiences/barnyard_with_animals.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/ambiences/farm_morning_with_sheep.ogg'],
         dur: 4.8
     },
     {
-        id: 'rooster', emoji: '🐓', label: 'Kohout a vesnické ráno', priority: 2,
-        stems: ['kohout','kokrh','zakokrh','kykyr','slepic','slepic','kur','kurat','kdak','kachn','hus','houser','vesnic','statek','dvur','rooster','hen','chicken','duck','goose','village'],
+        id: 'rooster', emoji: '🐓', label: 'Kohout, slepice, husa a kachna', priority: 2,
+        stems: ['kohout','kokrh','zakokrh','kykyr','slepic','slípk','kur','kure','kurat','kdak','kachn','kacer','hus','husa','husy','houser','kurnik','statek','dvur','dvorek','rooster','cock','hen','chicken','chick','duck','goose','geese','farm','barnyard'],
         urls: [
-            'https://actions.google.com/sounds/v1/animals/rooster_crow.ogg',
-            'https://actions.google.com/sounds/v1/ambiences/inside_barn_with_chickens.ogg'
+            'https://upload.wikimedia.org/wikipedia/commons/c/c5/Rooster_crowing.ogg',
+            'https://actions.google.com/sounds/v1/ambiences/inside_barn_with_chickens.ogg',
+            'https://actions.google.com/sounds/v1/animals/geese_outside.ogg',
+            'https://upload.wikimedia.org/wikipedia/commons/4/43/Young_rooster_crowing.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/ambiences/inside_barn_with_chickens.ogg'],
+        dur: 4.8
+    },
+    {
+        id: 'mouse', emoji: '🐭', label: 'Myš, křeček a veverka', priority: 2,
+        stems: ['mys','mysi','mysk','krys','potkan','krecek','veverk','jezek','krtek','hlodav','piskl','zapisk','mouse','mice','rat','hamster','squirrel','squeak'],
+        urls: [
+            'https://actions.google.com/sounds/v1/animals/mouse_squeaking.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/weather/leaves_russle_on_tree.ogg'],
+        dur: 3.8
+    },
+    {
+        id: 'snake', emoji: '🐍', label: 'Had, zmije a zasyčení', priority: 2,
+        stems: ['had','hada','hadu','hadi','zmij','kobr','chrestys','anakond','plaz','zasyc','sykot','ustkn','snake','viper','cobra','serpent','rattlesnake','hiss'],
+        urls: [
+            'https://actions.google.com/sounds/v1/animals/animal_hiss_and_rattle.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/weather/forest_wind_summer.ogg'],
+        dur: 4.2
+    },
+    {
+        id: 'insect', emoji: '🐝', label: 'Včelka, moucha a cvrčci', priority: 2,
+        stems: ['vcel','vcela','vcelk','vcelic','cmelak','vos','vosa','srsen','mouch','musk','komar','mraven','brouk','cvrc','cvrcek','motyl','bzuc','zabzuc','ul','hmyz','bee','bees','wasp','fly','mosquito','ant','beetle','cricket','buzz','insect'],
+        urls: [
+            'https://actions.google.com/sounds/v1/animals/bee_buzz.ogg',
+            'https://actions.google.com/sounds/v1/animals/swarming_bees.ogg',
+            'https://actions.google.com/sounds/v1/animals/buzzing_fly.ogg',
+            'https://actions.google.com/sounds/v1/animals/afternoon_crickets_long.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/animals/afternoon_crickets_long.ogg'],
+        dur: 4.4
+    },
+
+    // ========================================================================
+    // PRIORITA 2: STROJE, DOPRAVA, AUTA, LETADLA, TOVÁRNA, VESMÍR
+    // ========================================================================
+    {
+        id: 'car', emoji: '🚗', label: 'Auto, motor a silnice', priority: 2,
+        stems: ['aut','auto','auta','autem','automobil','vuz','vozu','vozem','vozidl','motor','volant','brzd','plyn','klakson','zatrub','silnic','dalnic','garaz','taxik','taxi','ridic','benzin','car','cars','automobile','vehicle','engine','drive','driving','highway','horn','traffic'],
+        urls: [
+            'https://actions.google.com/sounds/v1/transportation/muscle_car_start_idle_and_drive_away.ogg',
+            'https://actions.google.com/sounds/v1/transportation/car_engine_idling_accelerating.ogg',
+            'https://actions.google.com/sounds/v1/transportation/car_horn.ogg',
+            'https://actions.google.com/sounds/v1/transportation/car_drive_by.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/ambiences/outdoor_suburb_traffic.ogg'],
+        dur: 5.0
+    },
+    {
+        id: 'motorcycle', emoji: '🏍️', label: 'Motorka a skútr', priority: 2,
+        stems: ['motork','motocykl','skutr','moped','chopper','motorkar','prilb','motorcycle','motorbike','scooter','biker'],
+        urls: [
+            'https://actions.google.com/sounds/v1/transportation/motorcycle_engine_start_idle_kill.ogg',
+            'https://actions.google.com/sounds/v1/transportation/motorcycle_drive_by.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/ambiences/outdoor_suburb_traffic.ogg'],
+        dur: 5.0
+    },
+    {
+        id: 'truck_tractor', emoji: '🚜', label: 'Traktor, kamion, autobus a bagr', priority: 2,
+        stems: ['traktor','kamion','nakladak','autobus','trolejbus','bagr','buldozer','jerab','kombajn','orba','pole','tractor','truck','lorry','bus','excavator','bulldozer'],
+        urls: [
+            'https://actions.google.com/sounds/v1/transportation/tractor_background_noise.ogg',
+            'https://actions.google.com/sounds/v1/transportation/large_truck_driving.ogg',
+            'https://actions.google.com/sounds/v1/transportation/dump_truck_idling.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/transportation/tractor_background_noise.ogg'],
+        dur: 5.2
+    },
+    {
+        id: 'airplane', emoji: '✈️', label: 'Letadlo, vrtulník a letiště', priority: 2,
+        stems: ['letadl','letoun','stihack','vrtulnik','helikopter','letist','pilot','vzlet','pristan','obloh','padak','balon','vzducholod','airplane','plane','aircraft','jet','helicopter','airport','flight','pilot'],
+        urls: [
+            'https://actions.google.com/sounds/v1/transportation/airplane_in_flight.ogg',
+            'https://actions.google.com/sounds/v1/transportation/prop_plane_take_off.ogg',
+            'https://actions.google.com/sounds/v1/transportation/helicopter_by.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/transportation/airplane_in_flight.ogg'],
+        dur: 5.4
+    },
+    {
+        id: 'bicycle', emoji: '🚲', label: 'Jízdní kolo a cyklista', priority: 2,
+        stems: ['kolobez','cyklist','bicykl','slapal','pedal','riditk','prehazovack','skateboard','bicycle','bike','cycling','pedal','skateboard'],
+        urls: [
+            'https://actions.google.com/sounds/v1/sports/bicycle_pedaling.ogg',
+            'https://actions.google.com/sounds/v1/sports/bicycle_pedaling_old_chain.ogg',
+            'https://actions.google.com/sounds/v1/sports/skateboard_kick_push.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/weather/light_breeze.ogg'],
+        dur: 4.2
+    },
+    {
+        id: 'factory_machine', emoji: '⚙️', label: 'Stroj, továrna, robot a technika', priority: 2,
+        stems: ['stroj','strojovn','tovarn','fabrik','vyrob','mechanis','ozuben','pist','ventil','cerpadl','generator','turbin','transformator','lis','robot','android','kyborg','automat','machine','machinery','factory','engine','gear','robot','industrial','motor'],
+        urls: [
+            'https://actions.google.com/sounds/v1/tools/machine_rumble.ogg',
+            'https://actions.google.com/sounds/v1/ambiences/factory_background.ogg',
+            'https://actions.google.com/sounds/v1/transportation/metal_gear_shifting.ogg',
+            'https://actions.google.com/sounds/v1/science_fiction/robot_code.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/ambiences/factory_background.ogg'],
+        dur: 5.0
+    },
+    {
+        id: 'spaceship', emoji: '🚀', label: 'Vesmír, raketa, sci-fi a laser', priority: 2,
+        stems: ['vesmir','kosm','raket','kosmick','galaxi','planet','orbit','satelit','druzic','mimozem','ufon','ufo','laser','paprsek','teleport','warp','hvezdolet','space','spaceship','rocket','alien','laser','galaxy','scifi'],
+        urls: [
+            'https://actions.google.com/sounds/v1/science_fiction/sci_fi_vortex.ogg',
+            'https://actions.google.com/sounds/v1/science_fiction/alien_beam.ogg',
+            'https://actions.google.com/sounds/v1/science_fiction/outer_space.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/science_fiction/outer_space.ogg'],
+        dur: 5.2
+    },
+
+    // ========================================================================
+    // PRIORITA 2: NÁSTROJE, DÍLNA, STAVBA A ŘEMESLA
+    // ========================================================================
+    {
+        id: 'hammer_forge', emoji: '🔨', label: 'Kladivo, kovadlina, kovář a stavba', priority: 2,
+        stems: ['kladiv','kladivk','palic','kovadlin','kovar','kovarn',' podkov','hrebik','zatlouk','pribil','zednik','stavb','cihl','kov','zelezn','ocel','hammer','anvil','blacksmith','forge','nail','build','brick'],
+        urls: [
+            'https://actions.google.com/sounds/v1/tools/hammering_into_wood.ogg',
+            'https://actions.google.com/sounds/v1/tools/hammer_on_cement.ogg',
+            'https://actions.google.com/sounds/v1/tools/hitting_wedge_with_maul.ogg',
+            'https://actions.google.com/sounds/v1/sports/metal_strike.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/ambiences/fire.ogg'],
+        dur: 4.4
+    },
+    {
+        id: 'saw_wood', emoji: '🪚', label: 'Pila, sekera a řezání dřeva', priority: 2,
+        stems: ['pil','pila','pilu','pilou','pilk','motorov','cirkulark','rezal','rizl','seker','sekyr','drevorub','kacel','pokac','polen','klada','stip','truhl','tesar','saw','chainsaw','axe','chop','lumber','wood','carpenter'],
+        urls: [
+            'https://actions.google.com/sounds/v1/tools/skil_saw_motor_run.ogg',
+            'https://actions.google.com/sounds/v1/tools/chopping_log.ogg',
+            'https://actions.google.com/sounds/v1/impacts/splitting_fire_wood.ogg',
+            'https://actions.google.com/sounds/v1/impacts/chopping_tree.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/ambiences/summer_forest.ogg'],
+        dur: 4.6
+    },
+    {
+        id: 'drill_tools', emoji: '🪛', label: 'Vrtačka, šroubovák, klíč a dílna', priority: 2,
+        stems: ['vrtack','vrtal','vyvrt','sroub','sroubovak','matic','francouz','racn','brusk','pilnik','sverak','diln','narad','oprav','montov','drill','screwdriver','wrench','tool','tools','workshop','repair'],
+        urls: [
+            'https://actions.google.com/sounds/v1/tools/18v_cordless_drill_high_pitch.ogg',
+            'https://actions.google.com/sounds/v1/tools/household_drill.ogg',
+            'https://actions.google.com/sounds/v1/tools/ratchet_wrench_fast.ogg',
+            'https://actions.google.com/sounds/v1/tools/ratchet_wrench_slow.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/ambiences/factory_background.ogg'],
+        dur: 4.4
+    },
+    {
+        id: 'shovel_dig', emoji: '⛏️', label: 'Lopata, krumpáč, kopání a důl', priority: 2,
+        stems: ['lopat','ryc','krumpac','motyk','kopal','vykop','hrob','jam','hlín','pisk','kamen','skal','dul','hornik','trpasl','jeskyn','shovel','spade','pickaxe','dig','digging','mine','miner','dwarf','stone','rock'],
+        urls: [
+            'https://actions.google.com/sounds/v1/tools/shovel_digging_dirt.ogg',
+            'https://actions.google.com/sounds/v1/impacts/stone_drop.ogg',
+            'https://actions.google.com/sounds/v1/impacts/metal_banging_against_rocks.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/weather/wind_through_window.ogg'],
+        dur: 4.2
+    },
+    {
+        id: 'sewing_scissors', emoji: '✂️', label: 'Nůžky, šicí stroj, jehla a krejčí', priority: 3,
+        stems: ['nuzk','strih','ustrih','sici','jehl','nit','krejc','svadl','latk','platn','kolovrat','vreten','tkalc','scissors','snip','sewing','needle','thread','tailor','cloth'],
+        urls: [
+            'https://actions.google.com/sounds/v1/office/scissor_snips.ogg',
+            'https://actions.google.com/sounds/v1/tools/sewing_machine_series.ogg',
+            'https://actions.google.com/sounds/v1/tools/industrial_sewing_machine.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/ambiences/fire.ogg'],
+        dur: 4.0
+    },
+
+    // ========================================================================
+    // PRIORITA 2: HUDEBNÍ NÁSTROJE (REÁLNÉ NAHRÁVKY + AKUSTICKÝ SOakord)
+    // ========================================================================
+    {
+        id: 'piano_inst', emoji: '🎹', label: 'Klavír, piáno a varhany', priority: 2,
+        instrumentChord: 'piano',
+        stems: ['klavir','pian','klaves','varhan','cembal','harmonik','akordeon','melodi','koncert','skladatel','noty','piano','organ','keyboard','melody','concert'],
+        urls: [
+            'https://upload.wikimedia.org/wikipedia/commons/c/c7/CMajor_Chord_in_Different_Instruments.ogg',
+            'https://actions.google.com/sounds/v1/cartoon/xylophone_tip_toe_scale_up.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg'],
+        dur: 4.6
+    },
+    {
+        id: 'guitar_harp', emoji: '🎸', label: 'Kytara, loutna, harfa a struny', priority: 2,
+        instrumentChord: 'guitar',
+        stems: ['kytar','loutn','harf','mandolin','ukulel','banj','citer','strun','brnk','zahrál','akord','bard','trubadur','guitar','lute','harp','strings','chord','strum','banjo'],
+        urls: [
+            'https://actions.google.com/sounds/v1/cartoon/instrument_strum.ogg',
+            'https://upload.wikimedia.org/wikipedia/commons/c/cc/9577_Guitarz1970_Clean_E9_Guitar_Chord_%28Mike_Tribulas%29.ogg',
+            'https://actions.google.com/sounds/v1/cartoon/concussive_guitar_hit.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/ambiences/fire.ogg'],
         dur: 4.5
     },
     {
-        id: 'insect', emoji: '🐝', label: 'Včelka a cvrčci', priority: 2,
-        stems: ['vcel','vcelic','cmelak','vos','mouch','musk','komar','mraven','mravene','brouk','brouc','zlatohlav','cvrc','motyl','bzuc','zabzuc','ul','plast','bee','ant','beetle','cricket','buzz'],
+        id: 'violin_strings', emoji: '🎻', label: 'Housle, violoncello a smyčce', priority: 2,
+        instrumentChord: 'violin',
+        stems: ['housl','houslic','violoncell','cello','kontrabas','smycec','symfoni','orchestr','dirigent','violin','fiddle','cello','orchestra','symphony'],
         urls: [
-            'https://actions.google.com/sounds/v1/animals/bee_buzzing.ogg',
-            'https://actions.google.com/sounds/v1/ambiences/crickets_with_distant_traffic.ogg'
+            'https://upload.wikimedia.org/wikipedia/commons/c/c7/CMajor_Chord_in_Different_Instruments.ogg'
         ],
-        tailUrls: ['https://actions.google.com/sounds/v1/ambiences/summer_forest.ogg'],
+        tailUrls: ['https://actions.google.com/sounds/v1/weather/light_breeze.ogg'],
+        dur: 4.6
+    },
+    {
+        id: 'trumpet_horn', emoji: '🎺', label: 'Trubka, roh, fanfára a flétna', priority: 2,
+        instrumentChord: 'brass',
+        stems: ['trubk','trump','roh','lesni','fanfar','pozoun','trombon','saxofon','klarinet','fletn','pistal','dudy','zatroub','troub','trumpet','horn','bugle','fanfare','flute','whistle','saxophone'],
+        urls: [
+            'https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg',
+            'https://actions.google.com/sounds/v1/cartoon/slide_whistle_up.ogg',
+            'https://actions.google.com/sounds/v1/cartoon/whistle_toy.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/weather/light_breeze.ogg'],
+        dur: 4.4
+    },
+    {
+        id: 'drums_perc', emoji: '🥁', label: 'Bubny, bicí, tympány a činely', priority: 2,
+        stems: ['buben','bubn','bubink','bici','tympan','cinel','gong','tambur','rytm','bubnov','drum','drums','drummer','cymbal','gong','percussion','rhythm'],
+        urls: [
+            'https://actions.google.com/sounds/v1/cartoon/drum_roll.ogg',
+            'https://actions.google.com/sounds/v1/cartoon/tympani_bing.ogg',
+            'https://actions.google.com/sounds/v1/cartoon/crash_layer_drumset.ogg',
+            'https://actions.google.com/sounds/v1/cartoon/crash_layer_cymbals.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/weather/light_breeze.ogg'],
         dur: 4.2
     },
 
-    // --- PRIORITA 2: ŽIVLY, PŘÍRODA, HRAD, KAVÁRNA, KOUZLA ---
+    // ========================================================================
+    // PRIORITA 2: ŽIVLY, PŘÍRODA, HRAD, KAVÁRNA, ZVONY, POKLAD
+    // ========================================================================
     {
-        id: 'fire', emoji: '🔥', label: 'Praskající oheň a krb', priority: 2,
-        stems: ['ohen','ohn','ohnic','ohnist','plamen','plamin','krb','pec','peci','kamn','hori','shor','prask','zaprask','jiskr','popel','popelk','dym','kour','pochod','louc','fire','flame','hearth','ash','torch'],
+        id: 'fire', emoji: '🔥', label: 'Praskající oheň, krb a sirky', priority: 2,
+        stems: ['ohen','ohn','ohnic','ohnist','plamen','plamin','krb','pec','peci','kamn','hori','shor','prask','zaprask','jiskr','popel','popelk','dym','kour','pochod','louc','zapalovac','sirk','zapalk','fire','flame','hearth','ash','torch','lighter','match'],
         urls: [
             'https://actions.google.com/sounds/v1/ambiences/fire.ogg',
-            'https://actions.google.com/sounds/v1/ambiences/daytime_forrest_bonfire.ogg'
+            'https://actions.google.com/sounds/v1/ambiences/daytime_forrest_bonfire.ogg',
+            'https://actions.google.com/sounds/v1/household/lighter_flick.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/ambiences/fire.ogg'],
         dur: 5.5
     },
     {
         id: 'water', emoji: '💧', label: 'Studánka, potůček a řeka', priority: 2,
-        stems: ['vod','vodic','studank','studn','potok','potuc','rek','ric','pramen','zblun','splouch','ryb','rybic','rybnik','jezer','jezir','vodnik','hastrman','vrba','tun','water','stream','river','well','splash','fish'],
+        stems: ['vod','voda','vody','vode','vodou','vodic','studank','studn','potok','potuc','reka','reky','rece','rekou','ric','pramen','zblun','splouch','ryb','ryba','rybic','rybnik','jezer','jezir','vodnik','hastrman','vodopad','water','stream','river','well','splash','fish','lake'],
         urls: [
             'https://actions.google.com/sounds/v1/water/small_stream_flowing.ogg',
             'https://actions.google.com/sounds/v1/water/rocks_into_water.ogg',
@@ -358,8 +651,8 @@ const SOUND_LIBRARY = [
         dur: 5.2
     },
     {
-        id: 'sea', emoji: '🌊', label: 'Moře a příboj vln', priority: 2,
-        stems: ['mor','mori','ocean','vln','priboj','breh','plaz','ostrov','korab','lod','lodic','placht','namor','kotv','sea','ocean','wave','ship','boat','island'],
+        id: 'sea', emoji: '🌊', label: 'Moře, příboj vln a loď', priority: 2,
+        stems: ['mor','more','mori','ocean','vln','vlny','priboj','breh','plaz','ostrov','korab','lod','lode','lodi','lodic','plachetnic','parnik','clun','palub','namor','kapitan','kotv','pirat','sea','ocean','wave','waves','ship','boat','sail','island','pirate'],
         urls: [
             'https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg',
             'https://actions.google.com/sounds/v1/water/ocean_wave_rock_beach.ogg'
@@ -369,7 +662,7 @@ const SOUND_LIBRARY = [
     },
     {
         id: 'rain', emoji: '🌧️', label: 'Déšť a kapky na střeše', priority: 2,
-        stems: ['des','dest','prs','zaprs','lijak','lije','kapk','kape','krupej','mzi','pliskanic','louz','kaluz','rain','shower','drizzle','drop'],
+        stems: ['des','dest','prs','prsi','zaprs','lijak','lije','kapk','kape','krupej','mzi','pliskanic','louz','kaluz','destnik','rain','raining','shower','drizzle','drop','umbrella'],
         urls: [
             'https://actions.google.com/sounds/v1/weather/rain_on_roof.ogg',
             'https://actions.google.com/sounds/v1/weather/light_rain.ogg',
@@ -379,8 +672,8 @@ const SOUND_LIBRARY = [
         dur: 5.5
     },
     {
-        id: 'wind', emoji: '💨', label: 'Vítr, vichřice a mráz', priority: 2,
-        stems: ['vitr','vetr','vetric','vanek','fouk','zafouk','odfouk','vichr','vichric','meluzin','vanic','fujavic','snih','sneh','snez','mraz','zima','zimn','led','rampouch','leden','wind','breeze','blow','snow','frost','winter'],
+        id: 'wind', emoji: '💨', label: 'Vítr, vichřice, sníh a mráz', priority: 2,
+        stems: ['vitr','vetr','vetric','vanek','fouk','zafouk','odfouk','vichr','vichric','meluzin','vanic','fujavic','snih','sneh','snez','mraz','zima','zimn','led','rampouch','wind','breeze','blow','snow','frost','winter','ice'],
         urls: [
             'https://actions.google.com/sounds/v1/weather/wind_through_window.ogg',
             'https://actions.google.com/sounds/v1/weather/forest_wind_summer.ogg',
@@ -390,107 +683,176 @@ const SOUND_LIBRARY = [
         dur: 5.5
     },
     {
-        id: 'forest', emoji: '🌲', label: 'Šumění lesa a listí', priority: 2,
-        stems: ['les','lese','lesik','hvozd','strom','dub','smrk','jedl','borovic','briz','lip','vetev','vetvic','list','listi','sust','zasust','krov','houstin','mech','sipk','trn','trni','parez','jelen','srn','lisk','zajic','forest','woods','tree','branch','leaf','leaves','deer','fox'],
+        id: 'forest', emoji: '🌲', label: 'Šumění lesa, stromů a listí', priority: 2,
+        stems: ['les','lesa','lese','lesem','lesik','hvozd','strom','dub','smrk','jedl','borovic','briz','lip','vetev','vetvic','list','listi','sust','zasust','krov','houstin','mech','sipk','trn','parez','jelen','srn','lisk','zajic','forest','woods','tree','branch','leaf','leaves','deer','fox'],
         urls: [
             'https://actions.google.com/sounds/v1/weather/leaves_russle_on_tree.ogg',
-            'https://actions.google.com/sounds/v1/ambiences/summer_forest.ogg'
+            'https://actions.google.com/sounds/v1/ambiences/summer_forest.ogg',
+            'https://actions.google.com/sounds/v1/impacts/forest_wood_snapping.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/ambiences/summer_forest.ogg'],
         dur: 5.0
     },
     {
-        id: 'bell', emoji: '🔔', label: 'Hodiny, zvon a půlnoc', priority: 2,
-        stems: ['zvon','zvonek','zvonk','zazvon','cink','zacink','hodin','odbil','odbij','pulnoc','vezn','svatb','kostel','klaster','opatstv','bell','chime','clock','midnight','church'],
+        id: 'bell', emoji: '🔔', label: 'Hodiny, budík, zvon a zvonkohra', priority: 2,
+        stems: ['zvon','zvonek','zvonk','zazvon','cink','zacink','hodin','hodink','budik','tikot','tikaj','odbil','odbij','pulnoc','vezn','svatb','kostel','klaster','zvonkohr','bell','bells','chime','clock','alarm','midnight','church'],
         urls: [
-            'https://actions.google.com/sounds/v1/alarms/Mechanical_Clock_Ring.ogg',
-            'https://actions.google.com/sounds/v1/Cartoon/clang_and_wobble.ogg'
+            'https://actions.google.com/sounds/v1/cartoon/mechanical_clock_ring.ogg',
+            'https://actions.google.com/sounds/v1/cartoon/jingle_bells.ogg',
+            'https://actions.google.com/sounds/v1/foley/wind_chimes_of_shells.ogg',
+            'https://actions.google.com/sounds/v1/alarms/clock_ticking.ogg'
         ],
-        tailUrls: ['https://actions.google.com/sounds/v1/weather/light_breeze.ogg'],
+        tailUrls: ['https://actions.google.com/sounds/v1/alarms/clock_ticking.ogg'],
         dur: 4.6
     },
     {
-        id: 'treasure', emoji: '🪙', label: 'Zlaté dukáty, poklad a kouzlo', priority: 2,
-        stems: ['poklad','zlato','zlaty','zlatak','dukat','minc','stribr','drahokam','diamant','perla','perl','rubin','smaragd','prsten','prstyn','korun','zezl','trun','bohatstv','mesec','oris','kouzl','car','zazrak','vil','zrcadl','hulk','gold','coin','treasure','diamond','jewel','ring','crown','magic','spell','fairy'],
+        id: 'treasure', emoji: '🪙', label: 'Mince, peníze, poklad a kouzlo', priority: 2,
+        stems: ['poklad','zlato','zlaty','zlatak','dukat','minc','peniz','penize','bankovk','pokladn','stribr','drahokam','diamant','perla','perl','rubin','smaragd','prsten','prstyn','korun','zezl','trun','bohatstv','mesec','oris','kouzl','carov','caro','cary','zazrak','vila','vily','zrcadl','hulk','gold','coin','coins','money','treasure','diamond','jewel','ring','crown','magic','spell','fairy'],
         urls: [
             'https://actions.google.com/sounds/v1/foley/coins_in_hand.ogg',
+            'https://actions.google.com/sounds/v1/impacts/loose_change_on_wood.ogg',
             'https://actions.google.com/sounds/v1/foley/glass_clink.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/ambiences/spring_day_forest.ogg'],
         dur: 4.2
     },
     {
-        id: 'cafe', emoji: '☕', label: 'Kavárna, hostinec a cinknutí sklenic', priority: 2,
-        stems: ['kavarn','kav','hostin','krcm','hospud','hospod','vino','piv','cis','sklenic','salek','caj','stul','bar','hovor','smich','slavnost','ples','bal','cafe','coffee','tavern','inn','wine','glass','feast'],
+        id: 'cafe', emoji: '🍷', label: 'Kavárna, restaurace, víno a přípitek', priority: 2,
+        stems: ['kavarn','kav','kava','restaurac','hostin','krcm','hospud','hospod','vino','vinem','piv','pivo','sekt','sampansk','pripit','tukl','sklenic','sklenk','lahev','zátk','korek','salek','bar','slavnost','ples','cafe','coffee','tavern','inn','wine','beer','glass','bottle','toast','feast'],
         urls: [
-            'https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg',
-            'https://actions.google.com/sounds/v1/foley/glass_clink.ogg'
+            'https://actions.google.com/sounds/v1/impacts/silverware_on_glass_toast.ogg',
+            'https://actions.google.com/sounds/v1/household/wine_bottles_clinking.ogg',
+            'https://actions.google.com/sounds/v1/household/bottle_cork.ogg',
+            'https://actions.google.com/sounds/v1/household/ice_cubes_in_glass.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg'],
-        dur: 5.0
+        dur: 4.8
     },
 
-    // --- PRIORITA 3: DVEŘE, KROKY, KOČÁR, KUCHYNĚ, ŘEMESLA, KNIHA ---
+    // ========================================================================
+    // PRIORITA 2 & 3: VĚCI, DOMÁCNOST, KANCELÁŘ, SPORT A LIDSKÉ PROJEVY
+    // ========================================================================
     {
-        id: 'door', emoji: '🚪', label: 'Dveře, brána a zaklepání', priority: 3,
-        stems: ['dver','dvir','vrat','bran','zaklep','klep','zabus','bus','vrz','zavrz','otevr','zavr','prah','pant','okenic','okn','chaloup','chalup','domec','domek','hrad','zamek','komnat','door','gate','knock','creak','window','cottage','castle'],
+        id: 'phone', emoji: '📱', label: 'Telefon, mobil a zazvonění', priority: 2,
+        stems: ['telefon','mobil','smartphon','sluchatk','zavol','volal','hovor','vyzvan','sms','zprav','phone','telephone','mobile','cellphone','ringing','call'],
+        urls: [
+            'https://actions.google.com/sounds/v1/alarms/phone_ringing.ogg',
+            'https://actions.google.com/sounds/v1/household/telephone_ring.ogg',
+            'https://actions.google.com/sounds/v1/alarms/beep_short.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg'],
+        dur: 4.4
+    },
+    {
+        id: 'computer_keyboard', emoji: '💻', label: 'Počítač, klávesnice a kancelář', priority: 3,
+        stems: ['pocitac','notebook','laptop','klavesnic','monitor','obrazovk','internet','web','server','program','kod','aplikac','kancelar','psaci','computer','laptop','keyboard','typing','office','software'],
+        urls: [
+            'https://actions.google.com/sounds/v1/office/keyboard_typing_fast.ogg',
+            'https://actions.google.com/sounds/v1/office/typing_on_keyboard.ogg',
+            'https://actions.google.com/sounds/v1/office/assorted_computer_sounds.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg'],
+        dur: 4.2
+    },
+    {
+        id: 'camera_photo', emoji: '📸', label: 'Fotoaparát a focení', priority: 3,
+        stems: ['fotoaparat','fotak','fotk','fotograf','vyfot','blesk','objektiv','kamer','camera','photo','photograph','picture','shutter'],
+        urls: [
+            'https://actions.google.com/sounds/v1/household/handling_a_camera.ogg',
+            'https://actions.google.com/sounds/v1/household/wall_light_switch_close.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/weather/light_breeze.ogg'],
+        dur: 3.6
+    },
+    {
+        id: 'glass_break', emoji: '🪟', label: 'Rozbité sklo a střepy', priority: 2,
+        stems: ['rozbil','rozbit','strep','strepy','trist','roztri','praskl','vylom','shatter','smash','broken','shards'],
+        urls: [
+            'https://actions.google.com/sounds/v1/impacts/glass_windows_breaking.ogg',
+            'https://actions.google.com/sounds/v1/impacts/wine_glass_shatter.ogg',
+            'https://actions.google.com/sounds/v1/impacts/small_glass_pane_shatter.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/weather/wind_through_window.ogg'],
+        dur: 4.2
+    },
+    {
+        id: 'sports_game', emoji: '⚽', label: 'Míč, sport, karty a hra', priority: 3,
+        stems: ['mic','mick','fotbal','kopn','gol','basketbal','tenis','volejbal','hokej','zapas','stadion','hrist','karty','karet','kostk','kulecnik','bowling','ball','soccer','football','basketball','tennis','cards','game','sport'],
+        urls: [
+            'https://actions.google.com/sounds/v1/sports/soccer_kicks_series.ogg',
+            'https://actions.google.com/sounds/v1/sports/basketball_bounce_and_roll.ogg',
+            'https://actions.google.com/sounds/v1/sports/card_dealing.ogg',
+            'https://actions.google.com/sounds/v1/sports/billiard_balls_hit.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/weather/light_breeze.ogg'],
+        dur: 4.0
+    },
+    {
+        id: 'laugh_human', emoji: '😄', label: 'Smích, kašel a kýchnutí', priority: 3,
+        stems: ['smich','zasm','smal','usm','checht','chichot','kasel','zakasl','kychn','plakal','plac','vzlyk','mimink','dite','laugh','laughing','chuckle','cough','sneeze','cry','baby'],
+        urls: [
+            'https://actions.google.com/sounds/v1/human_voices/male_chuckling.ogg',
+            'https://actions.google.com/sounds/v1/human_voices/man_laugh_and_knee_slap.ogg',
+            'https://actions.google.com/sounds/v1/human_voices/male_cough.ogg',
+            'https://actions.google.com/sounds/v1/human_voices/male_sneeze.ogg'
+        ],
+        tailUrls: ['https://actions.google.com/sounds/v1/ambiences/fire.ogg'],
+        dur: 3.8
+    },
+    {
+        id: 'door', emoji: '🚪', label: 'Dveře, brána, okno a zaklepání', priority: 3,
+        stems: ['dver','dvir','vrat','bran','zaklep','klep','zabus','bus','vrz','zavrz','otevr','zavr','prah','pant','okenic','okn','chaloup','chalup','domec','domek','hrad','komnat','vypinac','rozsvit','zhasn','door','gate','knock','creak','window','cottage','castle','switch'],
         urls: [
             'https://actions.google.com/sounds/v1/doors/knock_on_wooden_door.ogg',
             'https://actions.google.com/sounds/v1/doors/creaking_wooden_door.ogg',
-            'https://actions.google.com/sounds/v1/doors/wood_door_open_close_soft.ogg'
+            'https://actions.google.com/sounds/v1/doors/wood_door_open_close_soft.ogg',
+            'https://actions.google.com/sounds/v1/household/window_open.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/ambiences/fire.ogg'],
         dur: 4.0
     },
     {
-        id: 'lock', emoji: '🔑', label: 'Klíč, zámek a truhla', priority: 3,
-        stems: ['klic','klick','zamek','zamec','odemk','zamk','truhl','truhlic','skrin','vezen','zalar','mriz','obruc','retez','cert','key','lock','chest','unlock','chain'],
+        id: 'lock', emoji: '🔑', label: 'Klíč, zámek, truhla a řetězy', priority: 3,
+        stems: ['klic','klick','zamek','zamec','odemk','zamk','truhl','truhlic','skrin','trezor','vezen','zalar','mriz','obruc','retez','pout','key','lock','chest','unlock','chain','prison'],
         urls: [
             'https://actions.google.com/sounds/v1/doors/key_in_lock.ogg',
             'https://actions.google.com/sounds/v1/doors/deadbolt_lock.ogg',
-            'https://actions.google.com/sounds/v1/doors/metal_scrap_rattling.ogg'
+            'https://actions.google.com/sounds/v1/impacts/chain_jingle.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/weather/wind_through_window.ogg'],
         dur: 3.8
     },
     {
-        id: 'steps', emoji: '👣', label: 'Kroky, cesta a kočár', priority: 3,
-        stems: ['krok','krac','sel','sla','sli','vyraz','cest','cestic','pesin','stezk','schod','vez','nadvor','sal','putov','poutnik','tulak','strevic','bot','skorn','beh','utik','utek','kocar','sprezen','footstep','walk','path','stairs','tower','shoe','slipper','run','carriage'],
+        id: 'steps', emoji: '👣', label: 'Kroky, chůze, běh a schody', priority: 3,
+        stems: ['krok','krac','sel','sla','sli','vyraz','cest','cestic','pesin','stezk','schod','vez','nadvor','sal','putov','poutnik','tulak','strevic','bot','skorn','beh','bezel','utik','utek','footstep','walk','path','stairs','tower','shoe','slipper','run'],
         urls: [
             'https://actions.google.com/sounds/v1/foley/footsteps_on_gravel.ogg',
-            'https://actions.google.com/sounds/v1/foley/footsteps_in_water.ogg',
-            'https://actions.google.com/sounds/v1/foley/running_on_gravel.ogg'
+            'https://actions.google.com/sounds/v1/foley/running_on_gravel.ogg',
+            'https://actions.google.com/sounds/v1/foley/footsteps_in_water.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/weather/leaves_russle_on_tree.ogg'],
         dur: 4.0
     },
     {
-        id: 'kitchen', emoji: '🍲', label: 'Kuchyně, nádobí a vaření', priority: 3,
-        stems: ['kuchyn','kuchar','hrnec','hrnic','kotlik','polevk','kas','pecen','kolac','pernik','med','talir','lzic','nadob','var','bubl','stul','chleb','kitchen','cook','pot','soup','dish','plate','bread'],
+        id: 'kitchen', emoji: '🍲', label: 'Kuchyně, vaření, čaj a nádobí', priority: 3,
+        stems: ['kuchyn','kuchar','hrnec','hrnic','kotlik','panv','konvic','caj','polevk','kas','pecen','kolac','pernik','med','talir','lzic','vidlic','nuz','kraj','nadob','var','bubl','stul','chleb','jidl','vecer','snidan','obed','kitchen','cook','pot','kettle','tea','soup','dish','plate','knife','bread','food'],
         urls: [
-            'https://actions.google.com/sounds/v1/water/fountain_water_bubbling.ogg',
-            'https://actions.google.com/sounds/v1/foley/dishes_clanking.ogg',
-            'https://actions.google.com/sounds/v1/foley/glass_clink.ogg'
+            'https://actions.google.com/sounds/v1/household/kettle_boil.ogg',
+            'https://actions.google.com/sounds/v1/household/pour_boiling_water_into_cup.ogg',
+            'https://actions.google.com/sounds/v1/household/chopping_vegetables.ogg',
+            'https://actions.google.com/sounds/v1/foley/dishes_clanking.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/ambiences/fire.ogg'],
-        dur: 4.2
+        dur: 4.4
     },
     {
-        id: 'tools', emoji: '🔨', label: 'Řemesla, kovadlina a mlýn', priority: 3,
-        stems: ['seker','sekyr','kladiv','kladiv','krumpac','kovadlin','kovar','drevorub','trpasl','dul','skala','skal','kamen','motyk','mlyn','mlynar','kolo','kolovrat','vreten','stave','cihl','drev','axe','hammer','pickaxe','dwarf','dwarves','mill','stone'],
-        urls: [
-            'https://actions.google.com/sounds/v1/impacts/metal_hit_with_ring.ogg',
-            'https://actions.google.com/sounds/v1/doors/knock_on_wooden_door.ogg'
-        ],
-        tailUrls: ['https://actions.google.com/sounds/v1/ambiences/fire.ogg'],
-        dur: 4.0
-    },
-    {
-        id: 'page', emoji: '📜', label: 'Dopis, kniha a spánek', priority: 3,
-        stems: ['knih','strank','dopis','psan','pergamen','inkoust','pero','spink','spanek','usn','usin','postyl','postel','perin','polstar','dobrou','sen','sny','book','page','letter','sleep','bed','pillow','dream'],
+        id: 'page', emoji: '📜', label: 'Kniha, dopis, psaní perem a spánek', priority: 3,
+        stems: ['knih','kniz','strank','kapitol','dopis','psal','psan','pergamen','papir','novin','casopis','inkoust','pero','brkem','tuzk','denik','spink','spanek','usn','usin','postyl','postel','perin','polstar','dobrou','sen','sny','book','page','letter','paper','newspaper','write','pen','quill','sleep','bed','pillow','dream'],
         urls: [
             'https://actions.google.com/sounds/v1/foley/page_turn.ogg',
-            'https://actions.google.com/sounds/v1/weather/light_breeze.ogg'
+            'https://actions.google.com/sounds/v1/office/quill_pen_writing.ogg',
+            'https://actions.google.com/sounds/v1/office/flipping_newspaper_pages.ogg',
+            'https://actions.google.com/sounds/v1/office/pen_writing.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/weather/light_breeze.ogg'],
         dur: 4.0
@@ -515,46 +877,42 @@ const STORIES = {
             text: "Na kraji prosluněné zelené louky, kde od rána zpívali ptáčci, bzučela pilná včelka a u potůčku kvákala žabka, žila tři malá růžová prasátka. Jednoho dne si sbalila uzlíčky a vyrazila po lesní cestě postavit si vlastní domečky. První prasátko bylo trošku líné, posbíralo na poli žlutou slámu a za chvilku mělo slaměnou chýši. Druhé prasátko sbíralo u lesa dřevěné větvičky, až postavilo lehký domek ze dřeva. Zato třetí prasátko bylo tuze pracovité. Vzalo zednické kladivo, vozilo pevné červené cihly a kameny a celý den stavělo domeček s pevnou střechou, dubovými dveřmi a velkým krbem. Když se snesl večer, v hlubokém lese se ochladilo a mezi smrky zahoukala noční sova. Z temného houští vyšel hladový šedý vlk. Tiše kráčel k prvnímu slaměnému domku, zaklepal na dvířka a hlubokým hlasem zavyl. Pak nabral dech a zafoukal jako prudký vítr. Slaměný domek se rozletěl a první prasátko utíkalo k bráškovi do dřevěného domku. Vlk ale doběhl i tam, znovu zafoukal jako vichřice a rozfoukal i dřevěné stěny. Obě prasátka pelášila k cihlovému domku třetího brášky, vběhla dovnitř a zamkla těžké dveře na dvakrát klíčem. Venku se strhla noční bouřka, v dálce zahřměl hrom a na střechu se spustil tichý déšť. Vlk foukal ze všech sil, ale cihlový dům se ani nepohnul. V chaloupce u teplého krbu praskal oheň, v hrnci bublala dobrá večeře a všechna tři prasátka se zachumlala pod měkkou peřinu a sladce usnula."
         },
         {
-            title: "🧣 Červená Karkulka a myslivec (Dlouhá verze)",
-            text: "V malé vesničce u zeleného lesa, kde ráno na dvorku kokrhal kohout a na pastvině bečely ovečky, žila hodná holčička. Od babičky dostala červenou sametovou čepičku, a tak jí nikdo neřekl jinak než Červená Karkulka. Jednoho slunečného dne pekla maminka v kuchyni voňavé koláče. V peci praskal oheň a na stole cinkalo nádobí. „Karkulko, zanes babičce do hájovny košíček s koláči a malinovou šťávou, ale nikde se v lese nezdržuj,“ řekla maminka. Karkulka vyšla ze dveří na lesní pěšinu. Mezi vysokými duby a borovicemi zpívali ptáčci, v trávě bzučely včelky a v čistém potůčku žbluňkala studená voda. Zpoza hustého křoví však vykoukl mazaný vlk. Ptal se Karkulky, kam pospíchá, a poradil jí, aby babičce natrhala kytičku lesních květů. Zatímco Karkulka sbírala růžové a fialové kvítky a poslouchala šumění listí, vlk běžel zkratkou přímo k babiččině chaloupce. Třikrát zaklepal na dřevěné dveře, stiskl kliku a vklouzl dovnitř. Když o chvíli později přišla k chaloupce Karkulka, podivila se, proč jsou dveře dokořán. Naštěstí právě kolem hájovny kráčel statečný myslivec se svým věrným psem. Pes ucítil vlka a hlasitě zaštěkal. Myslivec vešel do světnice, babičku i Karkulku vysvobodil a vlka vyhnal hluboko do hor. V chaloupce pak uvařili bylinkový čaj, v krbu zapálili teplý oheň, venku na obloze se rozsvítily zlaté hvězdy a všichni v klidu usnuli."
+            title: "🧺 O Červené karkulce a babiččině chaloupce (Dlouhá verze)",
+            text: "Žila byla malá holčička, které každý říkal Červená karkulka. Jednoho slunečného rána jí maminka v kuchyni upekla sladký koláč, do košíčku uložila med a řekla: „Karkulko, dones prosím košíček babičce do lesní chaloupky a jdi pěkně po cestičce.“ Karkulka vyšla ze dveří, na dvorku jí na cestu zaštěkal hodný pes a zakokrhal kohout. Vstoupila do zeleného lesa, kde v korunách stromů zpívali ptáčci, nad květy bzučela zlatá včelka a u čisté studánky žbluňkala voda. Jak tak kráčela po mechové pěšině, vynořil se zpoza starého dubu šedý vlk. „Copak to neseš v košíčku, Karkulko?“ zeptal se vlk a tiše zavrčel. Když mu Karkulka pověděla o babiččině chaloupce, ukázal jí paseku plnou modrých zvonků a fialek. Zatímco holčička trhala kytičku, vlk běžel zkratkou mezi křovím až k chaloupce, zaklepal na dřevěné dveře a vklouzl dovnitř. Za malou chvíli došla k chaloupce i Karkulka. Venku začal foukat chladný vítr a větve stromů šustily. Karkulka otevřela vrzající dveře a podivovala se, proč má babička pod peřinou tak velké uši a veliké zuby. Naštěstí právě kolem chaloupky procházel statečný myslivec se svým věrným psem. Uslyšel podezřelé vrčení, vstoupil do světnice a babičku i Karkulku vysvobodil. Babička pak v kamnech rozdělala teplý oheň, v konvici uvařila bylinkový čaj a na stůl postavila voňavý koláč. Když za oknem začal tiše šumět večerní déšť a odbily hodiny, uložila se Karkulka do měkké postýlky, zavřela oči a usnula."
         },
         {
-            title: "🔥 O dvanácti měsíčkách (Dlouhá zimní pohádka)",
-            text: "Byla tuhá zima, venku hučel mrazivý vítr, z mraků se sypal bílý sníh a na oknech chaloupky kvetly ledové květy. Zatímco macecha s Holenou seděly v teple u pece, poslaly hodnou Marušku do temného zimního lesa, aby jim přinesla kytičku fialových fialek. Maruška si přehodila starý šátek, otevřela vrzající dveře a vykročila do hlubokých závějí. Pod nohama jí křupal mráz, mezi smrky kvílela meluzína a na zasněžené větvi zahoukala sova. Maruška kráčela výš a výš do hor, až na samém vrcholku spatřila mezi stromy jasnou zlatou záři. Uprostřed mýtiny plápolal veliký oheň, dřevo v něm vesele praskalo a k nebi stoupal teplý dým. Kolem ohniště sedělo na dvanácti kamenech dvanáct tichých mužů. Nejstarší z nich, Leden s dlouhým bílým vousem, vyslechl Maruščinu prosbu, vstal a udeřil kouzelnou holí o zem. Plameny v ohništi vyšlehly vysoko a žezlo převzal mladý Březen. V jediném okamžiku přestal foukat ledový vítr, sníh roztál, v potůčku radostně zašplouchala čistá voda, na větvích zazpívali ptáčci a v zeleném mechu rozkvetly voňavé fialky. Když pak Maruška musela do lesa znovu pro červené jahody a sladká jablíčka, pomohl jí teplý Červen i zlatý Září, kolem kterých bzučely včelky a šuměl letní vánek. Doma v chaloupce se Maruška zahřála u krbu, vypila teplý čaj a pod měkkou peřinou se ponořila do nejkrásnějších snů."
+            title: "🌹 O Šípkové Růžence a zakletém království (Dlouhá verze)",
+            text: "Před dávnými časy se královi a královně narodila vytoužená holčička, které dali jméno Růženka. Na slavném zámku vystrojili velikou hostinu, cinkaly zlaté poháry, zněla kouzelná hudba a sudičky přinášely malé princezně vzácné dary. Jedna zlá sudička však vyslovila temnou kletbu, že se princezna v patnácti letech píchne o trn a usne. Dobrá víla ale mávla stříbrnou hůlkou a kouzlo zmírnila: Růženka nezemře, nýbrž celé království se ponoří do sto let dlouhého klidného spánku. Roky plynuly jako tichá voda v řece. V den patnáctých narozenin vystoupala Růženka po kamenných schodech do nejvyšší zámecké věže. Otevřela malým klíčem staré dřevěné dveře, kde seděla stařenka u kolovratu. Jakmile se princezna dotkla vřetena, ulehla na postel s hedvábným polštářem a okamžitě usnula. V tu samou chvíli usnul král na zlatém trůnu, kuchaři v kuchyni u praskajícího ohně v krbu, kůň ve stáji, pes na nádvoří i bílí holoubci na střeše. Kolem celého zámku vyrostl neproniknutelný les šípkových růží, ve kterém jen tiše šuměl vítr a zpívali ptáčci. Po stu letech přijel k zámku na bílém koni mladý princ. Taseným mečem rozhrnul trnité větve, které před ním rozkvétaly v růžové květy, prošel tichým nádvořím a vystoupal po schodech až do věže. Když Růženku jemně políbil, kouzlo pominulo. Hodiny na věži radostně odbily, zazvonil zvon, v krbu se znovu rozhořel teplý oheň, pes vesele zaštěkal a celé království slavilo v pokoji a lásce. Dobrou noc."
+        },
+        {
+            title: "🧁 O Jeníčkovi, Mařence a perníkové chaloupce (Dlouhá verze)",
+            text: "V malé chaloupce u lesa bydleli Jeníček a Mařenka. Jednoho rána vzali džbánek a vydali se do hlubokého lesa na sladké červené jahody. Kolem cesty zpívali ptáčci, v mechu bzučely včelky a v dálce ťukal datel do kůry smrku. Děti sbíraly jahodu za jahodou, až zašlo zlaté slunce, zvedl se chladný večerní vítr a v korunách stromů zahoukala noční sova. Jeníček vylezl na vysoký dub a v dálce uviděl teplé světýlko, které zářilo jako malá svíčka. Děti kráčely po lesní pěšině, až došly na mýtinu, kde stála chaloupka celá postavená z voňavého perníku, cukru a čokolády. Když si Jeníček kousek perníku ze střechy ulomil, zavrzaly dřevěné dveře a vyšla stará ježibaba. Děti však byly chytré a statečné, přelstily zlou babu v kuchyni u veliké rozpálené pece, vzaly z truhly hrst zlatých dukátů a utíkaly lesem zpátky k domovu. Cestou jim přes širokou řeku pomohla přeplavat bílá labuť, která tiše čeřila čistou vodu. Na kraji vesnice jim naproti vyběhl věrný pes, radostně zaštěkal a tatínek s maminkou je objali u teplého krbu, kde praskal oheň. Děti si vypily teplé mléko, zachumlaly se pod měkkou peřinu a spokojeně usnuly."
         }
     ],
     adults_cs: [
         {
-            title: "🗡️ Zaklínačská noc: Stříbrný meč v bouři (Fantasy)",
-            text: "Těžké kapky podzimního deště bubnovaly do olověných okenic starého zájezdního hostince na úpatí hor. Uvnitř krčmy praskal v kamenném krbu mohutný oheň, cinkaly sklenice s rubínovým vínem a od dubových stolů se nesl tlumený šum hovorů. Cizinec s bílými vlasy seděl v rohu ve stínu, pomalu otáčel stránku staré kroniky a poslouchal, jak venku sílí noční vichřice. Najednou se rozletěly těžké dřevěné dveře a dovnitř vpadl promrzlý ponocný. V dálce za hradbami temného lesa se ozvalo táhlé, mrazivé zavytí vlka a hned po něm zahřměl hrom. Cizinec odložil měšec se zlatými mincemi na stůl, přehodil si plášť přes ramena a vyšel do deště. Ve stáji zařehtal jeho černý kůň a neklidně hrábl kopytem. Když vyjeli na kamenitou lesní cestu, mezi staletými duby houkala sova a nad propastí krákali krkavci. U starého kamenného mostu, pod kterým hučela divoká horská řeka, se ze tmy vynořil obrovský stín netvora a temně zařval. Zazvonila ocel, když cizinec tasil stříbrný meč. V záblesku blesku se střetla čepel s drápy v prudkém souboji, jiskry létaly do tmy a vzduchem projelo ohnivé kouzlo. Po posledním úderu se les ponořil do ticha, jen déšť tiše smýval stopy v mechu. Cizinec se vrátil do bezpečí krčmy, přiložil poleno do teplého krbu, zaposlouchal se do klidného praskání plamenů a nechal únavu, aby ho odnesla do hlubokého spánku."
+            title: "⚔️ Zaklínač a stín nad starým hradem (Fantasy kapitola)",
+            text: "Nad opuštěným hradem na skalním útesu se stahovala těžká černá mračna a z moře vál ledový vítr. V dálce zahřměl první hrom a klikatý blesk ozářil rozbitou bránu nádvoří. Zaklínač vedl svého unaveného koně po kamenné cestě, kopyta dutě klapala o mokrou dlažbu a do pláště se mu opřel hustý noční déšť. Ve staré krčmě v podhradí vesele praskal v krbu veliký oheň, na stolech cinkaly sklenice s červeným vínem a unavení poutníci tiše rozmlouvali. Zaklínač otevřel těžké dřevěné dveře, posadil se do stínu v rohu, položil na stůl měšec se stříbrnými mincemi a požádal hostinského o horkou polévku. Od starého kováře se dozvěděl, že v hlubokém lese pod hradem se za půlnoci ozývá děsivé vytí vlka a v opuštěné věži číhá nebezpečný netvor. Když hodiny na kostelní věži odbily půlnoc a zazvonil zvon, vyrazil zaklínač po kluzkých schodech nahoru do zříceniny. Mezi větvemi stromů zahoukala sova a v průvanu zavrzala železná mříž. Ze tmy se vynořila obrovská šelma a zuřivě zařvala. Zaklínač bleskurychle tasil stříbrný meč, ocel zazvonila o drápy v prudkém souboji a v záři blesku odrazil útok štítem. Po těžkém boji zavládlo na nádvoří ticho, bouřka ustoupila, déšť se změnil v jemné kapky a v krčmě u teplého krbu čekal zasloužený klid a spánek."
         },
         {
-            title: "🕵️ Půlnoční expres a stíny v kavárně (Noir Detektivka)",
-            text: "Hodiny na staroměstské věži odbily jedenáctou hodinu a mlhou nad dlážděnými ulicemi se nesl tichý déšť. V malé noční kavárně na rohu nádražní třídy voněla čerstvá káva, jemně cinkaly porcelánové šálky a za zamlženým oknem míjela světla posledních kočárů. Soukromý detektiv seděl u zadního stolu, v prstech obracel starý mosazný klíč a četl zažloutlý dopis, jehož stránky tiše šustily. Každé zaklepání na skleněné dveře kavárny ho přinutilo zvednout oči. Když zaplatil několika stříbrnými mincemi, zvedl límec kabátu a vykročil do deštivé noci. Jeho kroky zněly na mokrém štěrku opuštěného perónu, zatímco v podloubí kvílel studený vítr. Z mlhy se náhle vynořil noční expres; parní lokomotiva táhle zahoukala a těžká kola skřípala po kolejích. Detektiv nastoupil do dřevěného vagónu, prošel úzkou uličkou a klíčem odemkl zamčené kupé na konci vlaku. Na stolku u okna tam v šeru tikaly staré kapesní hodiny a vedle nich ležela zapečetěná truhlička s královským rubínem. Tajemství případu bylo konečně rozluštěno. Vlak se s pravidelným kolébavým rytmem rozjel do tiché krajiny, za oknem šuměl noční les a rytmický zvuk kolejí pomalu ukolébal unaveného detektiva ke klidnému spánku."
+            title: "🕵️ Noční expres do Paříže (Detektivní román)",
+            text: "Na hlavním nádraží panovala sychravá podzimní mlha, na skleněnou střechu nástupiště bubnoval vytrvalý déšť a v dálce hlasitě zahoukal noční vlak. Detektiv v dlouhém kabátě kráčel rychlým krokem po peronu, v kapse svíral starý mosazný klíč a tajný dopis psaný inkoustovým perem. Nastoupil do vagonu, prošel úzkou uličkou do jídelního vozu, který voněl jako stará pařížská kavárna, a objednal si šálek horké kávy. Lokomotiva se s pískotem dala do pohybu, kola pravidelně klapala po kolejích a za oknem ubíhala temná noční krajina, kde ve větru šuměly lesy. Ve vedlejším kupé se náhle ozvalo tiché zaklepání na dveře, zacinkala rozbitá sklenice a v chodbě mihl podezřelý stín. Detektiv odemkl zamčenou truhlu se stopami a důkazy, prohlédl si zlatý prsten s rubínem a zaposlouchal se do tikotu svých kapesních hodin. Venku za oknem vlaku se strhla prudká bouřka a zahřměl hrom. Díky nenápadné stopě na stránce staré knihy odhalil detektiv pravdu dříve, než noční expres za svítání vjel do stanice, kde už u klidné řeky zpívali ranní ptáci."
         },
         {
-            title: "🍷 Listopadový dopis u krbu (Román)",
-            text: "Staré venkovské sídlo na útesu nad mořem tonulo v podzimním podvečeru. Zespoda z kamenité pláže doléhal pravidelný příboj mořských vln, které se s tichým šuměním tříštily o břeh, a v zahradě za oknem šustilo spadané listí ve větru. V prostorné knihovně vonělo staré dřevo a v mramorovém krbu hřál a tiše praskal zlatavý oheň. Klára seděla v hlubokém křesle s teplou dekou přes kolena, na stolku vedle ní cinkla sklenice s červeným vínem a u jejích nohou tiše předla mourovatá kočka. Opatrně rozložila pergamenový dopis a začala číst řádky psané dávným inkoustem. Každá otočená stránka vracela vzpomínky na léto, kdy na loukách zpívali ptáci, u řeky cválali koně a ze zámecké věže zněly zvony. Venku se spustil jemný, konejšivý déšť a jeho kapky pravidelně ťukaly na okenní tabulky. Hodiny v hale tiše odbily půlnoc. Klára dopis složila do dřevěné truhličky, zhasla stolní lampu a dívala se do dohasínajících uhlíků v krbu, dokud ji šumění deště a vzdáleného moře neukolébilo do tichého, bezstarostného snu."
+            title: "🍷 Večer v horské chatě u krbu (Románová kapitola)",
+            text: "Vysoko v horách, kde kolem dřevěné chaty foukal mrazivý zimní vítr a na střechu tiše padal hustý sníh, panovalo hřejivé ticho. V obývacím pokoji u kamenného krbu praskal živý oheň a vrhal jantarové světlo na police plné starých knih. Na dřevěném stole cinkly dvě sklenice s červeným vínem, v kuchyni jemně probublávala horká voda na čaj a u křesla spokojeně předla kočka. Venku za zamrzlým oknem zaštěkal v dálce u sousedního statku pes a mezi zasněženými smrky v lese zahoukala sova. Otevřela starý dopis schovaný mezi stránkami knihy, poslouchala klidné praskání plamenů a sledovala, jak na věži v údolí odbíjejí hodiny půlnoc. Větrná vichřice venku pomalu utichla, v pokoji zůstal jen tichý dech ohně a hluboký večerní klid."
         }
     ],
     kids_en: [
         {
-            title: "🌰 Cinderella and the Three Magic Hazelnuts (Long Bedtime Tale)",
-            text: "Outside the old manor house, soft white snow was falling and a cold winter wind blew through the forest trees. Inside the kitchen, however, a warm red fire crackled in the hearth and a gentle cat purred near the ashes. Kind Cinderella sat quietly by the fire when white doves tapped on the wooden window and fluttered their wings to help her. Her father returned on his horse from a long journey and brought her three magic hazelnuts from the woods where an owl had hooted in an old oak tree. When Cinderella opened the first hazelnut, a dress shining like the golden sun and delicate slippers appeared. She rode her white horse through the snowy forest to the royal castle where music played and glasses clinked at the grand ball. She danced with the prince until the tower clock bell chimed midnight. Cinderella ran down the stairs and lost her golden slipper. The next morning, as the rooster crowed in the village, the prince arrived on his horse, found his true princess, wedding bells rang across the land, and everyone drifted into deep, peaceful sleep."
-        },
-        {
-            title: "🐷 The Three Little Pigs and the Cozy Hearth",
-            text: "Three little piglets walked down the sunny meadow path where birds sang in the green trees, bees buzzed among the flowers, and a frog croaked by the flowing stream. The first pig built a house of straw, the second built a cottage of wooden branches, and the third pig used a heavy hammer and red bricks to build a strong stone house with a warm fireplace. When night fell, an owl hooted in the dark forest and a hungry wolf came out of the shadows. He knocked on the wooden door and began to howl. Then he blew like a strong storm wind until the first two houses flew away. The little pigs ran fast along the gravel path into their brother's brick cottage and locked the heavy door with a key. Outside, thunder rolled and gentle rain fell on the roof, but inside by the crackling fire and bubbling soup pot, all three piglets climbed into their soft bed and fell fast asleep."
+            title: "👑 The Princess with the Golden Star (Long Bedtime Tale)",
+            text: "Once upon a time in a peaceful kingdom lived a kind princess with a bright golden star on her forehead. When a proud dark king arrived with his knights and swords, the princess slipped quietly out the wooden door at night. She walked along a mossy path through the deep green forest where little birds chirped in the branches and a gentle breeze rustled the leaves. By a clear forest stream, she hid her golden crown and magic ring under a stone while a little silver fish splashed in the water. At the neighboring castle, she knocked on the kitchen door where a warm fire crackled in the hearth and soup bubbled in a pot. On the night of the royal ball, a white horse carried her to the castle gate. When the tower clock chimed midnight and the bell rang, she ran down the stairs back to her cozy bed, and soon the whole kingdom fell into a sweet sleep. Good night."
         }
     ],
     adults_en: [
         {
-            title: "🗡️ The Silver Blade in the Storm (Dark Fantasy)",
-            text: "Autumn rain drummed against the windows of the old wayside tavern while a warm fire crackled in the stone hearth and wine glasses clinked at the wooden tables. A lone traveler turned the page of an ancient book as the night wind howled outside. Suddenly, a distant wolf howl echoed from the dark forest, followed by rolling thunder. He paid with gold coins, mounted his black horse in the courtyard, and rode along the forest path by the rushing river. Near the ruined castle gate, a monstrous shadow let out a deep roar. Steel rang out as his sword clashed in battle beneath the lightning. When silence returned to the woods, he rode back to the cozy inn, sat by the glowing fireplace, and drifted into quiet sleep."
-        },
-        {
-            title: "🕵️ Midnight Express & Shadows in the Café (Noir Detective)",
-            text: "The tower clock bell chimed eleven as soft rain fell over the cobblestone streets. Inside the corner coffee shop, porcelain cups clinked and a detective turned the page of an old letter while holding a brass key. A knock on the door made him look up. He paid with silver coins and walked along the gravel station platform as the cold wind blew. Suddenly the night train horn echoed through the mist. He boarded the carriage, unlocked the compartment door, and found the royal treasure chest ticking beside a pocket clock. As the train rolled gently through the dark forest, he closed his eyes and fell asleep."
+            title: "🕵️ The Midnight Express & The Old Cafe (Noir Mystery)",
+            text: "Heavy rain tapped against the window of the old coffee shop near the railway station while distant thunder rolled across the dark sky. The detective folded the secret letter, paid with a few coins, and walked out into the cold wind as the midnight train blew its horn. Inside the wooden compartment, a warm lamp glowed while the train sped along the tracks through a deep forest."
         }
     ]
 };

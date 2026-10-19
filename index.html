@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AtmoRead v6.0.0 — Živá atmosféra pro pohádky i knihy</title>
+    <title>AtmoRead v6.2.0 — Živá atmosféra pro pohádky, knihy i články</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="data.js"></script>
     <style>
@@ -144,10 +144,10 @@
         }
         .header-meta { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
 
-        /* ROZCESTNÍK SE 3 VELKÝMI KARTAMI */
+        /* ROZCESTNÍK SE 3 KARTAMI (2 hlavní režimy čtení + kompaktnější doplněk lampičky) */
         .hub-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: 1.25fr 1.25fr 0.85fr;
             gap: 14px;
         }
         @media (max-width: 860px) {
@@ -230,9 +230,38 @@
         .tile-modes  { grid-column: span 5; }
         .tile-story  { grid-column: span 12; display: none; }
         .tile-story.visible { display: flex; }
-        .tile-lamp   { grid-column: span 6; }
-        .tile-audio  { grid-column: span 6; }
         .tile-amb    { grid-column: span 12; }
+        .tile-audio  { grid-column: span 8; }
+        /* Kompaktní doplňková dlaždice lampičky (nadstavba) */
+        .tile-lamp   { grid-column: span 4; padding: 15px 16px; }
+
+        .compact-lamp-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .compact-lamp-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid var(--tile-border);
+            border-radius: 14px;
+            padding: 8px 10px;
+            color: var(--text-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-align: left;
+            min-height: 48px;
+            transition: all 0.16s ease;
+        }
+        .compact-lamp-btn:hover { border-color: var(--accent); background: rgba(255, 255, 255, 0.09); }
+        .compact-lamp-btn.active {
+            background: linear-gradient(135deg, var(--accent-glow), rgba(255, 255, 255, 0.12));
+            border-color: var(--accent);
+            box-shadow: 0 4px 14px var(--accent-glow);
+        }
+        .compact-lamp-btn .bt-title { font-size: 12.5px; font-weight: 800; line-height: 1.2; }
+        .compact-lamp-btn .bt-sub { font-size: 10.5px; color: var(--text-muted); line-height: 1.15; }
 
         @media (max-width: 900px) {
             .tile-hero, .tile-modes, .tile-lamp, .tile-audio, .tile-amb { grid-column: span 12; }
@@ -599,9 +628,9 @@
             <div>
                 <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                     <h1 class="brand-name">AtmoRead</h1>
-                    <span class="ver-badge">v6.0.0 REAL AUDIO & LIGHT</span>
+                    <span class="ver-badge">v6.2.0 REAL AUDIO & LIGHT</span>
                 </div>
-                <div class="header-meta" id="dictCounter">100% Reálné zvuky + 15–20s dozvuk prostředí • Prioritizace • Vysokosvítivá lampička</div>
+                <div class="header-meta" id="dictCounter">100% Ověřené zvuky ze všech oborů + 15–20s dozvuk • Dynamický podkres • Chytrá lampička</div>
             </div>
         </div>
         <div style="display:flex; gap:10px;">
@@ -615,7 +644,7 @@
     </header>
 
     <!-- ====================================================================
-         1. ÚVODNÍ ROZCESTNÍK SE 3 VELKÝMI KARTAMI
+         1. ÚVODNÍ ROZCESTNÍK SE 3 KARTAMI (Lampička jako menší nadstavba)
          ==================================================================== -->
     <section class="hub-grid" aria-label="Úvodní rozcestník">
         <button class="hub-card active" id="hubKids" onclick="selectProfileHub('kids')">
@@ -625,10 +654,10 @@
                     <h2 class="hub-title">Dětské pohádky na spaní</h2>
                 </div>
                 <p class="hub-desc" style="margin-top:8px;">
-                    Teplý medovo-zlatý vzhled, dlouhé pohádky na dobrou noc, lesní zvířátka, kouzla a jemné ukolébavky.
+                    Teplý medovo-zlatý vzhled, dlouhé pohádky na dobrou noc, zvířátka, kouzla a jemné ukolébavky.
                 </p>
             </div>
-            <span class="hub-tag">🍯 Medovo-zlatý režim</span>
+            <span class="hub-tag">🍯 Medovo-zlatý režim + Ukolébavky</span>
         </button>
 
         <button class="hub-card" id="hubAdults" onclick="selectProfileHub('adults')">
@@ -638,23 +667,23 @@
                     <h2 class="hub-title">Knihy pro dospělé</h2>
                 </div>
                 <p class="hub-desc" style="margin-top:8px;">
-                    Fantasy, Detektivky a Romány. Břidlicovo-pergamenový vzhled, zvuky kavárny, vlaku, šermu, krbu, napětí a vichřice.
+                    Fantasy, Detektivky, Romány a Články. Břidlice & pergamen, atmosféra kavárny, klavíru, krbu, vlaku a bouře.
                 </p>
             </div>
-            <span class="hub-tag">📜 Břidlice & Pergamen</span>
+            <span class="hub-tag">📜 Břidlice & Dospělá atmosféra</span>
         </button>
 
         <button class="hub-card" id="hubLamp" onclick="selectProfileHub('lamp')">
             <div>
                 <div class="hub-card-top">
-                    <span class="hub-icon">🕯️</span>
-                    <h2 class="hub-title">Samostatná lampička & Uspávač</h2>
+                    <span class="hub-icon" style="font-size:28px;">🕯️</span>
+                    <h2 class="hub-title" style="font-size:1.08rem;">Noční lampička</h2>
                 </div>
-                <p class="hub-desc" style="margin-top:8px;">
-                    Rozsvítí 100 % displeje vysokým jasem pro osvícení pokoje nebo papírové knihy + ukolébavky a růžový šum.
+                <p class="hub-desc" style="margin-top:6px; font-size:0.84rem;">
+                    Doplňková 100% lampička pro osvícení pokoje nebo papírové knihy.
                 </p>
             </div>
-            <span class="hub-tag">☀️ 100% Svítivost</span>
+            <span class="hub-tag">☀️ Nadstavba</span>
         </button>
     </section>
 
@@ -667,7 +696,7 @@
         <section class="tile tile-hero">
             <div class="tile-header">
                 <div class="tile-title">🎙️ Živá dvouvrstvá atmosféra</div>
-                <span class="tile-badge" id="activeSceneBadge">Scéna: Automatická</span>
+                <span class="tile-badge" id="activeSceneBadge">Scéna: Klidná louka</span>
             </div>
             <div class="hero-center">
                 <svg class="book-svg" viewBox="0 0 220 145" fill="none">
@@ -758,30 +787,20 @@
             <div class="reader-viewport" id="readerBox"></div>
         </section>
 
-        <!-- DLAŽDICE 4: CHYTRÁ LAMPIČKA (4 SMYSLUPLNÉ BARVY BEZ POSUVNÍKŮ) -->
-        <section class="tile tile-lamp">
-            <div>
-                <div class="tile-header">
-                    <div class="tile-title">🕯️ Barva světla a lampičky</div>
-                    <span class="tile-badge" id="auraNameLabel">Teplá svíčka (1800K)</span>
-                </div>
-                <div class="choice-grid-2" id="lampModeTilesMain"></div>
-            </div>
-            <button class="big-tile-btn" style="min-height:58px; margin-top:12px; flex-direction:row; gap:10px;" onclick="togglePureLamp(true)">
-                <span class="bt-icon">☀️</span>
-                <span class="bt-title">Rozsvítit 100% plochu displeje jako lampičku</span>
-            </button>
-        </section>
-
-        <!-- DLAŽDICE 5: HLASITOST, DOZVUK A ČASOVAČ (VELKÉ DLAŽDICE MÍSTO POSUVNÍKŮ) -->
+        <!-- DLAŽDICE 4: HLASITOST (VČETNĚ ÚPLNÉHO VYPNUTÍ), DOZVUK A ČASOVAČ (SPAN 8) -->
         <section class="tile tile-audio">
             <div>
                 <div class="tile-header">
                     <div class="tile-title">🔊 Nastavení zvuků jedním ťuknutím</div>
-                    <span class="tile-badge">15–20s Tail + Priorita</span>
+                    <span class="tile-badge" id="audioVolBadge">Střední hlasitost</span>
                 </div>
-                <div class="section-label" style="margin-top:0;">Hlasitost reálných zvuků a podkresu</div>
-                <div class="choice-grid-3">
+                <div class="section-label" style="margin-top:0;">Hlasitost reálných zvuků a podkresu (nebo úplné vypnutí)</div>
+                <div class="choice-grid-4">
+                    <button class="big-tile-btn" data-vol="off" onclick="setVolumePreset('off')">
+                        <span class="bt-icon">🔇</span>
+                        <span class="bt-title">Vypnuto</span>
+                        <span class="bt-sub">Bez zvuků</span>
+                    </button>
                     <button class="big-tile-btn" data-vol="soft" onclick="setVolumePreset('soft')">
                         <span class="bt-icon">🔉</span>
                         <span class="bt-title">Jemná</span>
@@ -821,11 +840,26 @@
             </div>
         </section>
 
-        <!-- DLAŽDICE 6: DYNAMICKÝ PODKRES A KVALITNÍ UKOLÉBAVKY -->
+        <!-- DLAŽDICE 5: KOMPAKTNÍ NOČNÍ LAMPIČKA (MENŠÍ NADSTAVBA - SPAN 4) -->
+        <section class="tile tile-lamp">
+            <div>
+                <div class="tile-header" style="margin-bottom:8px;">
+                    <div class="tile-title" style="font-size:1.0rem;">🕯️ Lampička (Nadstavba)</div>
+                    <span class="tile-badge" id="auraNameLabel">🕯️ Svíčka (1800K)</span>
+                </div>
+                <div class="compact-lamp-grid" id="lampModeTilesMain"></div>
+            </div>
+            <button class="big-tile-btn" style="min-height:46px; margin-top:8px; padding:8px 12px; flex-direction:row; gap:8px;" onclick="togglePureLamp(true)">
+                <span style="font-size:18px;">☀️</span>
+                <span class="bt-title" style="font-size:0.86rem;">Rozsvítit 100% displej</span>
+            </button>
+        </section>
+
+        <!-- DLAŽDICE 6: DYNAMICKÝ PODKRES & UKOLÉBAVKY (DĚTI) / ATMOSFÉRA PRO ČTENÍ (DOSPĚLÍ) -->
         <section class="tile tile-amb">
             <div class="tile-header">
-                <div class="tile-title">🎠 Dynamický podkres scény & Ukolébavky</div>
-                <span class="tile-badge" id="bgStateLabel">Vypnuto</span>
+                <div class="tile-title" id="ambienceTileTitle">🎠 Dynamický podkres scény & Ukolébavky</div>
+                <span class="tile-badge" id="bgStateLabel">Dynamický podkres</span>
             </div>
             <div class="choice-grid-4" id="lullabyGridMain"></div>
         </section>
@@ -847,7 +881,7 @@
 
 <script>
 /* ============================================================================
-   ATMOREAD v6.0.0 — HLAVNÍ LOGIKA A DVOUVRSTVÝ REÁLNÝ AUDIO ENGINE
+   ATMOREAD v6.2.0 — HLAVNÍ LOGIKA A DVOUVRSTVÝ REÁLNÝ AUDIO ENGINE
    (Databáze zvuků, barev, nálad a příběhů se načítá ze souboru data.js)
    ============================================================================ */
 
@@ -856,11 +890,12 @@ function normWord(str) {
 }
 
 /* ============================================================================
-   SEKCE 1: DVOUVRSTVÝ REÁLNÝ AUDIO ENGINE v6.0.0
-   - 100% reálné nahrávky (.ogg z CDN) pro zvířata, živly, vesnici, kuchyni, hrad, kavárnu i vlak
+   SEKCE 1: DVOUVRSTVÝ REÁLNÝ AUDIO ENGINE v6.2.0
+   - 100% ověřené nahrávky (.ogg/.oga z CDN) pro zvířata, stroje, dopravu, nástroje,
+     hudební nástroje, domácnost, zbraně, živly, vesnici, hrad i kavárnu
    - Dvouvrstvý zvuk: Krátký One-Shot efekt + 15–20s tichá doznívající smyčka prostředí (Tail)
-   - Prioritizace (1. Bouře/boj/vlak, 2. Zvířata/postavy, 3. Kroky/dveře/nádobí)
-   - Hluchá místa: po 8s ticha automaticky jemně přehraje neutrální zvuk dané scény
+   - Prioritizace (1. Bouře/boj/vlak/siréna, 2. Zvířata/stroje/nástroje/živly, 3. Kroky/dveře/drobnosti)
+   - Možnost úplného vypnutí zvuků jedním ťuknutím (🔇 Vypnuto)
    ============================================================================ */
 const SoundEngine = {
     ctx: null,
@@ -869,6 +904,7 @@ const SoundEngine = {
     bgGain: null,
     pinkNoiseNode: null,
 
+    isMuted: false,
     sfxVolumeLevel: 0.80,
     bgVolumeLevel: 0.55,
     tailDurationSec: 17.5, // 15–20s doznívající smyčka prostředí (Tail)
@@ -884,7 +920,7 @@ const SoundEngine = {
     idleWatcherInt: null,
     idleSoundIdx: 0,
 
-    bgMode: 'off',
+    bgMode: 'auto_mood', // Výchozí: Dynamický podkres scény
     currentMoodId: 'meadow',
     moodCrossfadeAudios: [],
     bgSeqInterval: null,
@@ -912,7 +948,7 @@ const SoundEngine = {
             revGain.connect(this.compressor);
 
             this.bgGain = this.ctx.createGain();
-            this.bgGain.gain.value = this.bgVolumeLevel;
+            this.bgGain.gain.value = this.isMuted ? 0.0001 : this.bgVolumeLevel;
             this.bgGain.connect(this.compressor);
             this.bgGain.connect(this.reverbNode);
         }
@@ -935,45 +971,62 @@ const SoundEngine = {
     },
 
     triggerCluster(cluster, spokenWord = '') {
-        this.init();
         const now = Date.now();
         const prio = cluster.priority || 2;
 
+        // Krátký cooldown (900 ms) na stejný zvuk brání dvojímu spuštění z jednoho slova,
+        // ale umožní plynule zkoušet slova za sebou (např. "pes", "kočka", "auto")
+        if (this.cooldownMap[cluster.id] && (now - this.cooldownMap[cluster.id] < 900)) {
+            return;
+        }
+
         // Prioritizace při rychlém čtení více spouštěčů za sebou:
-        // 1 = Bouře/boj/zvrat/vlak (nejvyšší), 2 = Zvířata/postavy/živly, 3 = Kroky/drobnosti
-        if (this.currentOneShot && (now - this.currentOneShot.startTime < 2600)) {
-            if (prio > this.currentOneShot.priority) {
-                return; // Nižší priorita se v hlavní fázi dominantního zvuku přeskočí
+        // Pokud zrovna doznívá zvuk spuštěný před méně než 1500 ms:
+        if (this.currentOneShot && (now - this.currentOneShot.startTime < 1500)) {
+            if (prio > this.currentOneShot.priority && (now - this.currentOneShot.startTime < 1100)) {
+                return; // Drobné ruchy (prio 3) nepřehluší hlavní bouři/souboj (prio 1)
             }
-            if (prio < this.currentOneShot.priority) {
-                this.currentOneShot.stopSmoothly(350); // Vyšší priorita plynule utlumí nižší
+            if (this.currentOneShot.id !== cluster.id) {
+                this.currentOneShot.stopSmoothly(220); // Plynulý přechod na nové vyřčené slovo
             }
         }
 
-        if (this.cooldownMap[cluster.id] && (now - this.cooldownMap[cluster.id] < 2400)) {
-            return;
-        }
         this.cooldownMap[cluster.id] = now;
         this.lastTriggerTime = now;
 
-        const prioTag = prio === 1 ? '⚡' : (prio === 2 ? '✨' : '🍃');
+        const prioTag = this.isMuted ? '🔇' : (prio === 1 ? '⚡' : (prio === 2 ? '✨' : '🍃'));
         showAutoBadge(`${cluster.emoji} ${spokenWord || cluster.label} ${prioTag}`);
+
+        // Pokud uživatel v nastavení zvuků zvolil "🔇 Vypnuto", zvuky vůbec nepřehráváme
+        if (this.isMuted) return;
+
+        this.init();
 
         const varIdx = (this.variationMap[cluster.id] || 0);
         this.variationMap[cluster.id] = varIdx + 1;
-        const rateShift = [1.0, 0.96, 1.04, 0.98][varIdx % 4];
+        const rateShift = [1.0, 0.97, 1.03, 0.99][varIdx % 4];
 
-        // VRSTVA 1: 100% Reálný One-Shot zvuk (.ogg) s jemným Fade-In a plynulým Fade-Out
+        // Akustický doprovod pro hudební nástroje (klavír, kytara/harfa, housle, trubka/flétna)
+        if (cluster.instrumentChord) {
+            this.playInstrumentChord(cluster.instrumentChord);
+        }
+
+        // VRSTVA 1: 100% Reálný One-Shot zvuk (.ogg/.oga) s okamžitým nástupem a záložními URL
         if (cluster.urls && cluster.urls.length > 0) {
-            const url = cluster.urls[varIdx % cluster.urls.length];
-            const targetVol = Math.min(1.0, this.sfxVolumeLevel * (prio === 1 ? 1.0 : (prio === 2 ? 0.88 : 0.72)));
-            const totalDurSec = cluster.dur || 4.8;
+            const total = cluster.urls.length;
+            const orderedUrls = [];
+            for (let k = 0; k < total; k++) {
+                orderedUrls.push(cluster.urls[(varIdx + k) % total]);
+            }
 
-            const oneShotCtrl = this.playRealAudioWithEnvelope(url, {
+            const targetVol = Math.min(1.0, this.sfxVolumeLevel * (prio === 1 ? 1.0 : (prio === 2 ? 0.92 : 0.76)));
+            const totalDurSec = cluster.dur || 4.6;
+
+            const oneShotCtrl = this.playRealAudioWithEnvelope(orderedUrls, {
                 targetVolume: targetVol,
-                fadeInMs: 360,
+                fadeInMs: 80,
                 totalDurationMs: totalDurSec * 1000,
-                fadeOutMs: 1800,
+                fadeOutMs: 1400,
                 playbackRate: rateShift,
                 loop: false
             });
@@ -990,19 +1043,43 @@ const SoundEngine = {
         if (cluster.tailUrls && cluster.tailUrls.length > 0) {
             const tailUrl = cluster.tailUrls[varIdx % cluster.tailUrls.length];
             const tailDelay = setTimeout(() => {
-                this.startAmbientTailLoop(tailUrl);
-            }, 600);
+                if (!this.isMuted) this.startAmbientTailLoop(tailUrl);
+            }, 550);
             this.activeTimers.add(tailDelay);
         }
     },
 
+    playInstrumentChord(chordType) {
+        if (this.isMuted) return;
+        this.init();
+        const v = Math.min(0.55, this.sfxVolumeLevel * 0.42);
+        if (chordType === 'piano') {
+            [261.63, 329.63, 392.00, 523.25].forEach((f, idx) => {
+                setTimeout(() => this.playInstrumentNote(f, 2.4, 'clair', v), idx * 55);
+            });
+        } else if (chordType === 'guitar') {
+            [196.00, 246.94, 293.66, 392.00, 493.88].forEach((f, idx) => {
+                setTimeout(() => this.playInstrumentNote(f, 2.6, 'harp', v), idx * 45);
+            });
+        } else if (chordType === 'violin') {
+            [293.66, 440.00, 587.33].forEach((f, idx) => {
+                setTimeout(() => this.playInstrumentNote(f, 3.0, 'clair', v * 0.9), idx * 90);
+            });
+        } else if (chordType === 'brass') {
+            [261.63, 392.00, 523.25, 659.25].forEach((f, idx) => {
+                setTimeout(() => this.playInstrumentNote(f, 1.8, 'musicbox', v), idx * 110);
+            });
+        }
+    },
+
     startAmbientTailLoop(tailUrl) {
+        if (this.isMuted) return;
         if (this.currentTailObj) {
             if (this.currentTailObj.url === tailUrl) return;
             this.currentTailObj.stopSmoothly(2200);
         }
 
-        const tailVol = Math.min(0.65, this.sfxVolumeLevel * 0.30);
+        const tailVol = Math.min(0.65, this.sfxVolumeLevel * 0.28);
         const tailTotalMs = this.tailDurationSec * 1000;
 
         const tailCtrl = this.playRealAudioWithEnvelope(tailUrl, {
@@ -1020,13 +1097,12 @@ const SoundEngine = {
         };
     },
 
-    playRealAudioWithEnvelope(url, opts) {
-        const audio = new Audio(url);
-        audio.loop = !!opts.loop;
-        if (opts.playbackRate) audio.playbackRate = opts.playbackRate;
-        audio.volume = 0.005;
-        this.activeAudioEls.add(audio);
+    playRealAudioWithEnvelope(urlOrUrls, opts) {
+        const urls = Array.isArray(urlOrUrls) ? urlOrUrls : [urlOrUrls];
+        const isOneShot = !opts.loop;
+        const targetV = Math.min(1.0, opts.targetVolume || 0.7);
 
+        let currentAudio = null;
         let stopped = false;
         let fadeInInt = null;
         let fadeOutTimer = null;
@@ -1038,59 +1114,109 @@ const SoundEngine = {
             if (fadeInInt) clearInterval(fadeInInt);
             if (fadeOutTimer) clearTimeout(fadeOutTimer);
             if (fadeOutInt) clearInterval(fadeOutInt);
-            try { audio.pause(); audio.currentTime = 0; } catch (e) {}
-            this.activeAudioEls.delete(audio);
+            if (currentAudio) {
+                try { currentAudio.pause(); currentAudio.currentTime = 0; } catch (e) {}
+                this.activeAudioEls.delete(currentAudio);
+            }
         };
 
         const fadeOutAndStop = (durationMs = 1200) => {
-            if (stopped) return;
+            if (stopped || !currentAudio) {
+                cleanup();
+                return;
+            }
             if (fadeInInt) clearInterval(fadeInInt);
             if (fadeOutInt) clearInterval(fadeOutInt);
-            const steps = Math.max(6, Math.floor(durationMs / 60));
-            const startVol = audio.volume;
+            const steps = Math.max(5, Math.floor(durationMs / 55));
+            const startVol = currentAudio.volume;
             let step = 0;
             fadeOutInt = setInterval(() => {
                 step++;
                 const nextV = startVol * (1 - step / steps);
-                if (nextV <= 0.008 || step >= steps) {
+                if (nextV <= 0.008 || step >= steps || !currentAudio) {
                     cleanup();
                 } else {
-                    audio.volume = Math.max(0, nextV);
+                    currentAudio.volume = Math.max(0, nextV);
                 }
-            }, 60);
+            }, 55);
             this.activeTimers.add(fadeOutInt);
         };
 
-        audio.play().then(() => {
-            if (stopped) return;
-            const inSteps = Math.max(5, Math.floor((opts.fadeInMs || 400) / 50));
-            let curStep = 0;
-            fadeInInt = setInterval(() => {
-                curStep++;
-                const v = (opts.targetVolume || 0.7) * (curStep / inSteps);
-                if (curStep >= inSteps) {
-                    audio.volume = Math.min(1.0, opts.targetVolume || 0.7);
-                    clearInterval(fadeInInt);
+        const tryPlayIndex = (idx) => {
+            if (stopped || this.isMuted || idx >= urls.length) {
+                cleanup();
+                return;
+            }
+            const audio = new Audio(urls[idx]);
+            currentAudio = audio;
+            audio.loop = !!opts.loop;
+            if (opts.playbackRate) audio.playbackRate = opts.playbackRate;
+
+            // U krátkých One-Shot zvuků (pes, kočka, výstřel, kladivo) začínáme na 75 % cílové hlasitosti,
+            // aby nebyl useknutý začátek štěknutí nebo úderu! U smyček (loop) začínáme od ticha.
+            const initialVol = isOneShot ? Math.min(1.0, targetV * 0.75) : 0.008;
+            audio.volume = initialVol;
+            this.activeAudioEls.add(audio);
+
+            let advancedToFallback = false;
+            const fallbackNext = () => {
+                if (advancedToFallback || stopped) return;
+                advancedToFallback = true;
+                this.activeAudioEls.delete(audio);
+                if (idx + 1 < urls.length) {
+                    tryPlayIndex(idx + 1);
                 } else {
-                    audio.volume = Math.min(1.0, v);
+                    cleanup();
                 }
-            }, 50);
-            this.activeTimers.add(fadeInInt);
+            };
 
-            const fadeStart = Math.max(500, (opts.totalDurationMs || 5000) - (opts.fadeOutMs || 1800));
-            fadeOutTimer = setTimeout(() => {
-                fadeOutAndStop(opts.fadeOutMs || 1800);
-            }, fadeStart);
-            this.activeTimers.add(fadeOutTimer);
-        }).catch(() => {
-            cleanup();
-        });
+            audio.onerror = fallbackNext;
 
-        audio.onended = () => {
-            if (!audio.loop) cleanup();
+            audio.play().then(() => {
+                if (stopped || this.isMuted) {
+                    cleanup();
+                    return;
+                }
+                const fadeMs = isOneShot ? Math.min(120, opts.fadeInMs || 80) : (opts.fadeInMs || 2200);
+                const inSteps = Math.max(2, Math.floor(fadeMs / 40));
+                let curStep = 0;
+                fadeInInt = setInterval(() => {
+                    if (stopped || !currentAudio) {
+                        clearInterval(fadeInInt);
+                        return;
+                    }
+                    curStep++;
+                    const v = initialVol + (targetV - initialVol) * (curStep / inSteps);
+                    if (curStep >= inSteps) {
+                        audio.volume = targetV;
+                        clearInterval(fadeInInt);
+                    } else {
+                        audio.volume = Math.min(1.0, Math.max(0, v));
+                    }
+                }, 40);
+                this.activeTimers.add(fadeInInt);
+
+                const fadeStart = Math.max(450, (opts.totalDurationMs || 4800) - (opts.fadeOutMs || 1400));
+                fadeOutTimer = setTimeout(() => {
+                    fadeOutAndStop(opts.fadeOutMs || 1400);
+                }, fadeStart);
+                this.activeTimers.add(fadeOutTimer);
+            }).catch(() => {
+                fallbackNext();
+            });
+
+            audio.onended = () => {
+                if (!audio.loop) cleanup();
+            };
         };
 
-        return { audio, fadeOutAndStop, cleanup };
+        tryPlayIndex(0);
+
+        return {
+            get audio() { return currentAudio; },
+            fadeOutAndStop,
+            cleanup
+        };
     },
 
     // Hluchá místa: pokud 8 sekund během čtení nepadne klíčové slovo, jemně přehraje neutrální zvuk scény
@@ -1098,7 +1224,7 @@ const SoundEngine = {
         this.stopIdleWatcher();
         this.lastTriggerTime = Date.now();
         this.idleWatcherInt = setInterval(() => {
-            if (!isSessionRunning) return;
+            if (!isSessionRunning || this.isMuted) return;
             if (Date.now() - this.lastTriggerTime >= 8000) {
                 this.lastTriggerTime = Date.now();
                 const pool = IDLE_FILLER_SOUNDS[currentProfile] || IDLE_FILLER_SOUNDS.kids;
@@ -1136,6 +1262,11 @@ const SoundEngine = {
         if (badge) badge.innerText = `Scéna: ${scene.name}`;
 
         if (this.bgMode !== 'auto_mood') return;
+
+        const lbl = document.getElementById('bgStateLabel');
+        if (lbl) lbl.innerText = `Dynamicky: ${scene.name}`;
+
+        if (this.isMuted) return;
         if (!changed && this.moodCrossfadeAudios.length > 0) return;
 
         const oldControllers = [...this.moodCrossfadeAudios];
@@ -1153,12 +1284,10 @@ const SoundEngine = {
             });
             this.moodCrossfadeAudios.push(ctrl);
         });
-
-        document.getElementById('bgStateLabel').innerText = `Dynamicky: ${scene.name}`;
     },
 
     playInstrumentNote(freq, duration = 2.6, timbre = 'musicbox', vol = 0.40) {
-        if (!this.ctx || !this.bgGain || freq <= 0) return;
+        if (this.isMuted || !this.ctx || !this.bgGain || freq <= 0) return;
         const now = this.ctx.currentTime;
 
         const osc1 = this.ctx.createOscillator();
@@ -1198,12 +1327,22 @@ const SoundEngine = {
     },
 
     startAmbience(preset) {
-        this.init();
         this.stopAmbience();
-        if (preset === 'off') return;
-
         this.bgMode = preset;
         this.melodyStep = 0;
+
+        if (preset === 'off') return;
+
+        const allPresets = [
+            ...LULLABY_LIST,
+            ...(typeof ADULT_AMBIENCE_LIST !== 'undefined' ? ADULT_AMBIENCE_LIST : [])
+        ];
+        const found = allPresets.find(l => l.id === preset);
+        const lbl = document.getElementById('bgStateLabel');
+        if (lbl) lbl.innerText = found ? found.title : 'Hraje';
+
+        if (this.isMuted) return;
+        this.init();
 
         if (preset === 'auto_mood') {
             const initialScene = currentProfile === 'adults' ? 'cafe' : 'meadow';
@@ -1212,6 +1351,9 @@ const SoundEngine = {
             return;
         }
 
+        // ====================================================================
+        // A) DĚTSKÉ UKOLÉBAVKY (pro pohádky a spaní)
+        // ====================================================================
         if (preset === 'brahms') {
             const score = [
                 { m: 659.25, b: 261.63, h: 329.63 }, { m: 659.25, b: 0, h: 0 },
@@ -1311,27 +1453,88 @@ const SoundEngine = {
             tick();
             this.bgSeqInterval = setInterval(tick, 1250);
 
-            const breeze = new Audio('https://actions.google.com/sounds/v1/weather/light_breeze.ogg');
-            breeze.loop = true;
-            breeze.volume = Math.min(0.45, this.bgVolumeLevel * 0.35);
-            breeze.play().catch(() => {});
-            this.bgLoopAudios.push(breeze);
+            this.addLoopAudio('https://actions.google.com/sounds/v1/weather/light_breeze.ogg', 0.35);
         }
         else if (preset === 'pinknoise') {
             this.startPinkNoiseGenerator();
-            const sea = new Audio('https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg');
-            sea.loop = true;
-            sea.volume = Math.min(0.55, this.bgVolumeLevel * 0.45);
-            sea.play().catch(() => {});
-            this.bgLoopAudios.push(sea);
+            this.addLoopAudio('https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg', 0.45);
         }
 
-        const found = LULLABY_LIST.find(l => l.id === preset);
-        document.getElementById('bgStateLabel').innerText = found ? found.title : 'Hraje';
+        // ====================================================================
+        // B) ATMOSFÉRA A HUDBA PRO DOSPĚLÉ ČTENÁŘE (Detektivky, Fantasy, Romány)
+        // ====================================================================
+        else if (preset === 'jazz_noir') {
+            // Detektivní noční klavír (septakordy) + jemný déšť na střeše
+            const noirChords = [
+                { b: 146.83, n1: 220.00, n2: 261.63, n3: 329.63 }, // Dm9
+                { b: 196.00, n1: 246.94, n2: 293.66, n3: 349.23 }, // G7
+                { b: 130.81, n1: 196.00, n2: 246.94, n3: 329.63 }, // Cmaj7
+                { b: 110.00, n1: 164.81, n2: 207.65, n3: 261.63 }  // Am7
+            ];
+            const tick = () => {
+                if (this.bgMode !== 'jazz_noir') return;
+                const c = noirChords[Math.floor(this.melodyStep / 4) % noirChords.length];
+                const stepInBar = this.melodyStep % 4;
+                if (stepInBar === 0) this.playInstrumentNote(c.b, 4.2, 'clair', 0.34);
+                if (stepInBar === 1) this.playInstrumentNote(c.n1, 3.4, 'clair', 0.28);
+                if (stepInBar === 2) this.playInstrumentNote(c.n2, 3.2, 'clair', 0.26);
+                if (stepInBar === 3) this.playInstrumentNote(c.n3, 3.6, 'clair', 0.30);
+                this.melodyStep++;
+            };
+            tick();
+            this.bgSeqInterval = setInterval(tick, 980);
+            this.addLoopAudio('https://actions.google.com/sounds/v1/weather/rain_on_roof.ogg', 0.38);
+        }
+        else if (preset === 'cafe_lounge') {
+            // Pařížská kavárna + jemný déšť za oknem
+            this.addLoopAudio('https://actions.google.com/sounds/v1/ambiences/coffee_shop.ogg', 0.46);
+            this.addLoopAudio('https://actions.google.com/sounds/v1/weather/light_rain.ogg', 0.26);
+        }
+        else if (preset === 'fireplace_storm') {
+            // Praskající krb v křesle + vzdálené hřmění a vítr
+            this.addLoopAudio('https://actions.google.com/sounds/v1/ambiences/fire.ogg', 0.52);
+            this.addLoopAudio('https://actions.google.com/sounds/v1/weather/distant_thunder.ogg', 0.32);
+        }
+        else if (preset === 'night_train') {
+            // Noční expres: rytmická jízda vlakem + déšť na okně kupé
+            this.addLoopAudio('https://actions.google.com/sounds/v1/transportation/train_passing_by.ogg', 0.42);
+            this.addLoopAudio('https://actions.google.com/sounds/v1/weather/rain_on_roof.ogg', 0.30);
+        }
+        else if (preset === 'fantasy_tavern') {
+            // Středověký hrad, oheň v krbu a baladická loutna
+            const luteNotes = [
+                220.00, 261.63, 329.63, 440.00, 392.00, 329.63,
+                196.00, 246.94, 293.66, 392.00, 329.63, 246.94,
+                174.61, 220.00, 261.63, 349.23, 329.63, 261.63,
+                164.81, 196.00, 246.94, 329.63, 293.66, 220.00
+            ];
+            const tick = () => {
+                if (this.bgMode !== 'fantasy_tavern') return;
+                const n = luteNotes[this.melodyStep % luteNotes.length];
+                this.playInstrumentNote(n, 3.0, 'harp', 0.36);
+                this.melodyStep++;
+            };
+            tick();
+            this.bgSeqInterval = setInterval(tick, 760);
+            this.addLoopAudio('https://actions.google.com/sounds/v1/ambiences/fire.ogg', 0.40);
+        }
+        else if (preset === 'deep_focus') {
+            // Hluboké soustředění: noční oceán + teplý šum
+            this.startPinkNoiseGenerator();
+            this.addLoopAudio('https://actions.google.com/sounds/v1/water/ocean_wave_rock_beach.ogg', 0.44);
+        }
+    },
+
+    addLoopAudio(url, mult = 0.4) {
+        const a = new Audio(url);
+        a.loop = true;
+        a.volume = Math.min(0.85, this.bgVolumeLevel * mult);
+        a.play().catch(() => {});
+        this.bgLoopAudios.push(a);
     },
 
     startPinkNoiseGenerator() {
-        if (!this.ctx) return;
+        if (!this.ctx || this.isMuted) return;
         const bufSize = this.ctx.sampleRate * 5;
         const buffer = this.ctx.createBuffer(1, bufSize, this.ctx.sampleRate);
         const out = buffer.getChannelData(0);
@@ -1382,14 +1585,14 @@ const SoundEngine = {
         this.bgLoopAudios = [];
         this.bgMode = 'off';
         const lbl = document.getElementById('bgStateLabel');
-        if (lbl) lbl.innerText = 'Vypnuto';
+        if (lbl) lbl.innerText = 'Bez podkresu';
     },
 
     stopAllEverything() {
         stopActiveSession();
         this.stopIdleWatcher();
         if (this.currentTailObj) {
-            this.currentTailObj.stopSmoothly(400);
+            this.currentTailObj.stopSmoothly(300);
             this.currentTailObj = null;
         }
         this.activeAudioEls.forEach(a => {
@@ -1402,7 +1605,7 @@ const SoundEngine = {
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
 
         document.getElementById('autoBadgesBox').innerHTML = '';
-        setStatus('🛑 Všechny zvuky, čtení i uspávací hudba byly okamžitě zastaveny.');
+        setStatus('🛑 Všechny zvuky, čtení i podkres byly okamžitě zastaveny.');
     }
 };
 
@@ -1420,7 +1623,7 @@ let ttsWordTimer = null;
 let ttsSentenceTimer = null;
 let currentWordIndex = 0;
 let storyWordsData = [];
-let processedSpeechCounts = {};
+let processedSpeechWords = {};
 let recentMoodWindow = [];
 let wakeLockSentinel = null;
 
@@ -1428,7 +1631,7 @@ function getStoryKey() {
     return `${currentProfile}_${currentLang}`;
 }
 
-// Přepnutí 3 velkých karet v úvodním rozcestníku
+// Přepnutí 3 karet v úvodním rozcestníku (Děti vs. Dospělí vs. Lampička)
 function selectProfileHub(target) {
     if (target === 'lamp') {
         document.querySelectorAll('.hub-card').forEach(c => c.classList.toggle('active', c.id === 'hubLamp'));
@@ -1446,19 +1649,33 @@ function selectProfileHub(target) {
 
     document.getElementById('brandEmoji').innerText = currentProfile === 'adults' ? '🍷' : '📖';
     document.getElementById('libraryTitle').innerText = currentProfile === 'adults'
-        ? '📚 Knihovna pro dospělé (Fantasy, Detektivky, Romány)'
+        ? '📚 Knihovna pro dospělé (Fantasy, Detektivky, Romány a Články)'
         : '📚 Knihovna dlouhých pohádek na spaní';
 
     populateStoryDropdown();
     loadSelectedStory();
+    renderAmbienceTiles();
 
     if (SoundEngine.bgMode === 'auto_mood') {
         SoundEngine.transitionMoodScene(currentProfile === 'adults' ? 'cafe' : 'meadow');
     }
 
     setStatus(currentProfile === 'adults'
-        ? '🍷 Režim knih pro dospělé aktivován (šerm, kavárna, vlak, krb, napětí, vichřice).'
-        : '🌙 Dětské pohádky na spaní aktivovány (dlouhé pohádky, lesní zvířátka a ukolébavky).');
+        ? '🍷 Režim knih pro dospělé aktivován (dospělá atmosféra: kavárna, noční klavír, krb, expres, šerm).'
+        : '🌙 Dětské pohádky na spaní aktivovány (dlouhé pohádky, zvířátka, stroje a ukolébavky).');
+}
+
+function doesWordMatchStem(cleanWord, rawStem) {
+    const nSt = normWord(rawStem);
+    if (!nSt) return false;
+    if (cleanWord === nSt) return true;
+    // Krátké 3-písmenné kořeny (např. pes, psa, kun, vlk, had, mys, les, mec, luk, sip, boj, lev)
+    // povolují skloňování do +3 znaků (např. pes -> pejsek má vlastní kořen pejs, psa -> psovi),
+    // ale nechytnou dlouhá nepříbuzná slova
+    if (nSt.length <= 3) {
+        return cleanWord.startsWith(nSt) && (cleanWord.length - nSt.length <= 2);
+    }
+    return cleanWord.startsWith(nSt);
 }
 
 function checkWordTriggers(rawWord) {
@@ -1471,23 +1688,30 @@ function checkWordTriggers(rawWord) {
     // 2. Pokud je lampička v režimu "Dynamická (podle děje)", plynule mění barvu podle slov
     if (selectedLampModeId === 'dynamic') {
         for (const dyn of DYNAMIC_AURA_PALETTE) {
-            if (dyn.stems.some(st => clean.startsWith(normWord(st)))) {
+            if (dyn.stems.some(st => doesWordMatchStem(clean, st))) {
                 setAuraRgb(dyn.rgb, `✨ Dynamická: ${dyn.name}`);
                 break;
             }
         }
     }
 
-    // 3. Vyhledání všech odpovídajících zvuků a výběr toho s nejvyšší prioritou (1 > 2 > 3)
+    // 3. Vyhledání všech odpovídajících zvuků a výběr nejlepší shody
+    // Preferujeme přesnou shodu kořene / delší kořen a vyšší prioritu (1 > 2 > 3)
     let bestCluster = null;
+    let bestScore = -1;
+
     for (const cluster of SOUND_LIBRARY) {
         for (const st of cluster.stems) {
-            const nSt = normWord(st);
-            if (nSt.length <= 3 ? (clean === nSt || clean.startsWith(nSt)) : clean.startsWith(nSt)) {
-                if (!bestCluster || (cluster.priority || 2) < (bestCluster.priority || 2)) {
+            if (doesWordMatchStem(clean, st)) {
+                const nSt = normWord(st);
+                const exactBonus = (clean === nSt) ? 50 : 0;
+                const prioBonus = (4 - (cluster.priority || 2)) * 10;
+                const lenScore = nSt.length * 3;
+                const score = exactBonus + prioBonus + lenScore;
+                if (score > bestScore) {
+                    bestScore = score;
                     bestCluster = cluster;
                 }
-                break;
             }
         }
     }
@@ -1500,11 +1724,10 @@ function checkWordTriggers(rawWord) {
 function evaluateDynamicMood(cleanWord) {
     for (const key of Object.keys(MOOD_SCENES)) {
         const sc = MOOD_SCENES[key];
-        if (sc.stems.some(st => cleanWord.startsWith(normWord(st)))) {
+        if (sc.stems.some(st => doesWordMatchStem(cleanWord, st))) {
             recentMoodWindow.push(key);
             if (recentMoodWindow.length > 5) recentMoodWindow.shift();
 
-            // Najdeme převládající náladu posledních vět
             const counts = {};
             let topMood = key, maxC = 0;
             recentMoodWindow.forEach(m => {
@@ -1559,12 +1782,53 @@ async function togglePureLamp(show) {
         document.getElementById('hubAdults').classList.toggle('active', currentProfile === 'adults');
         document.getElementById('hubLamp').classList.remove('active');
     }
-    // WakeLock aby displej při svícení na papírovou knihu nezhasínal
     if (show && 'wakeLock' in navigator) {
         try { wakeLockSentinel = await navigator.wakeLock.request('screen'); } catch (e) {}
     } else if (!show && wakeLockSentinel) {
         try { await wakeLockSentinel.release(); wakeLockSentinel = null; } catch (e) {}
     }
+}
+
+function renderAmbienceTiles() {
+    const titleEl = document.getElementById('ambienceTileTitle');
+    const lullWrap = document.getElementById('lullabyGridMain');
+    if (!lullWrap) return;
+
+    const isAdults = (currentProfile === 'adults');
+    const list = (isAdults && typeof ADULT_AMBIENCE_LIST !== 'undefined') ? ADULT_AMBIENCE_LIST : LULLABY_LIST;
+
+    if (titleEl) {
+        titleEl.innerText = isAdults
+            ? '🎶 Dynamický podkres scény & Atmosféra pro čtení'
+            : '🎠 Dynamický podkres scény & Ukolébavky';
+    }
+
+    // Pokud přepneme mezi dětmi a dospělými a předchozí podkres v novém režimu neexistuje,
+    // nastavíme výchozí "Dynamický podkres scény" (auto_mood)
+    if (!list.some(item => item.id === SoundEngine.bgMode)) {
+        SoundEngine.bgMode = 'auto_mood';
+        if (isSessionRunning && !SoundEngine.isMuted) {
+            SoundEngine.startAmbience('auto_mood');
+        }
+    }
+
+    lullWrap.innerHTML = '';
+    list.forEach(item => {
+        const btn = document.createElement('button');
+        btn.className = 'big-tile-btn' + (item.id === SoundEngine.bgMode ? ' active' : '');
+        btn.dataset.lullaby = item.id;
+        btn.innerHTML = `
+            <span class="bt-icon">${item.icon}</span>
+            <span class="bt-title">${item.title}</span>
+            <span class="bt-sub">${item.desc}</span>
+        `;
+        btn.onclick = () => selectAmbience(item.id);
+        lullWrap.appendChild(btn);
+    });
+
+    const found = list.find(l => l.id === SoundEngine.bgMode);
+    const lbl = document.getElementById('bgStateLabel');
+    if (lbl && found) lbl.innerText = found.title;
 }
 
 function selectAmbience(preset) {
@@ -1579,19 +1843,52 @@ function selectAmbience(preset) {
 }
 
 function setVolumePreset(level) {
+    document.querySelectorAll('[data-vol]').forEach(b => {
+        b.classList.toggle('active', b.dataset.vol === level);
+    });
+
+    const badge = document.getElementById('audioVolBadge');
+
+    if (level === 'off') {
+        SoundEngine.isMuted = true;
+        if (badge) badge.innerText = '🔇 Zvuky vypnuty';
+        if (SoundEngine.currentOneShot) {
+            SoundEngine.currentOneShot.stopSmoothly(150);
+            SoundEngine.currentOneShot = null;
+        }
+        if (SoundEngine.currentTailObj) {
+            SoundEngine.currentTailObj.stopSmoothly(200);
+            SoundEngine.currentTailObj = null;
+        }
+        SoundEngine.activeAudioEls.forEach(a => {
+            try { a.pause(); a.currentTime = 0; } catch (e) {}
+        });
+        SoundEngine.activeAudioEls.clear();
+        SoundEngine.moodCrossfadeAudios = [];
+        SoundEngine.bgLoopAudios.forEach(a => {
+            try { a.pause(); a.currentTime = 0; } catch (e) {}
+        });
+        SoundEngine.bgLoopAudios = [];
+        if (SoundEngine.bgGain && SoundEngine.ctx) {
+            SoundEngine.bgGain.gain.setTargetAtTime(0.0001, SoundEngine.ctx.currentTime, 0.05);
+        }
+        setStatus('🔇 Všechny zvukové efekty a podkresy jsou nyní vypnuté (čtení a světlo fungují dál).');
+        return;
+    }
+
+    const wasMuted = SoundEngine.isMuted;
+    SoundEngine.isMuted = false;
+
     const map = {
-        soft:   { sfx: 0.45, bg: 0.32, tail: 15.0 },
-        medium: { sfx: 0.80, bg: 0.55, tail: 17.5 },
-        strong: { sfx: 1.00, bg: 0.80, tail: 20.0 }
+        soft:   { sfx: 0.45, bg: 0.32, tail: 15.0, label: '🔉 Jemná hlasitost' },
+        medium: { sfx: 0.82, bg: 0.55, tail: 17.5, label: '🔊 Střední hlasitost' },
+        strong: { sfx: 1.00, bg: 0.82, tail: 20.0, label: '📢 Výrazná hlasitost' }
     };
     const cfg = map[level] || map.medium;
     SoundEngine.sfxVolumeLevel = cfg.sfx;
     SoundEngine.bgVolumeLevel = cfg.bg;
     SoundEngine.tailDurationSec = cfg.tail;
-
-    document.querySelectorAll('[data-vol]').forEach(b => {
-        b.classList.toggle('active', b.dataset.vol === level);
-    });
+    if (badge) badge.innerText = cfg.label;
 
     if (SoundEngine.bgGain && SoundEngine.ctx) {
         SoundEngine.bgGain.gain.setTargetAtTime(cfg.bg, SoundEngine.ctx.currentTime, 0.1);
@@ -1599,6 +1896,10 @@ function setVolumePreset(level) {
     SoundEngine.bgLoopAudios.forEach(a => {
         a.volume = Math.min(1.0, cfg.bg * 0.45);
     });
+
+    if (wasMuted && isSessionRunning && SoundEngine.bgMode !== 'off') {
+        SoundEngine.startAmbience(SoundEngine.bgMode);
+    }
 }
 
 let sleepCountdown = null;
@@ -1617,7 +1918,7 @@ function setSleepTimerPreset(minutes) {
     setStatus(`⏲️ Časovač usínání nastaven na ${minutes} minut (na konci plynule ztiší zvuk).`);
     sleepCountdown = setInterval(() => {
         remSec--;
-        if (remSec <= 60 && remSec > 0) {
+        if (remSec <= 60 && remSec > 0 && !SoundEngine.isMuted) {
             const ratio = remSec / 60;
             SoundEngine.sfxVolumeLevel = Math.max(0.05, 0.80 * ratio);
             if (SoundEngine.bgGain && SoundEngine.ctx) {
@@ -1661,6 +1962,10 @@ function updateMainButtonLabel() {
     else if (currentMode === 'silent') btn.innerText = '🤫 SPUSTIT TICHÉ ČTENÍ OČIMA';
 }
 
+function startActiveSession() {
+    if (!isSessionRunning) handleMainAction();
+}
+
 function handleMainAction() {
     SoundEngine.init();
     if (isSessionRunning) {
@@ -1671,9 +1976,9 @@ function handleMainAction() {
     updateMainButtonLabel();
     SoundEngine.startIdleWatcher();
 
-    // Pokud je vypnutý podkres, jemně zapneme dynamickou atmosféru scény
-    if (SoundEngine.bgMode === 'off') {
-        selectAmbience('auto_mood');
+    // Spustíme zvolený podkres (výchozí je 'auto_mood' - Dynamický podkres scény)
+    if (!SoundEngine.isMuted && SoundEngine.bgMode !== 'off') {
+        SoundEngine.startAmbience(SoundEngine.bgMode);
     }
 
     if (currentMode === 'free' || currentMode === 'read') startVoiceRecognition();
@@ -1683,7 +1988,7 @@ function handleMainAction() {
 
 function stopActiveSession() {
     isSessionRunning = false;
-    processedSpeechCounts = {};
+    processedSpeechWords = {};
     SoundEngine.stopIdleWatcher();
 
     if (recognition) {
@@ -1714,35 +2019,40 @@ function startVoiceRecognition() {
         return;
     }
 
-    processedSpeechCounts = {};
+    processedSpeechWords = {};
     recognition = new SR();
     recognition.lang = currentLang === 'cs' ? 'cs-CZ' : 'en-US';
     recognition.continuous = true;
     recognition.interimResults = true;
 
-    setStatus('🎙️ Poslouchám tvůj hlas... Reálné zvuky s 15–20s dozvukem a světlo se spouštějí samy!');
+    setStatus('🎙️ Poslouchám tvůj hlas... Zkus říct třeba „pes“, „kočka“, „kůň“, „auto“, „klavír“ nebo čti příběh!');
 
     recognition.onresult = (event) => {
         for (let i = event.resultIndex; i < event.results.length; i++) {
             const phrase = event.results[i][0].transcript.trim();
             if (!phrase) continue;
             const words = phrase.split(/\s+/);
-            const prevCount = processedSpeechCounts[i] || 0;
+            if (!processedSpeechWords[i]) processedSpeechWords[i] = [];
 
-            const startIdx = Math.max(0, prevCount - 1);
-            for (let wIdx = startIdx; wIdx < words.length; wIdx++) {
+            for (let wIdx = 0; wIdx < words.length; wIdx++) {
                 const word = words[wIdx];
-                checkWordTriggers(word);
-                if (currentMode === 'read') advanceReaderBySpokenWord(word);
+                const clean = normWord(word);
+                if (clean.length < 3) continue;
+
+                // Každé slovo na dané pozici ve větě vyhodnotíme pouze tehdy, když je nové nebo se zpřesnilo
+                if (processedSpeechWords[i][wIdx] !== clean) {
+                    processedSpeechWords[i][wIdx] = clean;
+                    checkWordTriggers(word);
+                    if (currentMode === 'read') advanceReaderBySpokenWord(word);
+                }
             }
-            processedSpeechCounts[i] = words.length;
             setStatus(`🗣️ Slyším: „${words.slice(-7).join(' ')}“`);
         }
     };
 
     recognition.onend = () => {
         if (isSessionRunning && (currentMode === 'free' || currentMode === 'read')) {
-            processedSpeechCounts = {};
+            processedSpeechWords = {};
             try { recognition.start(); } catch (e) {}
         }
     };
@@ -1953,7 +2263,7 @@ function renderStoryText(text) {
         span.innerText = word;
 
         const clean = normWord(word);
-        const hasSfx = clean.length >= 3 && SOUND_LIBRARY.some(c => c.stems.some(s => clean.startsWith(normWord(s))));
+        const hasSfx = clean.length >= 3 && SOUND_LIBRARY.some(c => c.stems.some(s => doesWordMatchStem(clean, s)));
         if (hasSfx) span.classList.add('trig-sfx');
 
         span.onclick = () => {
@@ -2549,12 +2859,30 @@ function initUI() {
     const totalStems = SOUND_LIBRARY.reduce((acc, c) => acc + c.stems.length, 0)
                      + DYNAMIC_AURA_PALETTE.reduce((acc, p) => acc + p.stems.length, 0);
     document.getElementById('dictCounter').innerText =
-        `100% Reálné zvuky (${totalStems}+ kořenů) • 15–20s Tail smyčky • Prioritizace • Vysokosvítivá lampička`;
+        `100% Ověřené zvuky (${SOUND_LIBRARY.length} okruhů, ${totalStems}+ kořenů) • 15–20s Tail • Dynamický podkres`;
 
-    // Vykreslení 4 smysluplných barev lampičky (do hlavní dlaždice i do celoobrazovkové lampičky)
-    ['lampModeTilesMain', 'lampModeTilesModal'].forEach(containerId => {
-        const wrap = document.getElementById(containerId);
-        wrap.innerHTML = '';
+    // Vykreslení 4 smysluplných barev lampičky:
+    // - V hlavní dlaždici (lampModeTilesMain) jako kompaktní nadstavba (.compact-lamp-btn)
+    // - V celoobrazovkové lampičce (lampModeTilesModal) jako velké dlaždice (.big-tile-btn)
+    const mainLampWrap = document.getElementById('lampModeTilesMain');
+    if (mainLampWrap) {
+        mainLampWrap.innerHTML = '';
+        LAMP_MODES.forEach(m => {
+            const btn = document.createElement('button');
+            btn.className = 'compact-lamp-btn';
+            btn.dataset.lampmode = m.id;
+            btn.innerHTML = `
+                <span style="width:16px;height:16px;border-radius:50%;background:${m.hex};border:1.5px solid #fff;display:inline-block;flex-shrink:0;box-shadow:0 0 8px ${m.hex};"></span>
+                <span>${m.name}</span>
+            `;
+            btn.onclick = () => selectLampMode(m.id);
+            mainLampWrap.appendChild(btn);
+        });
+    }
+
+    const modalLampWrap = document.getElementById('lampModeTilesModal');
+    if (modalLampWrap) {
+        modalLampWrap.innerHTML = '';
         LAMP_MODES.forEach(m => {
             const btn = document.createElement('button');
             btn.className = 'big-tile-btn';
@@ -2565,25 +2893,13 @@ function initUI() {
                 <span class="bt-sub">${m.desc}</span>
             `;
             btn.onclick = () => selectLampMode(m.id);
-            wrap.appendChild(btn);
+            modalLampWrap.appendChild(btn);
         });
-    });
+    }
 
-    // Vykreslení dlaždic dynamického podkresu a ukolébavek
-    const lullWrap = document.getElementById('lullabyGridMain');
-    lullWrap.innerHTML = '';
-    LULLABY_LIST.forEach(item => {
-        const btn = document.createElement('button');
-        btn.className = 'big-tile-btn' + (item.id === 'off' ? ' active' : '');
-        btn.dataset.lullaby = item.id;
-        btn.innerHTML = `
-            <span class="bt-icon">${item.icon}</span>
-            <span class="bt-title">${item.title}</span>
-            <span class="bt-sub">${item.desc}</span>
-        `;
-        btn.onclick = () => selectAmbience(item.id);
-        lullWrap.appendChild(btn);
-    });
+    // Výchozí podkres: Dynamický podkres scény ('auto_mood')
+    SoundEngine.bgMode = 'auto_mood';
+    renderAmbienceTiles();
 
     selectLampMode('candle');
     populateStoryDropdown();
