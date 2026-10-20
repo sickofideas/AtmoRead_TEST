@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AtmoRead v7.0.0 MASTER — Živá atmosféra pro pohádky, knihy i články</title>
+    <title>AtmoRead v7.1.0 MASTER — Živá atmosféra pro pohádky, knihy i články</title>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -313,8 +313,16 @@
             transition: all 0.38s var(--soft-ease);
         }
 
-        .tile-hero   { grid-column: span 7; }
-        .tile-modes  { grid-column: span 5; }
+        .tile-hero   { grid-column: span 12; }
+        .tile-modes  { grid-column: span 12; }
+
+        /* Pás 4 hlavních režimů čtení přímo u monitoru atmosféry */
+        .modes-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 100%;
+        }
 
         /* Jemné, plynulé rozbalování a sbalování okna čtečky pomocí CSS Grid 0fr -> 1fr (nulové blikání, žádný skok!) */
         .tile-story {
@@ -366,9 +374,28 @@
         }
 
         .tile-amb    { grid-column: span 12; }
-        .tile-audio  { grid-column: span 8; }
+        .tile-audio  { grid-column: span 12; }
         /* Kompaktní doplňková dlaždice lampičky (nadstavba) */
-        .tile-lamp   { grid-column: span 4; padding: 10px 14px; }
+        .tile-lamp   { grid-column: span 12; }
+
+        /* Sjednocený blok zvuku, časovače a noční lampičky */
+        .audio-lamp-grid {
+            display: grid;
+            grid-template-columns: 1.35fr 0.85fr;
+            gap: 18px;
+            align-items: stretch;
+        }
+        .audio-col, .lamp-col {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        @media (max-width: 900px) {
+            .audio-lamp-grid {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+        }
 
         #hubLamp {
             padding: 12px 14px;
@@ -414,12 +441,28 @@
         .compact-lamp-btn .bt-sub { font-size: 10.5px; color: var(--text-muted); line-height: 1.15; }
 
         .free-record-bar {
+            max-height: 120px;
+            opacity: 1;
+            overflow: hidden;
+            transform: translateY(0) scale(1);
+            transition:
+                max-height 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.42s var(--soft-ease),
+                margin 0.42s var(--soft-ease),
+                transform 0.42s var(--plane-ease);
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
             margin-top: 12px;
             width: 100%;
             justify-content: center;
+        }
+        .free-record-bar.hidden {
+            max-height: 0;
+            opacity: 0;
+            margin-top: 0;
+            pointer-events: none;
+            transform: translateY(-8px) scale(0.98);
         }
         .free-record-bar .compact-lamp-btn {
             flex: 1 1 180px;
@@ -441,12 +484,14 @@
         #lullabyGridMain {
             display: flex;
             overflow-x: auto;
-            scroll-snap-type: x mandatory;
+            scroll-snap-type: x proximity;
             gap: 12px;
             padding-bottom: 6px;
             scrollbar-width: none;
             -ms-overflow-style: none;
-            scroll-behavior: smooth;
+            touch-action: pan-x pan-y;
+            user-select: none;
+            -webkit-user-select: none;
             -webkit-overflow-scrolling: touch;
             transition: opacity 0.42s var(--soft-ease), transform 0.44s var(--plane-ease);
         }
@@ -456,16 +501,32 @@
         #lullabyGridMain > *, .carousel-strip > * {
             flex: 0 0 175px;
             scroll-snap-align: start;
+            touch-action: pan-x pan-y;
+            -webkit-overflow-scrolling: touch;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .carousel-strip .big-tile-btn, #lullabyGridMain .big-tile-btn {
+            touch-action: pan-x pan-y;
+            -webkit-overflow-scrolling: touch;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .carousel-strip.is-dragging, #lullabyGridMain.is-dragging {
+            cursor: grabbing;
+            cursor: -webkit-grabbing;
         }
         .carousel-strip {
             display: flex;
             overflow-x: auto;
-            scroll-snap-type: x mandatory;
+            scroll-snap-type: x proximity;
             gap: 12px;
             padding-bottom: 6px;
             scrollbar-width: none;
             -ms-overflow-style: none;
-            scroll-behavior: smooth;
+            touch-action: pan-x pan-y;
+            user-select: none;
+            -webkit-user-select: none;
             -webkit-overflow-scrolling: touch;
         }
         .carousel-nav-box {
@@ -505,6 +566,73 @@
             color: var(--text-muted);
         }
         @media (max-width: 680px) {
+            .app-wrapper {
+                padding: 10px 10px 110px;
+                gap: 12px;
+            }
+            .tile {
+                padding: 14px;
+                border-radius: 20px;
+            }
+            .tile-story-card {
+                padding: 14px;
+                border-radius: 20px;
+            }
+            .hub-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            #hubLamp {
+                grid-column: span 2;
+                padding: 10px 12px;
+            }
+            .hub-card {
+                padding: 10px 12px;
+                border-radius: 16px;
+                gap: 4px;
+            }
+            .hub-card-top {
+                gap: 8px;
+            }
+            .hub-icon {
+                font-size: 22px;
+            }
+            .hub-title {
+                font-size: 13.5px;
+                line-height: 1.2;
+            }
+            .hub-desc {
+                display: none;
+            }
+            .hub-tag {
+                font-size: 9.5px;
+                padding: 2px 7px;
+            }
+            #lullabyGridMain > *, .carousel-strip > * {
+                flex: 0 0 148px;
+                min-height: 64px;
+            }
+            .carousel-strip .big-tile-btn, #lullabyGridMain .big-tile-btn {
+                min-height: 64px;
+                padding: 8px 6px;
+            }
+            .modes-strip {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 8px;
+            }
+            .modes-strip .big-tile-btn {
+                min-height: 62px;
+                padding: 8px 6px;
+            }
+            .modes-strip .bt-icon {
+                font-size: 20px;
+            }
+            .modes-strip .bt-title {
+                font-size: 12.5px;
+            }
+            .modes-strip .bt-sub {
+                font-size: 10px;
+            }
             .choice-grid-3 { grid-template-columns: 1fr; }
             .choice-grid-4 { grid-template-columns: repeat(2, 1fr); }
             .choice-grid-5, .choice-grid-4:has([data-sleep]) { grid-template-columns: repeat(2, 1fr); }
@@ -579,9 +707,38 @@
         @keyframes popBadge { from { transform: scale(0.88) translateY(5px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
 
         /* ČTEČKA POHÁDEK A KNIH + PANEL TEMPA, HLASU A DÉLKY */
+        .story-filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .story-filter-pill {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1.5px solid var(--tile-border);
+            border-radius: 99px;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: background 0.28s var(--soft-ease), border-color 0.28s var(--soft-ease), color 0.28s var(--soft-ease), transform 0.28s var(--plane-ease);
+        }
+        .story-filter-pill:hover {
+            border-color: var(--accent);
+            color: var(--text-main);
+            transform: translateY(-1px);
+        }
+        .story-filter-pill.active {
+            background: linear-gradient(135deg, var(--accent), #d97706);
+            color: #140d04 !important;
+            border-color: var(--accent);
+            box-shadow: 0 2px 10px var(--accent-glow);
+        }
         .story-controls {
             display: grid;
-            grid-template-columns: 1.4fr auto auto auto auto;
+            grid-template-columns: minmax(280px, 1.8fr) auto auto auto auto;
             gap: 10px; margin-bottom: 12px;
         }
         @media (max-width: 1080px) {
@@ -694,6 +851,59 @@
             color: #140d04 !important;
             border-color: var(--accent);
             box-shadow: 0 2px 10px var(--accent-glow);
+        }
+        .reader-page-nav {
+
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.28);
+            border: 1px solid var(--tile-border);
+            border-radius: 12px;
+            padding: 2px 6px;
+        }
+        .reader-page-indicator {
+            font-size: 12px;
+            font-weight: 800;
+            color: var(--accent-soft);
+            padding: 0 4px;
+            white-space: nowrap;
+        }
+        .reader-empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 36px 20px;
+            min-height: 280px;
+            animation: planeUnfold 0.45s var(--plane-ease);
+        }
+        .empty-book-svg {
+            width: 90px;
+            height: 60px;
+            filter: drop-shadow(0 4px 14px var(--accent-glow));
+            animation: floatBook 4.5s ease-in-out infinite;
+            margin-bottom: 12px;
+        }
+        .empty-state-title {
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--accent-soft);
+            margin: 0 0 8px 0;
+        }
+        .empty-state-subtitle {
+            font-size: 14.5px;
+            line-height: 1.6;
+            color: var(--text-muted);
+            max-width: 540px;
+            margin: 0 0 20px 0;
+        }
+        .empty-actions-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         /* MODÁLNÍ OKNA (OCR, URL, NÁPOVĚDA) — NULOVÉ BLIKNUTÍ PŘI OTEVŘENÍ I ZAVŘENÍ */
@@ -908,7 +1118,56 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             line-height: 1.2;
         }
-        @media (max-width: 640px) {
+        @media (max-width: 680px) {
+            .dock-ver-pill { display: none; }
+        }
+        .stray-fix {
+            line-height: 1.2;
+        }
+        @media (max-width: 680px) {
+            .bottom-dock {
+                padding: 8px 10px;
+            }
+            .dock-inner {
+                gap: 6px;
+                flex-wrap: nowrap;
+            }
+            .btn-primary-run {
+                min-height: 50px;
+                font-size: 13px;
+                padding: 0 8px;
+                gap: 5px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .btn-pause-resume {
+                min-height: 50px;
+                padding: 0 8px;
+                font-size: 11.5px;
+                white-space: nowrap;
+            }
+            .btn-blackout-dock {
+                min-height: 50px;
+                padding: 0 8px;
+                font-size: 11.5px;
+                white-space: nowrap;
+            }
+            .btn-panic {
+                min-height: 50px;
+                padding: 0 10px;
+                font-size: 12px;
+                white-space: nowrap;
+            }
+        }
+        @media (max-width: 420px) {
+            .dock-inner { gap: 4px; }
+            .btn-primary-run { font-size: 11.5px; padding: 0 5px; }
+            .btn-pause-resume { font-size: 11px; padding: 0 5px; }
+            .btn-blackout-dock { font-size: 11px; padding: 0 5px; }
+            .btn-panic { font-size: 11px; padding: 0 6px; }
+        }
+        @media (max-width: 0px) {
             .dock-ver-pill { display: none; }
         }
         .btn-primary-run {
@@ -986,7 +1245,50 @@
             box-shadow: 0 6px 20px rgba(217, 119, 6, 0.5);
         }
 
-        @media (max-width: 640px) {
+        @media (max-width: 680px) {
+            .bottom-dock {
+                padding: 8px 10px;
+            }
+            .dock-inner {
+                gap: 6px;
+                flex-wrap: nowrap;
+            }
+            .btn-primary-run {
+                min-height: 50px;
+                font-size: 13px;
+                padding: 0 8px;
+                gap: 5px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .btn-pause-resume {
+                min-height: 50px;
+                padding: 0 8px;
+                font-size: 11.5px;
+                white-space: nowrap;
+            }
+            .btn-blackout-dock {
+                min-height: 50px;
+                padding: 0 8px;
+                font-size: 11.5px;
+                white-space: nowrap;
+            }
+            .btn-panic {
+                min-height: 50px;
+                padding: 0 10px;
+                font-size: 12px;
+                white-space: nowrap;
+            }
+        }
+        @media (max-width: 420px) {
+            .dock-inner { gap: 4px; }
+            .btn-primary-run { font-size: 11.5px; padding: 0 5px; }
+            .btn-pause-resume { font-size: 11px; padding: 0 5px; }
+            .btn-blackout-dock { font-size: 11px; padding: 0 5px; }
+            .btn-panic { font-size: 11px; padding: 0 6px; }
+        }
+        @media (max-width: 0px) {
             .dock-inner { gap: 8px; }
             .btn-primary-run { min-height: 54px; font-size: 15px; padding: 0 10px; gap: 6px; }
             .btn-pause-resume { min-height: 54px; padding: 0 10px; font-size: 12px; }
@@ -1048,7 +1350,7 @@
      ======================================================================== -->
 <div id="pureLampScreen">
     <div class="lamp-top-badge" id="lampScreenHeader">
-        🕯️ Chytrá čtecí a uspávací lampička (v6.3.2) • <span id="lampScreenTitle">Teplá svíčka (1800K)</span>
+        🕯️ Chytrá čtecí a uspávací lampička (v7.1.0) • <span id="lampScreenTitle">Teplá svíčka (1800K)</span>
     </div>
 
     <div class="lamp-center-Zone" onclick="document.getElementById('pureLampScreen').classList.toggle('zen-hide')">
@@ -1239,10 +1541,10 @@
     <div class="ocr-modal-card">
         <div class="tile-header" style="margin-bottom:2px;">
             <div class="tile-title">❓ Jak AtmoRead funguje (Stručný průvodce)</div>
-            <span class="tile-badge">📦 Verze v7.0.0 MASTER • Přehled za 30 s</span>
+            <span class="tile-badge">📦 Verze v7.1.0 • Přehled za 30 s</span>
         </div>
         <p style="font-size:13.5px; color:var(--text-muted); line-height:1.45;">
-            AtmoRead (<b>v7.0.0 MASTER</b>) promění čtení pohádek, knih i webových článků v živý zvukový a světelný zážitek. Vše ovládáš <b>jedním ťuknutím na velké dlaždice</b>.
+            AtmoRead (<b>v7.1.0</b>) promění čtení pohádek, knih i webových článků v živý zvukový a světelný zážitek. Vše ovládáš <b>jedním ťuknutím na velké dlaždice</b>.
         </p>
 
         <div class="help-grid">
@@ -1300,9 +1602,9 @@
             <div>
                 <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                     <h1 class="brand-name">AtmoRead</h1>
-                    <span class="ver-badge" title="Aktuální verze aplikace AtmoRead">📦 Verze v7.0.0 MASTER — REAL AUDIO & LIGHT</span>
+                    <span class="ver-badge" title="Aktuální verze aplikace AtmoRead">📦 Verze v7.1.0 — REAL AUDIO & LIGHT</span>
                 </div>
-                <div class="header-meta" id="dictCounter">Verze v7.0.0 MASTER • 100% Ověřené zvuky ze všech oborů + plynulý Fade-Out • Dvojitý plynulý AI Vypravěč</div>
+                <div class="header-meta" id="dictCounter">Verze v7.1.0 • 110 ověřených zvukových okruhů ze všech oborů + plynulý Fade-Out • Rozšířené podkresy & dynamické scény</div>
             </div>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -1399,7 +1701,7 @@
         <!-- DLAŽDICE 1: ŽIVÁ ATMOSFÉRA A MONITOR SCÉNY -->
         <section class="tile tile-hero">
             <div class="tile-header">
-                <div class="tile-title">🎙️ Živá dvouvrstvá atmosféra</div>
+                <div class="tile-title">🎙️ Živá dvouvrstvá atmosféra & Režimy čtení</div>
                 <span class="tile-badge" id="activeSceneBadge">Scéna: Klidná louka</span>
             </div>
             <div class="hero-center">
@@ -1416,6 +1718,30 @@
                 <div class="status-bubble" id="liveStatusText">
                     ✨ Vyber si nahoře Dětské pohádky nebo Knihy pro dospělé a dole klepni na obří zelené tlačítko SPUSTIT!
                 </div>
+                <!-- 4 HLAVNÍ REŽIMY ČTENÍ V ČISTÉM PŘEHLEDNÉM PÁSU PŘÍMO U MONITORU ŽIVÉ ATMOSFÉRY -->
+                <div class="modes-strip choice-grid-4 tile-modes" style="margin-top:14px; width:100%;">
+                    <button class="big-tile-btn active" data-mode="free" onclick="switchMode('free')">
+                        <span class="bt-icon">✨</span>
+                        <span class="bt-title">Volné čtení</span>
+                        <span class="bt-sub">Z papírové knihy či z hlavy</span>
+                    </button>
+                    <button class="big-tile-btn" data-mode="read" onclick="switchMode('read')">
+                        <span class="bt-icon">📖</span>
+                        <span class="bt-title">Číst z displeje</span>
+                        <span class="bt-sub">Text + odposlech hlasu</span>
+                    </button>
+                    <button class="big-tile-btn" data-mode="tts" onclick="switchMode('tts')">
+                        <span class="bt-icon">🎧</span>
+                        <span class="bt-title">AI Vypravěč</span>
+                        <span class="bt-sub">Čte sám + přesná synchro</span>
+                    </button>
+                    <button class="big-tile-btn" data-mode="silent" onclick="switchMode('silent')">
+                        <span class="bt-icon">🤫</span>
+                        <span class="bt-title">Tiché čtení</span>
+                        <span class="bt-sub">Čteš očima bez mikrofonu</span>
+                    </button>
+                </div>
+
                 <div class="free-record-bar" id="freeRecordBar">
                     <button class="compact-lamp-btn" id="saveFreeTranscriptBtn" onclick="saveFreeTranscriptToLibrary()" title="Uložit nadiktovaný text jako novou pohádku do Knihovny">
                         <span class="bt-icon">💾</span>
@@ -1434,7 +1760,7 @@
             </div>
         </section>
 
-        <!-- DLAŽDICE 2: VÝBĚR REŽIMU ČTENÍ (4 VELKÉ DLAŽDICE) -->
+        <!-- ODSTRANĚNO: DUPLICITNÍ DLAŽDICE 2 A URL TLAČÍTKO PŘESUNUTO DO PÁSU K MONITORU
         <section class="tile tile-modes">
             <div class="tile-header">
                 <div class="tile-title">🧭 Jak chceš číst nebo poslouchat?</div>
@@ -1461,7 +1787,7 @@
                     <span class="bt-sub">Čteš očima bez mikrofonu</span>
                 </button>
             </div>
-            <button class="big-tile-btn" style="min-height:58px; margin-top:10px; flex-direction:row; gap:10px; border-color:var(--accent);" onclick="openUrlModal()">
+--> <!-- old url removed
                 <span class="bt-icon">🔗</span>
                 <div style="text-align:left;">
                     <div class="bt-title">Načíst článek z URL (Seznam, zprávy, web...)</div>
@@ -1470,6 +1796,7 @@
             </button>
         </section>
 
+-->
         <!-- DLAŽDICE 3: ČTEČKA POHÁDEK A KNIH + VOLBA DÉLKY (5/15/30 MIN) + TEMPO A HLAS + OCR + URL VÝTAH -->
         <section class="tile-story" id="storyTile">
             <div class="tile-story-inner">
@@ -1478,8 +1805,23 @@
                         <div class="tile-title" id="libraryTitle">📚 Knihovna dlouhých pohádek, knih a článků</div>
                         <span class="tile-badge" id="storyLengthBadge">🌙 Délka: Do 15 minut • Ťukni na slovo pro zvuk</span>
                     </div>
+                    <!-- FILTR KATEGORIÍ KNIHOVNY (4 PŘEPÍNACÍ PILULKY) -->
+                    <div class="story-filter-bar" id="storyFilterBar">
+                        <button type="button" class="story-filter-pill active" data-storyfilter="all" onclick="setStoryCategoryFilter('all')">📚 Všechny</button>
+                        <button type="button" class="story-filter-pill" data-storyfilter="builtin" onclick="setStoryCategoryFilter('builtin')">📖 Vestavěné</button>
+                        <button type="button" class="story-filter-pill" data-storyfilter="ebooks" onclick="setStoryCategoryFilter('ebooks')">📂 E-knihy</button>
+                        <button type="button" class="story-filter-pill" data-storyfilter="url" onclick="setStoryCategoryFilter('url')">🔗 URL & YouTube</button>
+                    </div>
                     <div class="story-controls">
-                        <select id="storySelect" onchange="loadSelectedStory()"></select>
+                        <div style="display:flex; gap:6px; align-items:center; width:100%;">
+                            <select id="storySelect" onchange="loadSelectedStory()" style="flex:1;"></select>
+                            <button type="button" class="compact-lamp-btn" id="unloadStoryBtn" onclick="unloadCurrentStory()" title="Zavřít text (klidový stav čtečky)" style="min-height:48px; padding:6px 12px; font-size:12.5px; white-space:nowrap;">
+                                🧹 Zavřít text
+                            </button>
+                            <button type="button" class="compact-lamp-btn" id="deleteStoryBtn" onclick="deleteCurrentCustomStory()" title="Smazat tuto položku z knihovny" style="min-height:48px; padding:6px 12px; font-size:12.5px; white-space:nowrap; display:none; border-color:rgba(239,68,68,0.5); color:#fca5a5;">
+                                🗑️ Smazat z knihovny
+                            </button>
+                        </div>
                         <button class="big-tile-btn" style="min-height:54px; flex-direction:row; padding:10px 16px; gap:8px;" onclick="document.getElementById('ebookFileInput').click()" title="Nahrát e-knihu ve formátu PDF, EPUB nebo TXT">
                             <span class="bt-icon">📂</span>
                             <span class="bt-title">E-kniha (PDF / EPUB / TXT)</span>
@@ -1500,7 +1842,18 @@
                         </button>
                     </div>
 
-                    <!-- DĚTSKÁ PERSONALIZACE (JMÉNO DÍTĚTE + POHÁDKA ZE 3 SLOV) — POUZE V DĚTSKÉM PROFILU -->
+                    <!-- PŘEHLEDNÁ ROZBALOVACÍ ROVNINA NASTAVENÍ ČTENÍ A PERSONALIZACE -->
+                    <button type="button" class="big-tile-btn" id="toggleStorySettingsBtn" style="width:100%; min-height:46px; flex-direction:row; justify-content:space-between; padding:8px 16px; margin-bottom:12px; border-color:var(--tile-border);" onclick="toggleStorySettingsPlane()">
+                        <span style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:18px;">🎛️</span>
+                            <span class="bt-title">Nastavení hlasu, tempa, délky (5/15/30 min) a fronty čtení</span>
+                        </span>
+                        <span class="tile-badge" id="storySettingsArrow">Rozbalit ▼</span>
+                    </button>
+
+                    <div class="collapsible-plane" id="storySettingsPlane">
+                        <div class="collapsible-plane-inner">
+                            <!-- DĚTSKÁ PERSONALIZACE (JMÉNO DÍTĚTE + POHÁDKA ZE 3 SLOV) — POUZE V DĚTSKÉM PROFILU -->
                     <div class="kids-special-row" id="kidsSpecialActionsRow">
                         <button class="big-tile-btn" id="childNameBtn" style="min-height:52px; flex-direction:row; padding:8px 14px; gap:8px;" onclick="promptChildName()" title="Zadej jméno dítěte – aplikace spustí kouzelnou zvonkohru a zlatou záři, kdykoliv zazní v příběhu či mikrofonu!">
                             <span style="font-size:20px;">👶</span>
@@ -1633,6 +1986,9 @@
                         </div>
                     </div>
 
+                        </div>
+                    </div>
+
                     <!-- Plynulá rovnina pro přepínání Výtahu / Celého článku u načtených URL článků -->
                     <div class="collapsible-plane" id="articleModeSwitchPlane">
                         <div class="collapsible-plane-inner">
@@ -1653,6 +2009,11 @@
                     <div class="reader-status-bar" id="readerStatusBar">
                         <div class="reader-progress-wrap">
                             <span class="reader-progress-label" id="readerProgressText">📖 Přečteno 0 % (Slovo 1 z 1)</span>
+                            <div class="reader-page-nav" id="readerPageNav">
+                                <button type="button" class="compact-lamp-btn" id="readerPrevPageBtn" onclick="goToReaderPage(currentReaderPage - 1)" title="Předchozí stránka">‹ Předchozí</button>
+                                <span class="reader-page-indicator" id="readerPageIndicator">Strana 1 / 1</span>
+                                <button type="button" class="compact-lamp-btn" id="readerNextPageBtn" onclick="goToReaderPage(currentReaderPage + 1)" title="Další stránka">Další ›</button>
+                            </div>
                             <button type="button" class="compact-lamp-btn" id="readerJumpPercentBtn" onclick="promptJumpToPercent()" title="Skočit na zvolené procento v knize">
                                 🎯 Skočit na %
                             </button>
@@ -1675,7 +2036,87 @@
             </div>
         </section>
 
-        <!-- DLAŽDICE 4: HLASITOST (VČETNĚ ÚPLNÉHO VYPNUTÍ), DOZVUK A ČASOVAČ (SPAN 8) -->
+        <!-- DLAŽDICE 4: SJEDNOCENÝ BLOK: ZVUK, ČASOVAČ & NOČNÍ LAMPIČKA (SPAN 12) -->
+        <section class="tile tile-audio">
+            <div class="tile-header">
+                <div class="tile-title">🔊 Zvuk, Časovač & 🕯️ Noční lampička</div>
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                    <span class="tile-badge" id="audioVolBadge">Střední hlasitost</span>
+                    <span class="tile-badge" id="auraNameLabel">🕯️ Svíčka (1800K)</span>
+                </div>
+            </div>
+            <div class="audio-lamp-grid">
+                <div class="audio-col">
+                    <div class="section-label" style="margin-top:0;">Hlasitost reálných zvuků a podkresu (nebo úplné vypnutí)</div>
+                    <div class="choice-grid-4">
+                        <button class="big-tile-btn" data-vol="off" onclick="setVolumePreset('off')">
+                            <span class="bt-icon">🔇</span>
+                            <span class="bt-title">Vypnuto</span>
+                            <span class="bt-sub">Bez zvuků</span>
+                        </button>
+                        <button class="big-tile-btn" data-vol="soft" onclick="setVolumePreset('soft')">
+                            <span class="bt-icon">🔉</span>
+                            <span class="bt-title">Jemná</span>
+                            <span class="bt-sub">Tiché usínání</span>
+                        </button>
+                        <button class="big-tile-btn active" data-vol="medium" onclick="setVolumePreset('medium')">
+                            <span class="bt-icon">🔊</span>
+                            <span class="bt-title">Střední</span>
+                            <span class="bt-sub">Vyvážená</span>
+                        </button>
+                        <button class="big-tile-btn" data-vol="strong" onclick="setVolumePreset('strong')">
+                            <span class="bt-icon">📢</span>
+                            <span class="bt-title">Výrazná</span>
+                            <span class="bt-sub">Plná atmosféra</span>
+                        </button>
+                    </div>
+
+                    <div class="section-label" style="margin-top:12px;">Časovač automatického vypnutí (Uspávač)</div>
+                    <div class="choice-grid-5">
+                        <button class="big-tile-btn active" data-sleep="0" onclick="setSleepTimerPreset(0)">
+                            <span class="bt-title">⏲️ Vypnuto</span>
+                            <span class="bt-sub">Bez limitu</span>
+                        </button>
+                        <button class="big-tile-btn" data-sleep="15" onclick="setSleepTimerPreset(15)">
+                            <span class="bt-title">15 min</span>
+                            <span class="bt-sub">Krátký</span>
+                        </button>
+                        <button class="big-tile-btn" data-sleep="30" onclick="setSleepTimerPreset(30)">
+                            <span class="bt-title">30 min</span>
+                            <span class="bt-sub">Ideální</span>
+                        </button>
+                        <button class="big-tile-btn" data-sleep="45" onclick="setSleepTimerPreset(45)">
+                            <span class="bt-title">45 min</span>
+                            <span class="bt-sub">Dlouhý</span>
+                        </button>
+                        <button class="big-tile-btn" id="customSleepBtn" data-sleep="custom" onclick="promptCustomSleepTimer()">
+                            <span class="bt-title">⚙️ Vlastní</span>
+                            <span class="bt-sub">Minuty</span>
+                        </button>
+                    </div>
+
+                    <button class="big-tile-btn" id="whisperDetectorBtn" style="min-height:44px; flex-direction:row; justify-content:center; gap:8px; margin-top:12px;" onclick="toggleWhisperDetector()">
+                        <span class="bt-icon">🤫</span>
+                        <span class="bt-title" id="whisperDetectorLabel">Detektor šepotu: VYP</span>
+                        <span class="bt-sub" style="margin-left:6px;">(při tichém mluvení zjemní zvuky o 35 %)</span>
+                    </button>
+                </div>
+
+                <div class="lamp-col">
+                    <div class="section-label" style="margin-top:0;">🕯️ Kompaktní noční lampička (Světlo do pokoje)</div>
+                    <div class="compact-lamp-grid" id="lampModeTilesMain"></div>
+                    <button class="big-tile-btn" style="min-height:50px; margin-top:10px; padding:8px 14px; flex-direction:row; gap:10px; width:100%; border-color:var(--accent);" onclick="togglePureLamp(true)">
+                        <span style="font-size:22px;">☀️</span>
+                        <div style="text-align:left;">
+                            <div class="bt-title" style="font-size:0.92rem;">Rozsvítit 100% displej</div>
+                            <div class="bt-sub">Plná lampička pro osvícení knihy</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- STARÉ ODDĚLENÉ DLAŽDICE 4 A 5 SJEDNOCENY VÝŠE:
         <section class="tile tile-audio">
             <div>
                 <div class="tile-header">
@@ -1739,7 +2180,7 @@
             </div>
         </section>
 
-        <!-- DLAŽDICE 5: KOMPAKTNÍ NOČNÍ LAMPIČKA (MENŠÍ NADSTAVBA - SPAN 4) -->
+        (DLAŽDICE 5: KOMPAKTNÍ NOČNÍ LAMPIČKA SJEDNOCENA DO BLOKU VÝŠE)
         <section class="tile tile-lamp">
             <div>
                 <div class="tile-header" style="margin-bottom:8px;">
@@ -1754,6 +2195,7 @@
             </button>
         </section>
 
+-->
         <!-- DLAŽDICE 6: DYNAMICKÝ PODKRES & UKOLÉBAVKY (DĚTI) / ATMOSFÉRA PRO ČTENÍ (DOSPĚLÍ) -->
         <section class="tile tile-amb">
             <div class="tile-header">
@@ -1778,26 +2220,26 @@
     <div class="dock-inner">
         <div class="dock-ver-pill" title="Aktuální verze aplikace AtmoRead">
             <span>AtmoRead</span>
-            <span style="color:var(--accent); font-size:12.5px;">v7.0.0 MASTER</span>
+            <span style="color:var(--accent); font-size:12.5px;">v7.1.0</span>
         </div>
         <button id="mainActionBtn" class="btn-primary-run" onclick="handleMainAction()">
-            🎙️ SPUSTIT AUTOMATICKÝ ODPOSLECH
+            🎙️ SPUSTIT ODPOSLECH
         </button>
         <button id="pauseResumeBtn" class="btn-pause-resume" onclick="togglePauseResume()" title="Pozastavit nebo navázat čtení">
             ⏸️ PAUZA
         </button>
         <button class="btn-blackout-dock" onclick="toggleScreenBlackout(true)" title="Zhasnout displej pro úsporu baterie (AMOLED)">
-            🌑 Zhasnout displej
+            🌑 Displej
         </button>
         <button class="btn-panic" onclick="SoundEngine.stopAllEverything()">
-            🛑 STOP VŠE
+            🛑 STOP
         </button>
     </div>
 </div>
 
 <script>
 /* ============================================================================
-   ATMOREAD v7.0.0 MASTER — HLAVNÍ LOGIKA A DVOUVRSTVÝ REÁLNÝ AUDIO ENGINE
+   ATMOREAD v7.1.0 — HLAVNÍ LOGIKA A DVOUVRSTVÝ REÁLNÝ AUDIO ENGINE
    (Databáze zvuků, barev, nálad a příběhů 5/15/30 min se načítá z data.js)
    ============================================================================ */
 
@@ -1976,7 +2418,7 @@ const SoundEngine = {
         }
 
         // U klidných uspávacích scén a ukolébavek prodloužíme plynulé doznívání
-        if (/brahms|twinkle|clair|harp|chimes|pinknoise/.test(this.bgMode) || this.currentMoodId === 'home') {
+        if (/brahms|twinkle|clair|harp|chimes|pinknoise|moonlight_sonata|forest_creek|mother_heartbeat|winter_fireplace|celestial_choir/.test(this.bgMode) || /home|winter_snow|mystery_cave/.test(this.currentMoodId)) {
             minSec += 0.4;
             maxSec += 0.7;
         }
@@ -2391,6 +2833,7 @@ const SoundEngine = {
                     fadeOutAndStop(fileFadeOutMs);
                 }, fadeStart);
                 this.activeTimers.add(fadeOutTimer);
+                this.activeTimers.add(fadeOutTimer);
                 if (false) {
 
 
@@ -2437,6 +2880,7 @@ const SoundEngine = {
                 fadeOutTimer = setTimeout(() => {
                     fadeOutAndStop(fOutMs);
                 }, fadeStart);
+                this.activeTimers.add(fadeOutTimer);
                 this.activeTimers.add(fadeOutTimer);
             }).catch(() => {
                 fallbackNext();
@@ -2531,21 +2975,21 @@ const SoundEngine = {
         const osc1 = this.ctx.createOscillator();
         const osc2 = this.ctx.createOscillator();
 
-        osc1.type = (timbre === 'harp' || timbre === 'clair') ? 'triangle' : 'sine';
-        osc2.type = 'sine';
+        osc1.type = (timbre === 'organ') ? 'sawtooth' : ((timbre === 'harp' || timbre === 'clair') ? 'triangle' : 'sine');
+        osc2.type = (timbre === 'organ') ? 'triangle' : 'sine';
 
         osc1.frequency.setValueAtTime(freq, now);
-        const overtoneMult = timbre === 'chimes' ? 2.756 : (timbre === 'clair' ? 2.0 : 3.0);
+        const overtoneMult = timbre === 'organ' ? 2.0 : (timbre === 'chimes' ? 2.756 : (timbre === 'clair' ? 2.0 : 3.0));
         osc2.frequency.setValueAtTime(freq * overtoneMult, now);
 
         const filter = this.ctx.createBiquadFilter();
         filter.type = 'lowpass';
-        filter.frequency.value = timbre === 'clair' ? 1350 : (timbre === 'harp' ? 1900 : 3600);
+        filter.frequency.value = timbre === 'organ' ? 1800 : (timbre === 'clair' ? 1350 : (timbre === 'harp' ? 1900 : 3600));
 
         const g1 = this.ctx.createGain();
         const g2 = this.ctx.createGain();
 
-        const attack = timbre === 'clair' ? 0.08 : 0.03;
+        const attack = timbre === 'clair' ? 0.08 : (timbre === 'organ' ? 0.12 : 0.03);
         g1.gain.setValueAtTime(0.0001, now);
         g1.gain.linearRampToValueAtTime(vol, now + attack);
         g1.gain.exponentialRampToValueAtTime(0.0001, now + duration);
@@ -2821,6 +3265,154 @@ const SoundEngine = {
             this.startPinkNoiseGenerator();
             this.addLoopAudio('https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg', 0.45);
         }
+        else if (preset === 'moonlight_sonata') {
+            const varIdx = this.bgVariationIndex;
+            if (varIdx === 1) {
+                // Variace 1: Beethoven Moonlight Sonata + lehký déšť
+                this.addLoopAudio('https://upload.wikimedia.org/wikipedia/commons/e/eb/Beethoven_Moonlight_1st_movement.ogg', 0.44, fadeInMs);
+                this.addLoopAudio('https://actions.google.com/sounds/v1/weather/light_rain.ogg', 0.26, fadeInMs);
+            } else if (varIdx === 2) {
+                // Variace 2: Chopin Nocturne + tiché kapky na okně
+                this.addLoopAudio('https://upload.wikimedia.org/wikipedia/commons/7/7b/Chopin_Nocturne_Op_9_No_2_arranged_for_violin_and_piano.ogg', 0.42, fadeInMs);
+                this.addLoopAudio('https://actions.google.com/sounds/v1/weather/rain_water_dripping_softly.ogg', 0.28, fadeInMs);
+            } else {
+                // Variace 3: Akustický noční klavír & déšť na střeše
+                this.addLoopAudio('https://actions.google.com/sounds/v1/weather/rain_on_roof.ogg', 0.32, fadeInMs);
+                const moonNotes = [
+                    { b: 138.59, m: 277.18 }, { b: 0, m: 329.63 }, { b: 0, m: 415.30 },
+                    { b: 110.00, m: 220.00 }, { b: 0, m: 277.18 }, { b: 0, m: 329.63 },
+                    { b: 92.50,  m: 185.00 }, { b: 0, m: 220.00 }, { b: 0, m: 277.18 },
+                    { b: 103.83, m: 207.65 }, { b: 0, m: 261.63 }, { b: 0, m: 329.63 }
+                ];
+                const tick = () => {
+                    if (this.bgMode !== 'moonlight_sonata') return;
+                    const item = moonNotes[this.melodyStep % moonNotes.length];
+                    if (item.b) this.playInstrumentNote(item.b, 4.6, 'clair', 0.34);
+                    if (item.m) this.playInstrumentNote(item.m, 3.5, 'clair', 0.26);
+                    this.melodyStep++;
+                };
+                tick();
+                this.bgSeqInterval = setInterval(tick, 620);
+            }
+        }
+        else if (preset === 'forest_creek') {
+            const varIdx = this.bgVariationIndex;
+            if (varIdx === 1) {
+                // Variace 1: Bublající lesní potůček & noční cvrčci
+                this.addLoopAudio('https://actions.google.com/sounds/v1/water/small_stream_flowing.ogg', 0.46, fadeInMs);
+                this.addLoopAudio('https://actions.google.com/sounds/v1/animals/afternoon_crickets_long.ogg', 0.24, fadeInMs);
+            } else if (varIdx === 2) {
+                // Variace 2: Lesní studánka & ranní ptáčci
+                this.addLoopAudio('https://actions.google.com/sounds/v1/water/small_stream_flowing.ogg', 0.44, fadeInMs);
+                this.addLoopAudio('https://actions.google.com/sounds/v1/ambiences/spring_day_forest.ogg', 0.28, fadeInMs);
+            } else {
+                // Variace 3: Zurčící pramen & letní vánek v korunách stromů
+                this.addLoopAudio('https://actions.google.com/sounds/v1/water/fountain_water_bubbling.ogg', 0.42, fadeInMs);
+                this.addLoopAudio('https://actions.google.com/sounds/v1/weather/forest_wind_summer.ogg', 0.26, fadeInMs);
+            }
+        }
+        else if (preset === 'mother_heartbeat') {
+            const varIdx = this.bgVariationIndex;
+            this.startPinkNoiseGenerator();
+            if (varIdx === 1) {
+                // Variace 1: Tlukot srdce maminky (60 bpm) & růžový šum
+                const beatTick = () => {
+                    if (this.bgMode !== 'mother_heartbeat') return;
+                    this.playInstrumentNote(65.41, 0.38, 'harp', 0.42);
+                    setTimeout(() => {
+                        if (this.bgMode === 'mother_heartbeat') this.playInstrumentNote(58.27, 0.32, 'harp', 0.32);
+                    }, 240);
+                };
+                beatTick();
+                this.bgSeqInterval = setInterval(beatTick, 1000);
+            } else if (varIdx === 2) {
+                // Variace 2: Tlukot srdce & mořský příboj
+                this.addLoopAudio('https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg', 0.34, fadeInMs);
+                const beatTick = () => {
+                    if (this.bgMode !== 'mother_heartbeat') return;
+                    this.playInstrumentNote(65.41, 0.38, 'harp', 0.38);
+                    setTimeout(() => {
+                        if (this.bgMode === 'mother_heartbeat') this.playInstrumentNote(58.27, 0.32, 'harp', 0.28);
+                    }, 240);
+                };
+                beatTick();
+                this.bgSeqInterval = setInterval(beatTick, 1000);
+            } else {
+                // Variace 3: Tlukot srdce & jemný ukolébavající déšť
+                this.addLoopAudio('https://actions.google.com/sounds/v1/weather/light_rain.ogg', 0.28, fadeInMs);
+                const beatTick = () => {
+                    if (this.bgMode !== 'mother_heartbeat') return;
+                    this.playInstrumentNote(65.41, 0.38, 'harp', 0.38);
+                    setTimeout(() => {
+                        if (this.bgMode === 'mother_heartbeat') this.playInstrumentNote(58.27, 0.32, 'harp', 0.28);
+                    }, 240);
+                };
+                beatTick();
+                this.bgSeqInterval = setInterval(beatTick, 1000);
+            }
+        }
+        else if (preset === 'winter_fireplace') {
+            const varIdx = this.bgVariationIndex;
+            if (varIdx === 1) {
+                // Variace 1: Teplý praskající krb & zimní meluzína na okně
+                this.addLoopAudio('https://actions.google.com/sounds/v1/ambiences/fire.ogg', 0.50, fadeInMs);
+                this.addLoopAudio('https://actions.google.com/sounds/v1/weather/wind_through_window.ogg', 0.30, fadeInMs);
+            } else if (varIdx === 2) {
+                // Variace 2: Táborák & lesní zimní vítr
+                this.addLoopAudio('https://actions.google.com/sounds/v1/ambiences/daytime_forrest_bonfire.ogg', 0.48, fadeInMs);
+                this.addLoopAudio('https://actions.google.com/sounds/v1/weather/forest_wind_summer.ogg', 0.26, fadeInMs);
+            } else {
+                // Variace 3: Domácí pec & tikot nástěnných hodin
+                this.addLoopAudio('https://actions.google.com/sounds/v1/ambiences/fire.ogg', 0.48, fadeInMs);
+                this.addLoopAudio('https://actions.google.com/sounds/v1/alarms/clock_ticking.ogg', 0.26, fadeInMs);
+            }
+        }
+        else if (preset === 'celestial_choir') {
+            const varIdx = this.bgVariationIndex;
+            if (varIdx === 1) {
+                // Variace 1: Hvězdná harfa & noční vánek
+                this.addLoopAudio('https://actions.google.com/sounds/v1/weather/light_breeze.ogg', 0.26, fadeInMs);
+                const celestialChords = [
+                    [523.25, 659.25, 783.99, 1046.50],
+                    [440.00, 523.25, 659.25, 880.00],
+                    [392.00, 493.88, 587.33, 783.99],
+                    [349.23, 440.00, 523.25, 698.46]
+                ];
+                const tick = () => {
+                    if (this.bgMode !== 'celestial_choir') return;
+                    const c = celestialChords[Math.floor(this.melodyStep / 4) % celestialChords.length];
+                    const n = c[this.melodyStep % 4];
+                    this.playInstrumentNote(n, 3.8, 'harp', 0.38);
+                    this.melodyStep++;
+                };
+                tick();
+                this.bgSeqInterval = setInterval(tick, 750);
+            } else if (varIdx === 2) {
+                // Variace 2: Křišťálová zvonkohra & tichý vesmírný ambient
+                this.addLoopAudio('https://actions.google.com/sounds/v1/science_fiction/outer_space.ogg', 0.32, fadeInMs);
+                const scale = [523.25, 659.25, 783.99, 880.00, 1046.50, 1318.51];
+                const tick = () => {
+                    if (this.bgMode !== 'celestial_choir') return;
+                    const f = scale[Math.floor(Math.random() * scale.length)];
+                    this.playInstrumentNote(f, 3.8, 'chimes', 0.34);
+                    this.melodyStep++;
+                };
+                tick();
+                this.bgSeqInterval = setInterval(tick, 1100);
+            } else {
+                // Variace 3: Clair de Lune éterické tóny & letní obloha
+                this.addLoopAudio('https://actions.google.com/sounds/v1/weather/light_breeze.ogg', 0.24, fadeInMs);
+                const notes = [659.25, 783.99, 1046.50, 987.77, 880.00, 783.99, 659.25, 523.25];
+                const tick = () => {
+                    if (this.bgMode !== 'celestial_choir') return;
+                    const n = notes[this.melodyStep % notes.length];
+                    this.playInstrumentNote(n, 4.0, 'clair', 0.36);
+                    this.melodyStep++;
+                };
+                tick();
+                this.bgSeqInterval = setInterval(tick, 880);
+            }
+        }
 
         // ====================================================================
         // B) ATMOSFÉRA A HUDBA PRO DOSPĚLÉ ČTENÁŘE (Detektivky, Fantasy, Romány)
@@ -2878,6 +3470,126 @@ const SoundEngine = {
         else if (preset === 'deep_focus') {
             this.startPinkNoiseGenerator();
             this.addLoopAudio('https://actions.google.com/sounds/v1/water/ocean_wave_rock_beach.ogg', 0.44);
+        }
+        else if (preset === 'old_library') {
+            const varIdx = this.bgVariationIndex;
+            if (varIdx === 1) {
+                // Variace 1: Stará knihovna, kapky deště na střeše & tikot hodin
+                this.addLoopAudio('https://actions.google.com/sounds/v1/weather/rain_on_roof.ogg', 0.40, fadeInMs);
+                this.addLoopAudio('https://actions.google.com/sounds/v1/alarms/clock_ticking.ogg', 0.30, fadeInMs);
+            } else if (varIdx === 2) {
+                // Variace 2: Déšť na okně, praskající oheň v krbu & staré hodiny
+                this.addLoopAudio('https://actions.google.com/sounds/v1/weather/rain_water_dripping_softly.ogg', 0.34, fadeInMs);
+                this.addLoopAudio('https://actions.google.com/sounds/v1/ambiences/fire.ogg', 0.36, fadeInMs);
+                this.addLoopAudio('https://actions.google.com/sounds/v1/alarms/clock_ticking.ogg', 0.24, fadeInMs);
+            } else {
+                // Variace 3: Tichý noční déšť & vánek v otevřeném okně knihovny
+                this.addLoopAudio('https://actions.google.com/sounds/v1/weather/light_rain.ogg', 0.36, fadeInMs);
+                this.addLoopAudio('https://actions.google.com/sounds/v1/weather/wind_through_window.ogg', 0.26, fadeInMs);
+            }
+        }
+        else if (preset === 'harbor_fog') {
+            const varIdx = this.bgVariationIndex;
+            if (varIdx === 1) {
+                // Variace 1: Noční příboj na skalách & vítr v lanoví
+                this.addLoopAudio('https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg', 0.46, fadeInMs);
+                this.addLoopAudio('https://actions.google.com/sounds/v1/weather/wind_through_window.ogg', 0.28, fadeInMs);
+            } else if (varIdx === 2) {
+                // Variace 2: Vlny u mola & lehký přímořský déšť
+                this.addLoopAudio('https://actions.google.com/sounds/v1/water/ocean_wave_rock_beach.ogg', 0.44, fadeInMs);
+                this.addLoopAudio('https://actions.google.com/sounds/v1/weather/light_rain.ogg', 0.26, fadeInMs);
+            } else {
+                // Variace 3: Vzdálené hřmění na moři & mohutný příboj
+                this.addLoopAudio('https://actions.google.com/sounds/v1/weather/distant_thunder.ogg', 0.32, fadeInMs);
+                this.addLoopAudio('https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg', 0.44, fadeInMs);
+            }
+        }
+        else if (preset === 'cathedral_organ') {
+            const varIdx = this.bgVariationIndex;
+            if (varIdx === 1) {
+                // Variace 1: Gotická klenba & majestátní akordy varhan
+                this.addLoopAudio('https://actions.google.com/sounds/v1/weather/wind_through_window.ogg', 0.22, fadeInMs);
+                const organChords = [
+                    { b: 146.83, n1: 220.00, n2: 293.66, n3: 349.23 }, // D moll
+                    { b: 116.54, n1: 174.61, n2: 233.08, n3: 293.66 }, // B dur
+                    { b: 130.81, n1: 196.00, n2: 261.63, n3: 329.63 }, // C dur
+                    { b: 110.00, n1: 164.81, n2: 220.00, n3: 277.18 }  // A dur
+                ];
+                const tick = () => {
+                    if (this.bgMode !== 'cathedral_organ') return;
+                    const c = organChords[Math.floor(this.melodyStep / 4) % organChords.length];
+                    const st = this.melodyStep % 4;
+                    if (st === 0) this.playInstrumentNote(c.b, 4.4, 'organ', 0.38);
+                    if (st === 1) this.playInstrumentNote(c.n1, 3.6, 'organ', 0.30);
+                    if (st === 2) this.playInstrumentNote(c.n2, 3.4, 'organ', 0.28);
+                    if (st === 3) this.playInstrumentNote(c.n3, 3.8, 'organ', 0.32);
+                    this.melodyStep++;
+                };
+                tick();
+                this.bgSeqInterval = setInterval(tick, 950);
+            } else if (varIdx === 2) {
+                // Variace 2: Bachovská meditace & chrámové ticho
+                const bachTheme = [
+                    293.66, 277.18, 293.66, 220.00, 246.94, 261.63, 196.00, 220.00,
+                    146.83, 220.00, 293.66, 349.23, 329.63, 293.66, 277.18, 293.66
+                ];
+                const tick = () => {
+                    if (this.bgMode !== 'cathedral_organ') return;
+                    const n = bachTheme[this.melodyStep % bachTheme.length];
+                    this.playInstrumentNote(n, 3.4, 'organ', 0.36);
+                    this.melodyStep++;
+                };
+                tick();
+                this.bgSeqInterval = setInterval(tick, 820);
+            } else {
+                // Variace 3: Katedrála v dešti & tiché varhany
+                this.addLoopAudio('https://actions.google.com/sounds/v1/weather/rain_on_roof.ogg', 0.34, fadeInMs);
+                const chords = [
+                    { b: 130.81, n: 261.63 }, { b: 146.83, n: 293.66 },
+                    { b: 164.81, n: 329.63 }, { b: 174.61, n: 349.23 }
+                ];
+                const tick = () => {
+                    if (this.bgMode !== 'cathedral_organ') return;
+                    const item = chords[this.melodyStep % chords.length];
+                    this.playInstrumentNote(item.b, 4.2, 'organ', 0.34);
+                    this.playInstrumentNote(item.n, 3.6, 'organ', 0.28);
+                    this.melodyStep++;
+                };
+                tick();
+                this.bgSeqInterval = setInterval(tick, 1000);
+            }
+        }
+        else if (preset === 'cyber_scifi') {
+            const varIdx = this.bgVariationIndex;
+            if (varIdx === 1) {
+                // Variace 1: Hluboký vesmírný ambient & pulzující jádro lodi
+                this.addLoopAudio('https://actions.google.com/sounds/v1/science_fiction/outer_space.ogg', 0.44, fadeInMs);
+                this.addLoopAudio('https://actions.google.com/sounds/v1/science_fiction/sci_fi_vortex.ogg', 0.28, fadeInMs);
+            } else if (varIdx === 2) {
+                // Variace 2: Můstek kosmické lodi & napětí
+                this.addLoopAudio('https://actions.google.com/sounds/v1/science_fiction/outer_space.ogg', 0.40, fadeInMs);
+                this.addLoopAudio('https://actions.google.com/sounds/v1/science_fiction/suspense_builder.ogg', 0.32, fadeInMs);
+            } else {
+                // Variace 3: Palubní počítač & strojovna
+                this.addLoopAudio('https://actions.google.com/sounds/v1/science_fiction/robot_code.ogg', 0.36, fadeInMs);
+                this.addLoopAudio('https://actions.google.com/sounds/v1/ambiences/factory_background.ogg', 0.28, fadeInMs);
+            }
+        }
+        else if (preset === 'summer_meadow') {
+            const varIdx = this.bgVariationIndex;
+            if (varIdx === 1) {
+                // Variace 1: Letní sad, ptáci v korunách & noční cvrčci
+                this.addLoopAudio('https://actions.google.com/sounds/v1/ambiences/spring_day_forest.ogg', 0.44, fadeInMs);
+                this.addLoopAudio('https://actions.google.com/sounds/v1/animals/afternoon_crickets_long.ogg', 0.24, fadeInMs);
+            } else if (varIdx === 2) {
+                // Variace 2: Včely na rozkvetlé louce & jemný vánek
+                this.addLoopAudio('https://actions.google.com/sounds/v1/animals/swarming_bees.ogg', 0.38, fadeInMs);
+                this.addLoopAudio('https://actions.google.com/sounds/v1/weather/light_breeze.ogg', 0.28, fadeInMs);
+            } else {
+                // Variace 3: Letní les & červnový zpěv ptactva
+                this.addLoopAudio('https://actions.google.com/sounds/v1/ambiences/summer_forest.ogg', 0.42, fadeInMs);
+                this.addLoopAudio('https://actions.google.com/sounds/v1/animals/june_songbirds.ogg', 0.32, fadeInMs);
+            }
         }
     },
 
@@ -3075,6 +3787,7 @@ function selectProfileHub(target) {
 
     populateStoryDropdown();
     loadSelectedStory(true);
+    restoreReadingPosition();
     renderAmbienceTiles(true);
     const kidsRow = document.getElementById('kidsSpecialActionsRow');
     if (kidsRow) kidsRow.style.display = (currentProfile === 'kids') ? 'flex' : 'none';
@@ -3086,6 +3799,55 @@ function selectProfileHub(target) {
     setStatus(currentProfile === 'adults'
         ? '🍷 Režim knih pro dospělé aktivován (dospělá atmosféra: kavárna, noční klavír, krb, expres, šerm).'
         : '🌙 Dětské pohádky na spaní aktivovány (volba délky 5/15/30 min, zvířátka, stroje a ukolébavky).');
+}
+
+let STEM_PREFIX_MAP = new Map();
+let SHORT_STEMS = [];
+
+function buildFastStemIndex() {
+    STEM_PREFIX_MAP.clear();
+    SHORT_STEMS = [];
+    if (typeof SOUND_LIBRARY === 'undefined' || !Array.isArray(SOUND_LIBRARY)) return;
+    for (let i = 0; i < SOUND_LIBRARY.length; i++) {
+        const cluster = SOUND_LIBRARY[i];
+        if (!cluster.stems) continue;
+        for (let j = 0; j < cluster.stems.length; j++) {
+            const nSt = normWord(cluster.stems[j]);
+            if (!nSt) continue;
+            if (nSt.length < 3) {
+                if (!SHORT_STEMS.includes(nSt)) SHORT_STEMS.push(nSt);
+            } else {
+                const pref = nSt.slice(0, 3);
+                let list = STEM_PREFIX_MAP.get(pref);
+                if (!list) {
+                    list = [];
+                    STEM_PREFIX_MAP.set(pref, list);
+                }
+                if (!list.includes(nSt)) list.push(nSt);
+            }
+        }
+    }
+}
+
+function hasWordTriggerFast(cleanWord) {
+    if (!cleanWord || cleanWord.length < 3) return false;
+    for (let i = 0; i < SHORT_STEMS.length; i++) {
+        const st = SHORT_STEMS[i];
+        if (cleanWord === st || (cleanWord.startsWith(st) && (cleanWord.length - st.length <= 2))) return true;
+    }
+    const pref = cleanWord.slice(0, 3);
+    const list = STEM_PREFIX_MAP.get(pref);
+    if (!list) return false;
+    for (let i = 0; i < list.length; i++) {
+        const nSt = list[i];
+        if (cleanWord === nSt) return true;
+        if (nSt.length <= 3) {
+            if (cleanWord.startsWith(nSt) && (cleanWord.length - nSt.length <= 2)) return true;
+        } else {
+            if (cleanWord.startsWith(nSt)) return true;
+        }
+    }
+    return false;
 }
 
 function doesWordMatchStem(cleanWord, rawStem) {
@@ -3217,6 +3979,75 @@ function scrollCarousel(id, direction) {
     if (!el) return;
     const scrollAmount = (el.clientWidth * 0.75 || 260) * direction;
     el.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+}
+
+function initCarouselDragAndTouch() {
+    const strips = document.querySelectorAll('.carousel-strip, #lullabyGridMain');
+    strips.forEach(strip => {
+        if (strip.dataset.dragInit === 'true') return;
+        strip.dataset.dragInit = 'true';
+
+        let isDown = false;
+        let startX = 0;
+        let scrollLeft = 0;
+        let movedDist = 0;
+
+        strip.addEventListener('mousedown', (e) => {
+            if (e.button !== 0) return;
+            isDown = true;
+            movedDist = 0;
+            startX = e.pageX - strip.getBoundingClientRect().left;
+            scrollLeft = strip.scrollLeft;
+            strip.style.scrollBehavior = 'auto';
+            strip.style.scrollSnapType = 'none';
+        });
+
+        const onMouseMove = (e) => {
+            if (!isDown) return;
+            const currentX = e.pageX - strip.getBoundingClientRect().left;
+            const diff = currentX - startX;
+            movedDist = Math.abs(diff);
+            if (movedDist > 8) {
+                strip.classList.add('is-dragging');
+                strip.scrollLeft = scrollLeft - diff;
+                e.preventDefault();
+            }
+        };
+
+        const onMouseUp = () => {
+            if (!isDown) return;
+            isDown = false;
+            strip.classList.remove('is-dragging');
+            strip.style.scrollBehavior = 'auto';
+            strip.style.scrollSnapType = 'x proximity';
+
+            if (movedDist > 8) {
+                const cancelClick = (ev) => {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    strip.removeEventListener('click', cancelClick, true);
+                };
+                strip.addEventListener('click', cancelClick, true);
+                setTimeout(() => {
+                    strip.removeEventListener('click', cancelClick, true);
+                }, 120);
+            }
+            movedDist = 0;
+        };
+
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
+
+        // Plynulé tažení prstem bez zadrhávání a bez vracení dlaždic zpět
+        strip.addEventListener('touchstart', () => {
+            strip.style.scrollBehavior = 'auto';
+            strip.style.scrollSnapType = 'none';
+        }, { passive: true });
+
+        strip.addEventListener('touchend', () => {
+            strip.style.scrollSnapType = 'x proximity';
+        }, { passive: true });
+    });
 }
 
 function renderLampModalAmbience() {
@@ -3557,10 +4388,22 @@ function switchMode(mode) {
 
     // Plynulá animace rozbalení / sbalení rovniny (žádné blikání display:none)
     const storyTile = document.getElementById('storyTile');
+    const freeBar = document.getElementById('freeRecordBar');
+    if (freeBar) {
+        freeBar.classList.toggle('hidden', mode !== 'free');
+    }
     if (storyTile) {
         storyTile.classList.toggle('visible', mode !== 'free');
     }
     updateMainButtonLabel();
+}
+
+function toggleStorySettingsPlane() {
+    const plane = document.getElementById('storySettingsPlane');
+    const badge = document.getElementById('storySettingsArrow');
+    if (!plane) return;
+    const isOpen = plane.classList.toggle('open');
+    if (badge) badge.innerText = isOpen ? 'Sbalit ▲' : 'Rozbalit ▼';
 }
 
 function setStoryDuration(mins) {
@@ -3762,6 +4605,20 @@ function previewTtsVoice() {
 
 function updateMainButtonLabel() {
     const btn = document.getElementById('mainActionBtn');
+    if (!btn) return;
+    if (isSessionRunning) {
+        btn.classList.add('running');
+        btn.innerText = '🛑 ZASTAVIT';
+        return;
+    }
+    btn.classList.remove('running');
+    if (currentMode === 'free') btn.innerText = '🎙️ SPUSTIT ODPOSLECH';
+    else if (currentMode === 'read') btn.innerText = '🎙️ ČÍST NAHLAS';
+    else if (currentMode === 'tts') btn.innerText = '🎧 AI VYPRAVĚČ';
+    else if (currentMode === 'silent') btn.innerText = '🤫 TICHÉ ČTENÍ'; } /*
+}
+if (false) {
+    const btn = document.getElementById('mainActionBtn');
     if (isSessionRunning) {
         btn.classList.add('running');
         btn.innerText = '🛑 ZASTAVIT PROBÍHAJÍCÍ ČTENÍ / ODPOSLECH';
@@ -3774,43 +4631,75 @@ function updateMainButtonLabel() {
     else if (currentMode === 'silent') btn.innerText = '🤫 SPUSTIT TICHÉ ČTENÍ OČIMA';
 }
 
-function saveReadingPosition() {
+*/ let lastPositionSaveTime = 0;
+const POSITIONS_STORAGE_KEY = 'atmoread_positions_v71';
+
+function getStoredPositionsMap() {
+    try {
+        const raw = localStorage.getItem(POSITIONS_STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+    } catch (e) {
+        return {};
+    }
+}
+
+function saveReadingPosition(force = false) {
+    const now = Date.now();
+    if (!force && (now - lastPositionSaveTime < 2500)) {
+        return;
+    }
+    lastPositionSaveTime = now;
     try {
         const sel = document.getElementById('storySelect');
         const storyIdx = sel ? parseInt(sel.value || '0', 10) : 0;
+        const list = STORIES[getStoryKey()] || [];
+        const activeStory = list[storyIdx];
+        const storyKey = activeStory ? (activeStory.ebookId || activeStory.title) : `story_${storyIdx}`;
+
+        // 1. Lehký objekt { [storyIdOrTitle]: currentWordIndex } do atmoread_positions_v71
+        const posMap = getStoredPositionsMap();
+        posMap[storyKey] = currentWordIndex;
+        localStorage.setItem(POSITIONS_STORAGE_KEY, JSON.stringify(posMap));
+
+        // 2. Profilově specifická poslední pozice
+        const profKey = currentProfile === 'adults' ? 'atmoread_reading_pos_adults' : 'atmoread_reading_pos_kids';
         const data = {
             profile: currentProfile,
             storyIdx: isNaN(storyIdx) ? 0 : storyIdx,
+            storyKey: storyKey,
             wordIdx: currentWordIndex
         };
-        localStorage.setItem('atmoread_reading_pos', JSON.stringify(data));
-        updateActiveEbookWordIndex(currentWordIndex);
+        localStorage.setItem(profKey, JSON.stringify(data));
+
+        // 3. Pouze paměťová aktualizace bez ukládání celého textu e-knihy
+        if (activeStory && activeStory.isEbook) {
+            activeStory.wordIndex = currentWordIndex;
+        }
     } catch (e) {}
 }
 
+
+
 function restoreReadingPosition() {
     try {
-        const raw = localStorage.getItem('atmoread_reading_pos');
+        const profKey = currentProfile === 'adults' ? 'atmoread_reading_pos_adults' : 'atmoread_reading_pos_kids';
+        let raw = localStorage.getItem(profKey);
+        if (!raw) {
+            const oldRaw = localStorage.getItem('atmoread_reading_pos');
+            if (oldRaw) {
+                const oldSaved = JSON.parse(oldRaw);
+                if (oldSaved && oldSaved.profile === currentProfile) raw = oldRaw;
+            }
+        }
         if (!raw) return;
         const saved = JSON.parse(raw);
         if (!saved || typeof saved.wordIdx !== 'number') return;
+        if (saved.profile && saved.profile !== currentProfile) return;
 
-        if (saved.profile && (saved.profile === 'kids' || saved.profile === 'adults') && saved.profile !== currentProfile) {
-            selectProfileHub(saved.profile);
-        }
         const sel = document.getElementById('storySelect');
         if (sel && typeof saved.storyIdx === 'number' && sel.options[saved.storyIdx]) {
             sel.value = String(saved.storyIdx);
             loadSelectedStory(false);
-            try {
-        
-
-
-
-
-    } catch (e) {}
-
-
         }
         if (saved.wordIdx > 0 && saved.wordIdx < storyWordsData.length) {
             currentWordIndex = saved.wordIdx;
@@ -3821,6 +4710,8 @@ function restoreReadingPosition() {
         }
     } catch (e) {}
 }
+
+
 
 function updatePauseResumeButton() {
     const btn = document.getElementById('pauseResumeBtn');
@@ -3842,8 +4733,6 @@ function togglePauseResume() {
         // POKRAČOVAT: plynule naváže od currentWordIndex
         isPaused = false;
         isSessionRunning = true;
-    isPaused = false;
-    updatePauseResumeButton();
         updatePauseResumeButton();
         updateMainButtonLabel();
         SoundEngine.startIdleWatcher();
@@ -3867,7 +4756,7 @@ function togglePauseResume() {
             recognition = null;
         }
         SoundEngine.stopIdleWatcher();
-        saveReadingPosition();
+        saveReadingPosition(true);
         setStatus(`⏸️ Čtení pozastaveno na slově ${currentWordIndex + 1}/${storyWordsData.length}. Klepni na POKRAČOVAT pro navázání.`);
     } else {
         isPaused = false;
@@ -3969,7 +4858,7 @@ function startVoiceRecognition() {
                 if (processedSpeechWords[i][wIdx] !== clean) {
                     processedSpeechWords[i][wIdx] = clean;
                     checkWordTriggers(word);
-                saveReadingPosition();
+                saveReadingPosition(true);
                     if (currentMode === 'read') advanceReaderBySpokenWord(word);
                 }
             }
@@ -4112,7 +5001,7 @@ function addCurrentStoryToQueue() {
 
 function addHistoryItemToQueue(idx, ev) {
     if (ev) ev.stopPropagation();
-    const history = getSavedUrlHistory();
+    const history = getSavedUrlHistory().filter(item => (item.profile || 'adults') === currentProfile);
     const item = history[idx];
     if (!item) return;
 
@@ -4128,7 +5017,8 @@ function addHistoryItemToQueue(idx, ev) {
         activeVariant: urlExtractMode,
         isUrlArticle: true,
         isYouTube: isYt,
-        sourceUrl: item.url
+        sourceUrl: item.url,
+        profile: currentProfile
     });
 
     saveReadingQueueToStorage();
@@ -4257,6 +5147,7 @@ async function promptThreeWordsStory() {
         title: storyObj.title,
         text: storyObj.text,
         isCustom: true,
+
         savedAt: Date.now()
     });
 
@@ -4336,7 +5227,20 @@ function cleanTextForSmoothTts(rawText) {
 
 function countSentenceTriggerWords(wordsArr) {
     let count = 0;
-    const seenClusters = new Set();
+    for (let i = 0; i < wordsArr.length; i++) {
+        const clean = normWord(wordsArr[i]);
+        if (clean.length >= 3 && hasWordTriggerFast(clean)) {
+            count++;
+        }
+    }
+    return count;
+}
+
+function _old_countSentenceTriggerWords(wordsArr) {
+    let count = 0;
+    return 0;
+}
+function _unused_old_counter() {
     for (const w of wordsArr) {
         const clean = normWord(w);
         if (clean.length < 3) continue;
@@ -4376,6 +5280,9 @@ function startAiStoryReading() {
     const sentences = [];
     let curWords = [];
     let curIndices = [];
+    const maxSentencesInBatch = 25;
+    const maxWordsInBatch = 450;
+    const batchStartWordIdx = currentWordIndex;
 
     for (let i = currentWordIndex; i < storyWordsData.length; i++) {
         const w = storyWordsData[i];
@@ -4398,6 +5305,9 @@ function startAiStoryReading() {
             });
             curWords = [];
             curIndices = [];
+            if (sentences.length >= maxSentencesInBatch || (i - batchStartWordIdx) >= maxWordsInBatch) {
+                break;
+            }
         }
     }
     if (curWords.length > 0) {
@@ -4509,6 +5419,12 @@ function startAiStoryReading() {
             if (!isSessionRunning || currentMode !== 'tts') return;
 
             if (sIdx + 1 >= sentences.length) {
+                const lastIdxInBatch = sent.indices[sent.indices.length - 1];
+                if (lastIdxInBatch + 1 < storyWordsData.length) {
+                    currentWordIndex = lastIdxInBatch + 1;
+                    startAiStoryReading();
+                    return;
+                }
                 if (readingQueue && readingQueue.length > 0) {
                     advanceQueueAndPlay();
                     return;
@@ -4569,7 +5485,7 @@ function startSilentPacer() {
             delay += triggered ? 1350 : 480;
         }
         currentWordIndex++;
-        saveReadingPosition();
+        saveReadingPosition(true);
         silentInterval = setTimeout(stepNextWord, delay);
     };
     stepNextWord();
@@ -4580,8 +5496,19 @@ function startSilentPacer() {
    ============================================================================ */
 function loadSelectedStory(animatePlane = true) {
     const list = STORIES[getStoryKey()] || STORIES.kids_cs;
-    const idx = parseInt(document.getElementById('storySelect').value || '0', 10);
-    const story = list[idx] || list[0];
+    const selVal = document.getElementById('storySelect')?.value;
+    const idx = parseInt(selVal || '0', 10);
+    const story = (idx >= 0 && list[idx]) ? list[idx] : (selVal === '' ? null : list[0]);
+    const delBtn = document.getElementById('deleteStoryBtn');
+    if (delBtn) {
+        delBtn.style.display = (story && (story.isCustom || story.isEbook || story.isUrlArticle || story.isYouTube)) ? 'inline-flex' : 'none';
+    }
+    if (!story) {
+        unloadCurrentStory();
+        return;
+    }
+
+    // story defined above
     if (!story) return;
 
     const switchPlane = document.getElementById('articleModeSwitchPlane');
@@ -4653,8 +5580,234 @@ function loadSelectedStory(animatePlane = true) {
     }
 }
 
+const READER_PAGE_SIZE = 600;
+let currentReaderPage = 0;
+
 function renderStoryText(text, animatePlane = false) {
+    if (typeof text === 'string') {
+        storyWordsData = text.trim() ? text.trim().split(/\s+/).filter(Boolean) : [];
+        currentWordIndex = 0;
+        currentReaderPage = 0;
+    }
+    if (!storyWordsData.length) {
+        renderEmptyState();
+        return;
+    }
+    currentReaderPage = Math.floor(currentWordIndex / READER_PAGE_SIZE);
+    renderReaderCurrentPage(animatePlane);
+}
+
+function renderReaderCurrentPage(animatePlane = false) {
     const box = document.getElementById('readerBox');
+    if (!box) return;
+    if (!storyWordsData || !storyWordsData.length) {
+        renderEmptyState();
+        return;
+    }
+
+    const totalWords = storyWordsData.length;
+    const totalPages = Math.max(1, Math.ceil(totalWords / READER_PAGE_SIZE));
+    if (currentReaderPage < 0) currentReaderPage = 0;
+    if (currentReaderPage >= totalPages) currentReaderPage = totalPages - 1;
+
+    const startIdx = currentReaderPage * READER_PAGE_SIZE;
+    const endIdx = Math.min(totalWords, startIdx + READER_PAGE_SIZE);
+
+    const populateTokens = () => {
+        box.innerHTML = '';
+        const frag = document.createDocumentFragment();
+
+        for (let idx = startIdx; idx < endIdx; idx++) {
+            const word = storyWordsData[idx];
+            const span = document.createElement('span');
+            span.className = 'w-tok';
+            span.id = `w-${idx}`;
+            if (idx === currentWordIndex) span.classList.add('active-word');
+            span.innerHTML = isBionicReadingEnabled ? formatBionicWord(word) : escapeHtml(word);
+
+            const clean = normWord(word);
+            if (hasWordTriggerFast(clean)) {
+                span.classList.add('trig-sfx');
+            }
+
+            span.onclick = () => {
+                currentWordIndex = idx;
+                highlightWordAt(idx);
+                checkWordTriggers(word);
+                saveReadingPosition(true);
+            };
+
+            frag.appendChild(span);
+            frag.appendChild(document.createTextNode(' '));
+        }
+
+        box.appendChild(frag);
+        updateReaderProgressBar();
+        updatePageNavUI();
+        SoundEngine.preloadStorySounds(storyWordsData.slice(startIdx, Math.min(totalWords, startIdx + 200)));
+    };
+
+    if (animatePlane && box.childNodes.length > 0) {
+        box.style.opacity = '0';
+        box.style.transform = 'translateY(5px)';
+        setTimeout(() => {
+            populateTokens();
+            requestAnimationFrame(() => {
+                box.style.opacity = '1';
+                box.style.transform = 'translateY(0)';
+            });
+        }, 180);
+    } else {
+        populateTokens();
+    }
+}
+
+function updatePageNavUI() {
+    const totalWords = storyWordsData ? storyWordsData.length : 0;
+    const totalPages = Math.max(1, Math.ceil(totalWords / READER_PAGE_SIZE));
+    const pageIndicator = document.getElementById('readerPageIndicator');
+    const prevBtn = document.getElementById('readerPrevPageBtn');
+    const nextBtn = document.getElementById('readerNextPageBtn');
+
+    if (pageIndicator) {
+        pageIndicator.innerText = totalWords > 0
+            ? `Strana ${currentReaderPage + 1} / ${totalPages}`
+            : 'Strana 0 / 0';
+    }
+    if (prevBtn) {
+        prevBtn.disabled = (currentReaderPage <= 0 || totalWords === 0);
+        prevBtn.style.opacity = (currentReaderPage <= 0 || totalWords === 0) ? '0.45' : '1';
+    }
+    if (nextBtn) {
+        nextBtn.disabled = (currentReaderPage >= totalPages - 1 || totalWords === 0);
+        nextBtn.style.opacity = (currentReaderPage >= totalPages - 1 || totalWords === 0) ? '0.45' : '1';
+    }
+}
+
+function goToReaderPage(targetPage) {
+    if (!storyWordsData || !storyWordsData.length) return;
+    const totalPages = Math.max(1, Math.ceil(storyWordsData.length / READER_PAGE_SIZE));
+    if (targetPage < 0 || targetPage >= totalPages) return;
+    currentReaderPage = targetPage;
+    currentWordIndex = targetPage * READER_PAGE_SIZE;
+    renderReaderCurrentPage(true);
+    highlightWordAt(currentWordIndex);
+    saveReadingPosition(true);
+    setStatus(`📄 Přechod na stranu ${currentReaderPage + 1} / ${totalPages}...`);
+}
+
+function renderEmptyState() {
+    const box = document.getElementById('readerBox');
+    if (!box) return;
+    box.innerHTML = `
+        <div class="reader-empty-state">
+            <svg class="empty-book-svg" viewBox="0 0 120 80" fill="none">
+                <ellipse cx="60" cy="50" rx="48" ry="22" fill="rgba(251, 191, 36, 0.16)"/>
+                <path d="M14 62 C34 56, 52 59, 60 66 C68 59, 86 56, 106 62 L110 24 C88 18, 68 22, 60 30 C52 22, 32 18, 10 24 Z" fill="#451a03" stroke="var(--accent)" stroke-width="2"/>
+                <path d="M18 58 C36 52, 52 55, 60 62 C68 55, 84 52, 102 58 L105 26 C86 20, 68 24, 60 32 C52 24, 34 20, 15 26 Z" fill="var(--tile-bg)" stroke="var(--accent-soft)" stroke-width="1.5"/>
+                <line x1="60" y1="31" x2="60" y2="62" stroke="var(--accent)" stroke-width="2"/>
+            </svg>
+            <h3 class="empty-state-title">Žádná kniha ani článek není právě otevřen</h3>
+            <p class="empty-state-subtitle">Vyber si libovolnou pohádku z naší knihovny, nahraj vlastní e-knihu v PDF/EPUB nebo vlož odkaz na internetový článek.</p>
+            <div class="empty-actions-row">
+                <button type="button" class="big-tile-btn" onclick="focusStorySelect()" style="min-height:48px; padding:10px 16px; flex-direction:row; gap:8px;">
+                    <span class="bt-icon">📖</span>
+                    <span class="bt-title">Vybrat pohádku/knihu z roletky</span>
+                </button>
+                <button type="button" class="big-tile-btn" onclick="document.getElementById('ebookFileInput').click()" style="min-height:48px; padding:10px 16px; flex-direction:row; gap:8px;">
+                    <span class="bt-icon">📂</span>
+                    <span class="bt-title">Nahrát E-knihu</span>
+                </button>
+                <button type="button" class="big-tile-btn" onclick="openUrlModal()" style="min-height:48px; padding:10px 16px; flex-direction:row; gap:8px;">
+                    <span class="bt-icon">🔗</span>
+                    <span class="bt-title">Načíst článek / YouTube</span>
+                </button>
+            </div>
+        </div>
+    `;
+    const textEl = document.getElementById('readerProgressText');
+    if (textEl) textEl.innerText = '📖 Žádný text není otevřen';
+    updatePageNavUI();
+}
+
+function focusStorySelect() {
+    const sel = document.getElementById('storySelect');
+    if (!sel) return;
+    if (sel.options.length > 0 && sel.value !== '-1' && sel.value !== '') {
+        loadSelectedStory(true);
+    } else if (sel.options.length > 0 && sel.options[0].value !== '-1') {
+        sel.value = sel.options[0].value;
+        loadSelectedStory(true);
+    }
+    sel.focus();
+}
+
+function unloadCurrentStory() {
+    stopActiveSession();
+    storyWordsData = [];
+    currentWordIndex = 0;
+    currentReaderPage = 0;
+    const sel = document.getElementById('storySelect');
+    if (sel) sel.value = '';
+    renderEmptyState();
+    updateReaderProgressBar();
+    updatePageNavUI();
+    const delBtn = document.getElementById('deleteStoryBtn');
+    if (delBtn) delBtn.style.display = 'none';
+    const lenBadge = document.getElementById('storyLengthBadge');
+    if (lenBadge) lenBadge.innerText = 'Čtečka je v klidovém stavu';
+    const durPlane = document.getElementById('storyDurationPlane');
+    if (durPlane) durPlane.classList.remove('open');
+    const switchPlane = document.getElementById('articleModeSwitchPlane');
+    if (switchPlane) switchPlane.classList.remove('open');
+    setStatus('🧹 Text byl zavřen. Čtečka je v klidovém stavu.');
+}
+
+function deleteCurrentCustomStory() {
+    const sel = document.getElementById('storySelect');
+    const idx = parseInt(sel?.value || '-1', 10);
+    const key = getStoryKey();
+    const list = STORIES[key] || [];
+    const story = list[idx];
+    if (!story || (!story.isCustom && !story.isEbook && !story.isUrlArticle && !story.isYouTube)) {
+        alert('Tento příběh je vestavěný a nelze jej smazat.');
+        return;
+    }
+    if (!confirm(`Opravdu si přeješ trvale smazat „${story.title}“ z knihovny?`)) {
+        return;
+    }
+
+    if (story.isEbook) {
+        const stored = getStoredEbooks().filter(b => (!story.ebookId || b.id !== story.ebookId) && b.title !== story.title);
+        saveStoredEbooks(stored);
+    }
+    if (story.isUrlArticle && story.sourceUrl) {
+        const history = getSavedUrlHistory().filter(h => h.url !== story.sourceUrl);
+        localStorage.setItem(URL_HISTORY_STORAGE_KEY, JSON.stringify(history));
+    }
+    if (story.isCustom && !story.isEbook && !story.isUrlArticle) {
+        const customStories = getStoredCustomStories().filter(s => s.title !== story.title || s.text !== story.text);
+        localStorage.setItem(CUSTOM_STORIES_STORAGE_KEY, JSON.stringify(customStories));
+    }
+
+    const posKey = story.ebookId || story.title;
+    const posMap = getStoredPositionsMap();
+    if (posMap[posKey] !== undefined) {
+        delete posMap[posKey];
+        localStorage.setItem(POSITIONS_STORAGE_KEY, JSON.stringify(posMap));
+    }
+
+    list.splice(idx, 1);
+    unloadCurrentStory();
+    populateStoryDropdown();
+    showAutoBadge('🗑️ Smazáno z knihovny');
+    setStatus(`🗑️ „${story.title}“ byl úspěšně smazán z knihovny.`); } /*
+}
+
+if (false) {
+    return;
+}
+if (false) {
     if (!box) return;
 
     const populateTokens = () => {
@@ -4662,7 +5815,9 @@ function renderStoryText(text, animatePlane = false) {
         storyWordsData = text.trim().split(/\s+/);
         currentWordIndex = 0;
 
-        storyWordsData.forEach((word, idx) => {
+        renderReaderCurrentPage(false);
+    /* bionic updated via renderReaderCurrentPage */
+    if (false) (() => {
             const span = document.createElement('span');
             span.className = 'w-tok';
             span.id = `w-${idx}`;
@@ -4676,7 +5831,7 @@ function renderStoryText(text, animatePlane = false) {
                 currentWordIndex = idx;
                 highlightWordAt(idx);
                 checkWordTriggers(word);
-                saveReadingPosition();
+                saveReadingPosition(true);
             };
 
             box.appendChild(span);
@@ -4703,7 +5858,25 @@ function renderStoryText(text, animatePlane = false) {
     }
 }
 
-function highlightWordAt(idx) {
+*/ function highlightWordAt(idx) {
+    if (!storyWordsData || !storyWordsData.length) return;
+    const targetPage = Math.floor(idx / READER_PAGE_SIZE);
+    if (targetPage !== currentReaderPage) {
+        currentReaderPage = targetPage;
+        renderReaderCurrentPage(false);
+    }
+    document.querySelectorAll('.w-tok.active-word').forEach(el => el.classList.remove('active-word'));
+    const target = document.getElementById(`w-${idx}`);
+    if (target) {
+        target.classList.add('active-word');
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        updateReaderProgressBar();
+        updatePageNavUI();
+    }
+}
+
+// legacy highlightWordAt removed
+if (false) {
     document.querySelectorAll('.w-tok.active-word').forEach(el => el.classList.remove('active-word'));
     const target = document.getElementById(`w-${idx}`);
     if (target) {
@@ -4912,6 +6085,37 @@ function promptCustomText() {
     const txt = prompt('Vlož vlastní text pohádky nebo kapitoly knihy:');
     if (txt && txt.trim().length > 5) {
         const key = getStoryKey();
+        const newStory = {
+            title: '✍️ Vlastní vložený příběh',
+            text: txt.trim(),
+            isCustom: true,
+            profile: currentProfile,
+            savedAt: Date.now()
+        };
+        STORIES[key].unshift(newStory);
+        try {
+            const savedList = getStoredCustomStories();
+            savedList.unshift({
+                key: key,
+                profile: currentProfile,
+                title: newStory.title,
+                text: newStory.text,
+                savedAt: newStory.savedAt
+            });
+            localStorage.setItem(CUSTOM_STORIES_STORAGE_KEY, JSON.stringify(savedList));
+        } catch (e) {}
+        populateStoryDropdown();
+        document.getElementById('storySelect').value = '0';
+        loadSelectedStory(true);
+        setStatus('✅ Vlastní příběh byl vložen a připraven ke čtení.');
+    }
+}
+
+// legacy promptCustomText removed
+if (false) {
+    const txt = prompt('Vlož vlastní text pohádky nebo kapitoly knihy:');
+    if (txt && txt.trim().length > 5) {
+        const key = getStoryKey();
         STORIES[key].unshift({ title: '✍️ Vlastní vložený příběh', text: txt.trim(), isCustom: true });
         populateStoryDropdown();
         document.getElementById('storySelect').value = '0';
@@ -5016,6 +6220,7 @@ function saveArticleToHistory(entry) {
             summaryText: entry.summaryText,
             fullText: entry.fullText,
             isYouTube: !!entry.isYouTube,
+            profile: entry.profile || currentProfile,
             savedAt: new Date().toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' })
         });
         if (list.length > 10) list = list.slice(0, 10);
@@ -5048,7 +6253,7 @@ function renderUrlHistoryList() {
     const listEl = document.getElementById('urlHistoryList');
     if (!wrap || !listEl) return;
 
-    const history = getSavedUrlHistory();
+    const history = getSavedUrlHistory().filter(item => (item.profile || 'adults') === currentProfile);
     if (!history.length) {
         wrap.classList.remove('open');
         listEl.innerHTML = '';
@@ -5082,7 +6287,7 @@ function renderUrlHistoryList() {
 }
 
 function loadArticleFromHistory(idx) {
-    const history = getSavedUrlHistory();
+    const history = getSavedUrlHistory().filter(item => (item.profile || 'adults') === currentProfile);
     const item = history[idx];
     if (!item) return;
 
@@ -5099,7 +6304,8 @@ function loadArticleFromHistory(idx) {
         fullText: item.fullText,
         activeVariant: urlExtractMode,
         isUrlArticle: true,
-        sourceUrl: item.url
+        sourceUrl: item.url,
+        profile: currentProfile
     });
 
     populateStoryDropdown();
@@ -5124,8 +6330,19 @@ function setUrlExtractMode(mode) {
 
 function switchLoadedArticleVariant(variant) {
     const list = STORIES[getStoryKey()] || STORIES.kids_cs;
-    const idx = parseInt(document.getElementById('storySelect').value || '0', 10);
-    const story = list[idx];
+    const selVal = document.getElementById('storySelect')?.value;
+    const idx = parseInt(selVal || '0', 10);
+    const story = (idx >= 0 && list[idx]) ? list[idx] : (selVal === '' ? null : list[0]);
+    const delBtn = document.getElementById('deleteStoryBtn');
+    if (delBtn) {
+        delBtn.style.display = (story && (story.isCustom || story.isEbook || story.isUrlArticle || story.isYouTube)) ? 'inline-flex' : 'none';
+    }
+    if (!story) {
+        unloadCurrentStory();
+        return;
+    }
+
+    // story resolved above
     if (!story || !story.isUrlArticle) return;
 
     const wasRunning = isSessionRunning && currentMode === 'tts';
@@ -5274,6 +6491,426 @@ function extractPureArticleFromMarkdown(rawMarkdown, cleanTitle) {
     return paragraphs;
 }
 
+function decodeHtmlEntities(str) {
+    if (!str) return '';
+    const txt = document.createElement('textarea');
+    txt.innerHTML = str;
+    let decoded = txt.value;
+    if (decoded && decoded.includes('&')) {
+        txt.innerHTML = decoded;
+        decoded = txt.value;
+    }
+    return decoded;
+}
+
+function extractYouTubeVideoId(url) {
+    if (!url) return null;
+    const m = url.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/i);
+    return m ? m[1] : null;
+}
+
+function formatLinesIntoFluentSentences(lines) {
+    if (!lines || !lines.length) return [];
+    const cleaned = lines.map(l => {
+        return l
+            .replace(/\[(?:Music|Applause|Hudba|Potlesk|Smích|Klepání)\]/gi, '')
+            .replace(/\((?:smích|potlesk|hudba)\)/gi, '')
+            .replace(/https?:\/\/\S+/gi, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+    }).filter(l => l.length > 0);
+
+    let full = cleaned.join(' ').replace(/\s+/g, ' ').trim();
+    if (!full) return [];
+
+    const sentences = full.match(/[^.!?…]+[.!?…]+/g);
+    if (sentences && sentences.length >= 2) {
+        const paragraphs = [];
+        let curr = [];
+        for (const s of sentences) {
+            const trimmed = s.trim();
+            if (!trimmed) continue;
+            curr.push(trimmed);
+            if (curr.join(' ').length >= 220 || curr.length >= 4) {
+                paragraphs.push(curr.join(' '));
+                curr = [];
+            }
+        }
+        if (curr.length > 0) paragraphs.push(curr.join(' '));
+        return paragraphs;
+    }
+
+    const words = full.split(/\s+/);
+    const paragraphs = [];
+    let curWords = [];
+    for (let i = 0; i < words.length; i++) {
+        curWords.push(words[i]);
+        if (curWords.length >= 18 || (curWords.length >= 12 && i === words.length - 1)) {
+            let s = curWords.join(' ');
+            s = s.charAt(0).toUpperCase() + s.slice(1);
+            if (!/[.!?…]$/.test(s)) s += '.';
+            paragraphs.push(s);
+            curWords = [];
+        }
+    }
+    if (curWords.length > 0) {
+        let s = curWords.join(' ');
+        s = s.charAt(0).toUpperCase() + s.slice(1);
+        if (!/[.!?…]$/.test(s)) s += '.';
+        paragraphs.push(s);
+    }
+    return paragraphs;
+}
+
+function cleanYouTubeShortDescription(rawDesc) {
+    if (!rawDesc) return [];
+    let desc = rawDesc;
+    desc = desc.replace(/https?:\/\/\S+/gi, '');
+    desc = desc.replace(/www\.\S+/gi, '');
+    desc = desc.replace(/#\S+/g, '');
+    desc = desc.replace(/\[?\b\d{1,2}:\d{2}(?::\d{2})?\b\]?/g, '');
+    const navWords = [
+        'odebírat', 'odebírejte', 'odběr', 'přihlaste se k odběru', 'zhlédnutí', 'sdílet', 'sdílejte',
+        'komentáře', 'komentář', 'komentujte', 'like', 'dejte like', 'subscribe', 'share', 'views',
+        'comments', 'sledovat', 'sledujte nás', 'follow', 'patreon', 'instagram', 'facebook', 'twitter'
+    ];
+    const navRegex = new RegExp(`\\b(${navWords.join('|')})\\b`, 'gi');
+    desc = desc.replace(navRegex, '');
+
+    const lines = desc.split(/\r?\n/).map(l => l.replace(/\s+/g, ' ').trim()).filter(l => {
+        if (l.length < 15) return false;
+        if (!/[a-zA-Zá-žÁ-Ž]/.test(l)) return false;
+        return true;
+    });
+
+    if (!lines.length) return [];
+    return lines.map(l => /[.!?…]$/.test(l) ? l : (l + '.'));
+}
+
+async function fetchFromPipedOrInvidious(videoId) {
+    const instances = [
+        `https://pipedapi.kavin.rocks/streams/${videoId}`,
+        `https://api.piped.private.coffee/streams/${videoId}`,
+        `https://inv.tux.pizza/api/v1/videos/${videoId}`
+    ];
+    for (const inst of instances) {
+        try {
+            const ctrl = new AbortController();
+            const tid = setTimeout(() => ctrl.abort(), 2800);
+            const resp = await fetch(inst, { signal: ctrl.signal });
+            clearTimeout(tid);
+            if (!resp.ok) continue;
+            const data = await resp.json();
+            if (!data) continue;
+
+            const title = (data.title || '').replace(/\s*-\s*YouTube$/i, '').trim();
+            const description = data.description || '';
+            const subs = data.subtitles || data.captions || [];
+
+            if (subs && subs.length) {
+                const pickSub = (code) => subs.find(s => (s.code === code || s.language_code === code) && !s.autoGenerated)
+                    || subs.find(s => s.code === code || s.language_code === code);
+                const selected = pickSub('cs') || pickSub('sk') || pickSub('en') || subs[0];
+                if (selected && selected.url) {
+                    const subResp = await fetch(selected.url);
+                    if (subResp.ok) {
+                        const subText = await subResp.text();
+                        let lines = [];
+                        if (subText.includes('<transcript>') || subText.includes('<text')) {
+                            const doc = new DOMParser().parseFromString(subText, 'text/xml');
+                            doc.querySelectorAll('text').forEach(n => {
+                                const t = decodeHtmlEntities(n.textContent || '').trim();
+                                if (t) lines.push(t);
+                            });
+                        } else {
+                            const rawLines = subText.split(/\r?\n/);
+                            for (let l of rawLines) {
+                                l = l.trim();
+                                if (!l || l.startsWith('WEBVTT') || /^\d+$/.test(l) || /^\d{2}:\d{2}/.test(l)) continue;
+                                l = decodeHtmlEntities(l.replace(/<[^>]+>/g, '')).trim();
+                                if (l) lines.push(l);
+                            }
+                        }
+                        if (lines.length) {
+                            const paras = formatLinesIntoFluentSentences(lines);
+                            if (paras.length) {
+                                return {
+                                    title: title || 'YouTube video',
+                                    paragraphs: paras,
+                                    lang: selected.code || selected.language_code || 'cs'
+                                };
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (description) {
+                return {
+                    title: title || 'YouTube video',
+                    description: description,
+                    paragraphs: [],
+                    lang: 'cs'
+                };
+            }
+        } catch (e) {}
+    }
+    return null;
+}
+
+async function fetchYouTubeHtmlViaProxy(videoId) {
+    const targetUrl = `https://www.youtube.com/watch?v=${videoId}`;
+    const proxies = [
+        `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`
+    ];
+
+    for (const proxyUrl of proxies) {
+        try {
+            const resp = await fetch(proxyUrl);
+            if (!resp.ok) continue;
+            const html = await resp.text();
+            if (html && html.length > 500) {
+                return html;
+            }
+        } catch (e) {}
+    }
+    return null;
+}
+
+function extractCaptionTracksFromHtml(html) {
+    if (!html) return null;
+    const idx = html.indexOf('"captionTracks":');
+    if (idx === -1) return null;
+    const start = html.indexOf('[', idx);
+    if (start === -1) return null;
+    let depth = 0;
+    let inString = false;
+    let escape = false;
+    for (let i = start; i < html.length; i++) {
+        const c = html[i];
+        if (escape) {
+            escape = false;
+            continue;
+        }
+        if (c === '\\') {
+            escape = true;
+            continue;
+        }
+        if (c === '"') {
+            inString = !inString;
+            continue;
+        }
+        if (!inString) {
+            if (c === '[') depth++;
+            else if (c === ']') {
+                depth--;
+                if (depth === 0) {
+                    const jsonStr = html.slice(start, i + 1);
+                    try {
+                        return JSON.parse(jsonStr);
+                    } catch (e) {
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    const m = html.match(/"captionTracks":\s*(\[.*?\])(?:,\s*"|\})/);
+    if (m && m[1]) {
+        try {
+            return JSON.parse(m[1]);
+        } catch (e) {}
+    }
+    return null;
+}
+
+function extractShortDescriptionFromHtml(html) {
+    if (!html) return '';
+    const m = html.match(/"shortDescription":\s*"((?:\\.|[^"\\])*)"/);
+    if (m && m[1]) {
+        try {
+            return JSON.parse(`"${m[1]}"`);
+        } catch (e) {
+            return m[1].replace(/\\n/g, '\n').replace(/\\"/g, '"');
+        }
+    }
+    return '';
+}
+
+function extractYouTubeTitleFromHtml(html) {
+    if (!html) return '';
+    const m1 = html.match(/<meta\s+name="title"\s+content="([^"]+)"/i);
+    if (m1 && m1[1]) return decodeHtmlEntities(m1[1]).replace(/\s*-\s*YouTube$/i, '').trim();
+    const m2 = html.match(/<title>([^<]+)<\/title>/i);
+    if (m2 && m2[1]) return decodeHtmlEntities(m2[1]).replace(/\s*-\s*YouTube$/i, '').trim();
+    const m3 = html.match(/"title":\s*"((?:\\.|[^"\\])*)"/);
+    if (m3 && m3[1]) {
+        try {
+            return JSON.parse(`"${m3[1]}"`).replace(/\s*-\s*YouTube$/i, '').trim();
+        } catch (e) {
+            return m3[1].replace(/\s*-\s*YouTube$/i, '').trim();
+        }
+    }
+    return '';
+}
+
+async function fetchCaptionTrackXml(baseUrl) {
+    if (!baseUrl) return null;
+    const cleanUrl = baseUrl.replace(/&fmt=\w+/g, '') + '&fmt=srv1';
+    try {
+        const resp = await fetch(cleanUrl);
+        if (resp.ok) {
+            const xml = await resp.text();
+            if (xml.includes('<transcript>') || xml.includes('<text')) return xml;
+        }
+    } catch (e) {}
+
+    const proxies = [
+        `https://corsproxy.io/?${encodeURIComponent(cleanUrl)}`,
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(cleanUrl)}`
+    ];
+    for (const p of proxies) {
+        try {
+            const resp = await fetch(p);
+            if (resp.ok) {
+                const xml = await resp.text();
+                if (xml && (xml.includes('<transcript>') || xml.includes('<text'))) return xml;
+            }
+        } catch (e) {}
+    }
+    return null;
+}
+
+function parseCaptionXmlToSentences(xmlText) {
+    if (!xmlText) return [];
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(xmlText, 'text/xml');
+    const nodes = doc.querySelectorAll('text');
+    if (!nodes || !nodes.length) return [];
+    const lines = [];
+    nodes.forEach(n => {
+        let t = decodeHtmlEntities(n.textContent || '').trim();
+        if (t) lines.push(t);
+    });
+    return formatLinesIntoFluentSentences(lines);
+}
+
+async function translateAndRetellYouTubeWithGemini(title, text, apiKey) {
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
+    const prompt = `Jsi skvělý český rozhlasový vypravěč v aplikaci AtmoRead. Přelož a převyprávěj následující cizojazyčný přepis YouTube videa do čisté, přirozené a spisovné češtiny.
+DŮLEŽITÉ POKYNY:
+- Převeď obsah na plynulé souvislé české věty a odstavce.
+- Zachovej hlavní myšlenky a souvislosti.
+- Nepoužívej odrážky, tabulky, markdown ani hvězdičky.
+- Text musí být vhodný pro přímé předčítání hlasovým syntezátorem.
+
+Název videa: ${title}
+
+Přepis videa k převyprávění:
+${text.slice(0, 16000)}`;
+
+    const resp = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    });
+    if (!resp.ok) throw new Error('Gemini API translation error');
+    const data = await resp.json();
+    const out = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    return out.replace(/[*#_`>-]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+async function fetchRealYouTubeTranscript(targetUrl) {
+    const videoId = extractYouTubeVideoId(targetUrl);
+    if (!videoId) {
+        throw new Error('Nepodařilo se rozpoznat ID YouTube videa z odkazu.');
+    }
+
+    const savedGeminiKey = (document.getElementById('geminiApiKeyInput')?.value || localStorage.getItem('atmoread_gemini_key') || '').trim();
+    let videoTitle = '';
+    let paragraphs = [];
+    let detectedLang = 'cs';
+
+    // b) Zkus získat titulky přes veřejné Piped / Invidious API
+    const pipedResult = await fetchFromPipedOrInvidious(videoId);
+    if (pipedResult) {
+        if (pipedResult.title) videoTitle = pipedResult.title;
+        if (pipedResult.paragraphs && pipedResult.paragraphs.length) {
+            paragraphs = pipedResult.paragraphs;
+            detectedLang = pipedResult.lang || 'cs';
+        } else if (pipedResult.description) {
+            paragraphs = cleanYouTubeShortDescription(pipedResult.description);
+        }
+    }
+
+    // b & c) Nebo stažením HTML stránky videa přes CORS proxy (corsproxy.io a allorigins) a nalezením captionTracks
+    if (!paragraphs.length) {
+        const html = await fetchYouTubeHtmlViaProxy(videoId);
+        if (html) {
+            if (!videoTitle) videoTitle = extractYouTubeTitleFromHtml(html);
+            const captionTracks = extractCaptionTracksFromHtml(html);
+
+            if (captionTracks && captionTracks.length) {
+                // c) Z captionTracks vyber českou (cs), slovenskou (sk) nebo anglickou (en) stopu (případně první dostupnou)
+                const pickTrack = (code) =>
+                    captionTracks.find(t => (t.languageCode === code || (t.vssId && t.vssId.endsWith('.' + code))) && t.kind !== 'asr')
+                    || captionTracks.find(t => t.languageCode === code || (t.vssId && t.vssId.includes(code)));
+
+                const track = pickTrack('cs') || pickTrack('sk') || pickTrack('en') || captionTracks[0];
+                if (track && track.baseUrl) {
+                    detectedLang = track.languageCode || 'cs';
+                    const xml = await fetchCaptionTrackXml(track.baseUrl);
+                    if (xml) {
+                        paragraphs = parseCaptionXmlToSentences(xml);
+                    }
+                }
+            }
+
+            // d) Pokud video nemá titulkovou stopu, vytáhni z JSONu stránky shortDescription a odstraň balast
+            if (!paragraphs.length) {
+                const rawDesc = extractShortDescriptionFromHtml(html);
+                if (rawDesc) {
+                    paragraphs = cleanYouTubeShortDescription(rawDesc);
+                }
+            }
+        }
+    }
+
+    if (!videoTitle) videoTitle = 'YouTube video';
+    if (!paragraphs.length) {
+        paragraphs = [`Oficiální mluvené slovo ani titulky videa „${videoTitle}“ nejsou k dispozici.`];
+    }
+
+    // e) Pokud uživatel zadal Gemini API klíč a jde o cizojazyčný přepis, nech Gemini přepis rovnou přeložit a převyprávět do čisté češtiny
+    const isCzechOrSlovak = detectedLang === 'cs' || detectedLang === 'sk';
+    const textSample = paragraphs.slice(0, 3).join(' ');
+    const hasCzechChars = /[ěščřžýáíéůúóťďň]/i.test(textSample);
+    const looksForeign = !isCzechOrSlovak || (!hasCzechChars && /\b(the|and|is|in|to|of|that|we|you|this)\b/i.test(textSample));
+
+    if (savedGeminiKey && looksForeign && paragraphs.join(' ').length > 70) {
+        try {
+            const statusEl = document.getElementById('urlModalStatus');
+            if (statusEl) statusEl.innerText = '🤖 Překládám a převypravuji cizojazyčný přepis videa do češtiny přes Gemini AI...';
+            const translated = await translateAndRetellYouTubeWithGemini(videoTitle, paragraphs.join('\n\n'), savedGeminiKey);
+            if (translated && translated.length > 50) {
+                paragraphs = translated.split(/\r?\n+/).map(p => p.trim()).filter(p => p.length >= 15);
+                showAutoBadge('🌐 Přeloženo z cizího jazyka do češtiny');
+            }
+        } catch (e) {
+            console.warn('Gemini translation error, keeping transcript:', e);
+        }
+    }
+
+    return {
+        title: `▶️ YouTube: ${videoTitle}`,
+        paragraphs: paragraphs,
+        isYouTube: true,
+        rawVideoTitle: videoTitle,
+        detectedLang: detectedLang
+    };
+}
+
 function extractYouTubeTranscript(rawMarkdown, videoTitle) {
     const lines = rawMarkdown.split(/\r?\n/);
     const paragraphs = [];
@@ -5336,8 +6973,14 @@ async function summarizeYouTubeWithGeminiApi(title, fullText, apiKey) {
 }
 
 async function fetchCleanArticleFromUrl(targetUrl) {
-    const isYouTube = /(?:youtube\.com\/(?:watch\?|shorts\/)|youtu\.be\/)/i.test(targetUrl);
+    const isYouTube = /(?:youtube\.com\/(?:watch\?|shorts\/|embed\/)|youtu\.be\/)/i.test(targetUrl);
     if (isYouTube) {
+        return await fetchRealYouTubeTranscript(targetUrl);
+    }
+    if (false) {
+        return await fetchRealYouTubeTranscript(targetUrl);
+    }
+    if (false) {
         try {
             const jinaUrl = 'https://r.jina.ai/' + targetUrl;
             const resp = await fetch(jinaUrl, {
@@ -5586,7 +7229,8 @@ async function fetchAndProcessUrlArticle() {
         if (geminiKey) {
 
             try {
-                if (isYouTube) {
+                if (false) {
+                } if (isYouTube) {
                     statusEl.innerText = '🤖 Generuji mluvené shrnutí YouTube videa přes Gemini AI...';
                     summaryText = await summarizeYouTubeWithGeminiApi(title, fullCleanText, geminiKey);
                 } else {
@@ -5624,7 +7268,8 @@ async function fetchAndProcessUrlArticle() {
             isYouTube: isYouTube,
             activeVariant: urlExtractMode,
             isUrlArticle: true,
-            sourceUrl: rawUrl
+            sourceUrl: rawUrl,
+            profile: currentProfile
         });
 
         populateStoryDropdown();
@@ -5704,7 +7349,9 @@ function toggleBionicReading() {
         localStorage.setItem('atmoread_bionic_reading', isBionicReadingEnabled ? '1' : '0');
     } catch (e) {}
 
-    storyWordsData.forEach((word, idx) => {
+    renderReaderCurrentPage(false);
+    /* bionic updated via renderReaderCurrentPage */
+    if (false) (() => {
         const span = document.getElementById(`w-${idx}`);
         if (span) {
             span.innerHTML = isBionicReadingEnabled ? formatBionicWord(word) : escapeHtml(word);
@@ -5883,12 +7530,6 @@ function updateActiveEbookWordIndex(wordIdx) {
         const activeStory = list && list[storyIdx];
         if (activeStory && activeStory.isEbook) {
             activeStory.wordIndex = wordIdx;
-            const ebooks = getStoredEbooks();
-            const eb = ebooks.find(e => (activeStory.ebookId && e.id === activeStory.ebookId) || e.title === activeStory.title);
-            if (eb) {
-                eb.wordIndex = wordIdx;
-                saveStoredEbooks(ebooks);
-            }
         }
     } catch (e) {}
 }
@@ -5898,8 +7539,14 @@ function loadEbooksIntoMemory() {
     if (!saved || !saved.length) return;
     const currentKey = getStoryKey();
     if (!STORIES[currentKey]) STORIES[currentKey] = [];
+    const positions = getStoredPositionsMap();
 
     saved.forEach(item => {
+        const itemProfile = item.profile || 'adults';
+        if (itemProfile !== currentProfile) return;
+
+        const posKey = item.id || item.title;
+        const savedPos = (posKey && typeof positions[posKey] === 'number') ? positions[posKey] : (item.wordIndex || 0);
         const existing = STORIES[currentKey].find(s => (item.id && s.ebookId === item.id) || s.title === item.title);
         if (!existing) {
             STORIES[currentKey].unshift({
@@ -5908,11 +7555,12 @@ function loadEbooksIntoMemory() {
                 text: item.text,
                 isEbook: true,
                 isCustom: true,
-                wordIndex: typeof item.wordIndex === 'number' ? item.wordIndex : 0,
+        
+                wordIndex: savedPos,
                 savedAt: item.savedAt || Date.now()
             });
         } else {
-            existing.wordIndex = typeof item.wordIndex === 'number' ? item.wordIndex : (existing.wordIndex || 0);
+            existing.wordIndex = savedPos;
         }
     });
 }
@@ -6035,6 +7683,7 @@ async function handleEbookFileSelect(event) {
             filename: file.name,
             text: extractedText,
             wordIndex: 0,
+            profile: currentProfile,
             savedAt: Date.now()
         };
 
@@ -6052,6 +7701,7 @@ async function handleEbookFileSelect(event) {
             text: extractedText,
             isEbook: true,
             isCustom: true,
+            profile: currentProfile,
             wordIndex: 0,
             savedAt: newEbook.savedAt
         });
@@ -6090,20 +7740,24 @@ function loadCustomStoriesIntoMemory() {
     const saved = getStoredCustomStories();
     if (!saved || !saved.length) return;
     const currentKey = getStoryKey();
+    if (!STORIES[currentKey]) STORIES[currentKey] = [];
     saved.forEach(item => {
-        const targetKey = item.key || currentKey;
-        if (!STORIES[targetKey]) STORIES[targetKey] = [];
-        const exists = STORIES[targetKey].some(s => s.title === item.title && s.text === item.text);
+        const itemProf = item.profile || (item.key && item.key.startsWith('adults') ? 'adults' : (item.key && item.key.startsWith('kids') ? 'kids' : currentProfile));
+        if (itemProf !== currentProfile) return;
+        const exists = STORIES[currentKey].some(s => s.title === item.title && s.text === item.text);
         if (!exists) {
-            STORIES[targetKey].unshift({
+            STORIES[currentKey].unshift({
                 title: item.title,
                 text: item.text,
                 isCustom: true,
+                profile: currentProfile,
                 savedAt: item.savedAt || Date.now()
             });
         }
     });
 }
+
+
 
 function saveFreeTranscriptToLibrary() {
     if (lastRecordedInterim && !recordedFreeTranscript.includes(lastRecordedInterim)) {
@@ -6134,6 +7788,7 @@ function saveFreeTranscriptToLibrary() {
         title: finalTitle,
         text: fullText,
         isCustom: true,
+        profile: currentProfile,
         savedAt: Date.now()
     };
 
@@ -6143,6 +7798,7 @@ function saveFreeTranscriptToLibrary() {
         const savedList = getStoredCustomStories();
         savedList.unshift({
             key: key,
+            profile: currentProfile,
             title: newStory.title,
             text: newStory.text,
             savedAt: newStory.savedAt
@@ -6400,7 +8056,61 @@ function toggleLanguage() {
     loadSelectedStory(true);
 }
 
+let currentStoryCategoryFilter = 'all';
+
+function setStoryCategoryFilter(cat) {
+    currentStoryCategoryFilter = cat;
+    document.querySelectorAll('[data-storyfilter]').forEach(b => {
+        b.classList.toggle('active', b.dataset.storyfilter === cat);
+    });
+    populateStoryDropdown();
+    const sel = document.getElementById('storySelect');
+    if (sel && sel.options.length > 0 && sel.options[0].value !== '-1') {
+        sel.value = sel.options[0].value;
+        loadSelectedStory(true);
+    } else {
+        unloadCurrentStory();
+    }
+}
+
 function populateStoryDropdown() {
+    loadCustomStoriesIntoMemory();
+    loadEbooksIntoMemory();
+    const sel = document.getElementById('storySelect');
+    if (!sel) return;
+    const prevVal = sel.value;
+    sel.innerHTML = '';
+    const list = STORIES[getStoryKey()] || STORIES.kids_cs;
+
+    let matchedCount = 0;
+    list.forEach((s, idx) => {
+        if (currentStoryCategoryFilter === 'builtin') {
+            if (s.isCustom || s.isEbook || s.isUrlArticle || s.isYouTube) return;
+        } else if (currentStoryCategoryFilter === 'ebooks') {
+            if (!s.isEbook) return;
+        } else if (currentStoryCategoryFilter === 'url') {
+            if (!s.isUrlArticle && !s.isYouTube) return;
+        }
+
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.innerText = s.title;
+        sel.appendChild(opt);
+        matchedCount++;
+    });
+
+    if (matchedCount === 0) {
+        const opt = document.createElement('option');
+        opt.value = '-1';
+        opt.innerText = '— Žádná položka v této kategorii —';
+        sel.appendChild(opt);
+    } else if ([...sel.options].some(o => o.value === prevVal)) {
+        sel.value = prevVal;
+    }
+}
+
+/*
+if (false) {
     loadCustomStoriesIntoMemory();
     loadEbooksIntoMemory();
     const sel = document.getElementById('storySelect');
@@ -6414,11 +8124,12 @@ function populateStoryDropdown() {
     });
 }
 
-function initUI() {
+*/ function initUI() {
+    buildFastStemIndex();
     const totalStems = SOUND_LIBRARY.reduce((acc, c) => acc + c.stems.length, 0)
                      + DYNAMIC_AURA_PALETTE.reduce((acc, p) => acc + p.stems.length, 0);
     document.getElementById('dictCounter').innerText =
-        `Verze v7.0.0 MASTER • 100% Ověřené zvuky (${SOUND_LIBRARY.length} okruhů, ${totalStems}+ kořenů) • 5/15/30 min příběhy • Plynulé přechody`;
+        `Verze v7.1.0 • 100% Ověřené zvuky (${SOUND_LIBRARY.length} okruhů, ${totalStems}+ kořenů) • 5/15/30 min příběhy • Plynulé přechody`;
 
     // Vykreslení 4 smysluplných barev lampičky
     const mainLampWrap = document.getElementById('lampModeTilesMain');
@@ -6504,7 +8215,10 @@ function initUI() {
     if (kidsRowInit) kidsRowInit.style.display = (currentProfile === 'kids') ? 'flex' : 'none';
     loadSelectedStory(false);
     restoreReadingPosition();
+    const freeBarInit = document.getElementById('freeRecordBar');
+    if (freeBarInit) freeBarInit.classList.toggle('hidden', currentMode !== 'free');
     initOcrCanvasDrag();
+    initCarouselDragAndTouch();
 }
 
 const canvas = document.getElementById('ambientCanvas');
