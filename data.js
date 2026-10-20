@@ -140,19 +140,21 @@ const IDLE_FILLER_SOUNDS = {
    Výchozí aktivní režim: 'auto_mood' (Dynamický podkres scény)
    ============================================================================ */
 const LULLABY_LIST = [
-    { id: 'off',       icon: '🔇', title: 'Bez podkresu',         desc: 'Pouze zvuky příběhu' },
-    { id: 'auto_mood', icon: '🎭', title: 'Dynamický podkres',    desc: 'Mění se sám podle děje' },
-    { id: 'brahms',    icon: '🎠', title: 'Brahmsova ukolébavka', desc: 'Klasická hrací skříňka' },
-    { id: 'twinkle',   icon: '✨', title: 'Twinkle Twinkle',      desc: 'Třpytivá hvězdička' },
-    { id: 'clair',     icon: '🌙', title: 'Clair de Lune',        desc: 'Jemný měsíční svit' },
-    { id: 'harp',      icon: '🎹', title: 'Pohádková harfa',      desc: 'Hřejivé akordy harfy' },
-    { id: 'chimes',    icon: '🎐', title: 'Zvonkohra ve větru',   desc: 'Křišťálové tóny a vánek' },
-    { id: 'pinknoise', icon: '🌊', title: 'Růžový šum a moře',    desc: 'Hluboké uspávání miminek' }
+    { id: 'off',           icon: '🔇', title: 'Bez podkresu',           desc: 'Pouze zvuky příběhu' },
+    { id: 'auto_mood',     icon: '🎭', title: 'Dynamický podkres',      desc: 'Mění se sám podle děje' },
+    { id: 'classic_piano', icon: '🎹', title: 'Noční klavír & Smyčce',  desc: 'Uklidňující Public Domain hudba na hodiny čtení' },
+    { id: 'brahms',        icon: '🎠', title: 'Brahmsova ukolébavka',   desc: 'Klasická hrací skříňka' },
+    { id: 'twinkle',       icon: '✨', title: 'Twinkle Twinkle',        desc: 'Třpytivá hvězdička' },
+    { id: 'clair',         icon: '🌙', title: 'Clair de Lune',          desc: 'Jemný měsíční svit' },
+    { id: 'harp',          icon: '🎹', title: 'Pohádková harfa',        desc: 'Hřejivé akordy harfy' },
+    { id: 'chimes',        icon: '🎐', title: 'Zvonkohra ve větru',     desc: 'Křišťálové tóny a vánek' },
+    { id: 'pinknoise',     icon: '🌊', title: 'Růžový šum a moře',      desc: 'Hluboké uspávání miminek' }
 ];
 
 const ADULT_AMBIENCE_LIST = [
     { id: 'off',             icon: '🔇', title: 'Bez podkresu',           desc: 'Pouze zvuky z děje' },
     { id: 'auto_mood',       icon: '🎭', title: 'Dynamický podkres',      desc: 'Mění se sám podle děje' },
+    { id: 'classic_piano',   icon: '🎹', title: 'Noční klavír & Smyčce',  desc: 'Uklidňující Public Domain hudba na hodiny čtení' },
     { id: 'jazz_noir',       icon: '🎷', title: 'Noční klavír & Déšť',    desc: 'Detektivní noir a kapky' },
     { id: 'cafe_lounge',     icon: '☕', title: 'Pařížská kavárna',       desc: 'Šum kavárny, šálky a déšť' },
     { id: 'fireplace_storm', icon: '🔥', title: 'Praskající krb & Bouřka', desc: 'Oheň a vzdálené hřmění' },
