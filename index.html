@@ -2304,7 +2304,7 @@ const SoundEngine = {
             if (fadeOutTimer) clearTimeout(fadeOutTimer);
             if (fadeOutInt) clearInterval(fadeOutInt);
             if (currentAudio) {
-     currentAudio.pause(); currentAudio.currentTime = 0; } catch (e) {}
+     try { currentAudio.pause(); currentAudio.currentTime = 0; } catch (e) {}
                 this.activeAudioEls.delete(currentAudio);
             }
         };
@@ -2610,7 +2610,7 @@ const SoundEngine = {
             if (s >= steps) {
                 clearInterval(fo);
                 oldAudios.forEach(a => {
-                    try {            try { a.pause(); a.currentTime = 0; } catch (e) {}
+                    try { a.pause(); a.currentTime = 0; } catch (e) {}
                 });
             }
         }, intMs);
@@ -3916,7 +3916,7 @@ function stopActiveSession() {
     SoundEngine.stopIdleWatcher();
 
     if (recognition) {
-        try {            try { recognition.onend = null; recognition.stop(); } catch (e) {}
+        try { recognition.onend = null; recognition.stop(); } catch (e) {}
         recognition = null;
     }
     if (silentInterval) {
@@ -5590,9 +5590,9 @@ async function fetchAndProcessUrlArticle() {
                     statusEl.innerText = '🤖 Generuji mluvené shrnutí YouTube videa přes Gemini AI...';
                     summaryText = await summarizeYouTubeWithGeminiApi(title, fullCleanText, geminiKey);
                 } else {
-                    statusEl.innerText = '🤖 Generuji mluvené shrnutí článku přes Gemini AI...';
+                    statusEl.innerText = '🤖 Generuji mluvené shrnutí článku přes Gemini AI...'; summaryText = await summarizeWithGeminiApi(title, fullCleanText, geminiKey);
                     }
-                summaryText = await summarizeWithGeminiApi(title, fullCleanText, geminiKey);
+                // summarize completed
             } catch (e) {
                 summaryText = buildLocalSmartSummary(title, paragraphs);
             }
@@ -5639,9 +5639,9 @@ async function fetchAndProcessUrlArticle() {
             showAutoBadge(urlExtractMode === 'summary' ? '⚡ Mluvené shrnutí videa' : '▶️ Přepis YouTube připraven');
             setStatus(`✅ Video „${title}“ je připraveno ke čtení! Spouštím 🎧 AI Vypravěče...`);
         } else {
-            showAutoBadge(urlExtractMode === 'summary' ? '⚡ Výtah článku připraven' : '📰 Čistý článek připraven');
+            showAutoBadge(urlExtractMode === 'summary' ? '⚡ Výtah článku připraven' : '📰 Čistý článek připraven'); setStatus(`✅ Článek „${title}“ (čistý text kolem nadpisu) je připraven! Spouštím 🎧 AI Vypravěče...`);
             }
-        setStatus(`✅ Článek „${title}“ (čistý text kolem nadpisu) je připraven! Spouštím 🎧 AI Vypravěče...`);
+        // done status
 
         if (isSessionRunning) stopActiveSession();
         startActiveSession();
