@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AtmoRead v7.3.0 MOBILE POLISH — Živá atmosféra pro pohádky, knihy i články</title>
+    <title>AtmoRead v8.0.0 MASTER — Živá atmosféra pro pohádky, knihy i články</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -1596,10 +1596,13 @@
      ======================================================================== -->
 <div id="pureLampScreen">
     <div class="lamp-top-badge" id="lampScreenHeader">
-        🕯️ Chytrá čtecí a uspávací lampička (v7.3.0 MOBILE POLISH) • <span id="lampScreenTitle">Teplá svíčka (1800K)</span>
+        🕯️ Chytrá čtecí a uspávací lampička (v8.0.0 MASTER) • <span id="lampScreenTitle">Teplá svíčka (1800K)</span>
     </div>
 
     <div class="lamp-center-Zone" onclick="document.getElementById('pureLampScreen').classList.toggle('zen-hide')">
+        <div id="okayToWakeIndicator" style="display:none; margin-bottom:14px; font-size:22px; font-weight:900; color:#fca5a5; background:rgba(0,0,0,0.55); padding:10px 22px; border-radius:999px; border:1.5px solid #e12618; backdrop-filter:blur(10px); box-shadow:0 6px 20px rgba(0,0,0,0.4); text-align:center;">
+            🔴 Ještě spinkáme v postýlce
+        </div>
         <div class="lamp-center-hint">
             👆 Ťukni sem do světla pro skrytí / zobrazení panelu (100% čistá svítící plocha)
         </div>
@@ -1658,7 +1661,11 @@
         </div>
 
         </div>
-        <button class="big-tile-btn" style="min-height:48px; margin-top:6px; flex-direction:row; gap:8px; background:rgba(0,0,0,0.55); border-color:rgba(255,255,255,0.22);" onclick="toggleScreenBlackout(true)">
+        <button class="big-tile-btn" id="okayToWakeBtn" style="min-height:48px; margin-top:6px; flex-direction:row; gap:8px; border-color:var(--accent); background:rgba(251,191,36,0.12);" onclick="setOkayToWakeAlarm()">
+            <span class="bt-icon" style="font-size:18px;">🌅</span>
+            <span class="bt-title" id="okayToWakeBtnTitle">🌅 Ranní semafor (Okay-to-Wake)</span>
+        </button>
+        <button class="big-tile-btn" style="min-height:48px; margin-top:4px; flex-direction:row; gap:8px; background:rgba(0,0,0,0.55); border-color:rgba(255,255,255,0.22);" onclick="toggleScreenBlackout(true)">
             <span>🌑</span>
             <span class="bt-title">Zhasnout displej (šetřit baterii)</span>
         </button>
@@ -1787,10 +1794,10 @@
     <div class="ocr-modal-card">
         <div class="tile-header" style="margin-bottom:2px;">
             <div class="tile-title">❓ Jak AtmoRead funguje (Stručný průvodce)</div>
-            <span class="tile-badge">📦 Verze v7.3.0 MOBILE POLISH • Přehled za 30 s</span>
+            <span class="tile-badge">📦 Verze v8.0.0 MASTER • Přehled za 30 s</span>
         </div>
         <p style="font-size:13.5px; color:var(--text-muted); line-height:1.45;">
-            AtmoRead (<b>v7.3.0 MOBILE POLISH</b>) promění čtení pohádek, knih i webových článků v živý zvukový a světelný zážitek. Vše ovládáš <b>jedním ťuknutím na velké dlaždice</b>.
+            AtmoRead (<b>v8.0.0 MASTER</b>) promění čtení pohádek, knih i webových článků v živý zvukový a světelný zážitek. Vše ovládáš <b>jedním ťuknutím na velké dlaždice</b>.
         </p>
 
         <div class="help-grid">
@@ -1848,7 +1855,7 @@
             <div>
                 <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                     <h1 class="brand-name">AtmoRead</h1>
-                    <span class="ver-badge" title="Aktuální verze aplikace AtmoRead">📦 Verze v7.3.0 MOBILE POLISH</span>
+                    <span class="ver-badge" title="Aktuální verze aplikace AtmoRead">📦 Verze v8.0.0 MASTER</span>
                 </div>
                 <div class="header-meta" id="dictCounter">Živá zvuková atmosféra pro čtení a spánek</div>
             </div>
@@ -2082,7 +2089,10 @@
                     </div>
                     <div class="story-controls">
                         <select id="storySelect" onchange="loadSelectedStory()"></select>
-                        <button type="button" class="big-tile-btn" id="toggleUploadDrawerBtn" onclick="toggleUploadDrawerPlane()" title="Nahrát e-knihu, vložit odkaz nebo vlastní text" style="min-height:48px; flex-direction:row; padding:8px 14px; gap:6px; white-space:nowrap;">
+                        <button type="button" class="compact-lamp-btn" id="sortStoriesByDurationBtn" onclick="toggleSortStoriesByDuration()" title="Seřadit příběhy a knihy od nejkratších po nejdelší jedním kliknutím" style="min-height:48px; padding:0 12px; font-size:13px; font-weight:800; white-space:nowrap; display:inline-flex; align-items:center; gap:5px;">
+                            ⏱️ Od nejkratších
+                        </button>
+                        <button type="button" class="big-tile-btn" id="toggleUploadDrawerBtn" onclick="toggleUploadDrawerPlane()" title="Nahrát e-knihu, vložit odkaz, vlastní text nebo zálohu" style="min-height:48px; flex-direction:row; padding:8px 14px; gap:6px; white-space:nowrap;">
                             <span class="bt-icon" style="font-size:16px;">➕</span>
                             <span class="bt-title" style="font-size:13px;">Přidat / Nahrát</span>
                         </button>
@@ -2098,7 +2108,7 @@
                         </button>
                     </div>
 
-                    <!-- KOMPAKTNÍ ZÁSUVKA PRO NAHRÁVÁNÍ A PŘIDÁVÁNÍ -->
+                    <!-- KOMPAKTNÍ ZÁSUVKA PRO NAHRÁVÁNÍ, PŘIDÁVÁNÍ A ZÁLOHOVÁNÍ -->
                     <div class="collapsible-plane" id="uploadDrawerPlane">
                         <div class="collapsible-plane-inner" style="padding-bottom:12px;">
                             <div class="upload-drawer-grid">
@@ -2121,20 +2131,40 @@
                                     <span class="bt-title">Vložit vlastní text</span>
                                 </button>
                             </div>
-                            <!-- DĚTSKÁ PERSONALIZACE (POHÁDKA ZE 3 SLOV + JMÉNO DÍTĚTE) — POUZE V DĚTSKÉM REŽIMU -->
-                            <div class="kids-special-row" id="kidsSpecialActionsRow" style="margin-top:8px; margin-bottom:0;">
-                                <button type="button" class="big-tile-btn" id="threeWordsStoryBtn" style="min-height:48px; flex-direction:row; padding:8px 14px; gap:8px; border-color:var(--accent);" onclick="promptThreeWordsStory()" title="Zadej 3 slova a aplikace okamžitě složí novou pohádku na dobrou noc se zvuky">
-                                    <span style="font-size:18px;">🎲</span>
+
+                            <!-- 1-CLICK ZÁLOHA A PŘENOS MEZI ZAŘÍZENÍMI (TELEFON / TABLET) -->
+                            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:8px; margin-top:8px;">
+                                <button type="button" class="big-tile-btn" style="min-height:48px; flex-direction:row; padding:8px 14px; gap:8px; border-color:var(--tile-border);" onclick="exportAtmoReadBackup()" title="Zabalí všechny e-knihy, vlastní příběhy, pozice čtení, historii a jména dětí do souboru .json a stáhne ho">
+                                    <span class="bt-icon" style="font-size:18px;">📲</span>
                                     <div style="text-align:left;">
-                                        <div class="bt-title">🎲 Pohádka ze 3 slov</div>
-                                        <div class="bt-sub">Pohádka na přání s reálnými zvuky</div>
+                                        <div class="bt-title" style="font-size:13px;">📲 Exportovat zálohu (.json)</div>
+                                        <div class="bt-sub" style="font-size:11px;">Přenos do tabletu / telefonu</div>
                                     </div>
                                 </button>
-                                <button type="button" class="big-tile-btn" id="childNameBtn" style="min-height:48px; flex-direction:row; padding:8px 14px; gap:8px;" onclick="promptChildName()" title="Zadej jméno dítěte – aplikace spustí kouzelnou zvonkohru a zlatou záři, kdykoliv zazní v příběhu či mikrofonu!">
+                                <button type="button" class="big-tile-btn" style="min-height:48px; flex-direction:row; padding:8px 14px; gap:8px; border-color:var(--tile-border);" onclick="document.getElementById('backupFileInput').click()" title="Načte .json soubor a okamžitě obnoví celou knihovnu i rozčtené pozice na tomto zařízení">
+                                    <span class="bt-icon" style="font-size:18px;">📥</span>
+                                    <div style="text-align:left;">
+                                        <div class="bt-title" style="font-size:13px;">📥 Obnovit ze zálohy (.json)</div>
+                                        <div class="bt-sub" style="font-size:11px;">1-klik obnova celé knihovny</div>
+                                    </div>
+                                </button>
+                                <input type="file" id="backupFileInput" accept=".json,application/json" style="display:none" onchange="importAtmoReadBackup(event)">
+                            </div>
+
+                            <!-- DĚTSKÁ PERSONALIZACE A SOUROZENECKÝ KOMPROMIS — POUZE V DĚTSKÉM REŽIMU -->
+                            <div class="kids-special-row" id="kidsSpecialActionsRow" style="margin-top:8px; margin-bottom:0;">
+                                <button type="button" class="big-tile-btn" id="threeWordsStoryBtn" style="min-height:48px; flex-direction:row; padding:8px 14px; gap:8px; border-color:var(--accent);" onclick="promptThreeWordsStory()" title="🎲 Pohádka na přání / Sourozenecký kompromis: každé dítě řekne své oblíbené slovo/zvířátko a aplikace složí pohádku na míru s oběma jmény">
+                                    <span style="font-size:18px;">🎲</span>
+                                    <div style="text-align:left;">
+                                        <div class="bt-title">🎲 Pohádka na přání / Sourozenecký kompromis</div>
+                                        <div class="bt-sub">Pro 2 až 3 děti • obě přání i jména v příběhu</div>
+                                    </div>
+                                </button>
+                                <button type="button" class="big-tile-btn" id="childNameBtn" style="min-height:48px; flex-direction:row; padding:8px 14px; gap:8px;" onclick="promptChildName()" title="Zadej více jmen sourozenců oddělených čárkou (např. Emička, Kubík) – zvonkohra zazní pro každé z nich zvlášť!">
                                     <span style="font-size:18px;">👶</span>
                                     <div style="text-align:left;">
-                                        <div class="bt-title" id="childNameBtnTitle">👶 Jméno dítěte</div>
-                                        <div class="bt-sub" id="childNameBtnSub">Kouzelná zvonkohra + zlatá záře</div>
+                                        <div class="bt-title" id="childNameBtnTitle">👶 Jména dětí / sourozenců</div>
+                                        <div class="bt-sub" id="childNameBtnSub">Kouzelná zvonkohra pro každé dítě</div>
                                     </div>
                                 </button>
                             </div>
@@ -2288,6 +2318,9 @@
                             </button>
                         </div>
                         <div class="reader-smart-actions">
+                            <button type="button" class="compact-lamp-btn" id="handoverAiStatusBtn" onclick="handoverToAiNarrator()" title="Plynule předat čtení šeptavému AI Vypravěči z aktuálního slova" style="display:none; border-color:var(--accent); font-weight:800; background:rgba(251,191,36,0.15); color:var(--accent-soft);">
+                                🤝 Dočti to za mě
+                            </button>
                             <div style="display:inline-flex; align-items:center; gap:3px;">
                                 <button type="button" class="compact-lamp-btn" onclick="changeReaderFontSize(-2)" title="Zmenšit písmo (A-)" style="min-width:32px; padding:4px 8px; font-weight:800; min-height:36px;">A−</button>
                                 <button type="button" class="compact-lamp-btn" onclick="changeReaderFontSize(2)" title="Zvětšit písmo (A+)" style="min-width:32px; padding:4px 8px; font-weight:800; min-height:36px;">A+</button>
@@ -2324,6 +2357,28 @@
             <div class="audio-lamp-grid">
                 <!-- VLEVO: Hlasitost zvuků + kompaktní Auto-šepot v záhlaví -->
                 <div class="audio-col">
+                    <!-- PŘEPÍNAČ HUSTOTY ZVUKŮ (3 REŽIMY PRO DĚTI VS. DOSPĚLÉ ČTENÁŘE E-KNIH) -->
+                    <div style="margin-bottom:12px;">
+                        <div class="section-label" style="margin-top:0; margin-bottom:8px;">🎛️ Hustota zvuků (Děti vs. Dospělí čtenáři)</div>
+                        <div class="choice-grid-3" id="sfxDensityGrid">
+                            <button type="button" class="big-tile-btn active" data-density="story" onclick="setSfxDensityMode('story', true)" style="min-height:56px; padding:6px 6px;">
+                                <span class="bt-icon">🎭</span>
+                                <span class="bt-title">Pohádkový</span>
+                                <span class="bt-sub">Živé zvuky</span>
+                            </button>
+                            <button type="button" class="big-tile-btn" data-density="sparse" onclick="setSfxDensityMode('sparse', true)" style="min-height:56px; padding:6px 6px;">
+                                <span class="bt-icon">🎬</span>
+                                <span class="bt-title">Filmový</span>
+                                <span class="bt-sub">Sparse Micro-Foley</span>
+                            </button>
+                            <button type="button" class="big-tile-btn" data-density="ambient_only" onclick="setSfxDensityMode('ambient_only', true)" style="min-height:56px; padding:6px 6px;">
+                                <span class="bt-icon">🧘</span>
+                                <span class="bt-title">Čistá atmosféra</span>
+                                <span class="bt-sub">Jen podkres scény</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                         <div class="section-label" style="margin:0;">🔊 Hlasitost zvuků</div>
                         <button type="button" class="compact-lamp-btn" id="whisperDetectorBtn" onclick="toggleWhisperDetector()" title="Při tichém mluvení zjemní zvuky o 35 %" style="padding:4px 10px; font-size:11.5px; border-radius:10px;">
@@ -2357,7 +2412,13 @@
 
                 <!-- VPRAVO: Časovač vypnutí + Barva světla v pozadí -->
                 <div class="lamp-col">
-                    <div class="section-label" style="margin-top:0; margin-bottom:8px;">⏲️ Časovač vypnutí</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0; margin-bottom:8px; flex-wrap:wrap; gap:6px;">
+                        <div class="section-label" style="margin:0;">⏲️ Časovač vypnutí</div>
+                        <button type="button" class="compact-lamp-btn active" id="sleepBridgeToggleBtn" onclick="toggleSleepBridge()" title="Automatický spánkový most po dočtení pohádky (20 min tichý šum bez probuzení dítěte)" style="padding:4px 10px; font-size:11.5px; border-radius:10px;">
+                            <span class="bt-icon" style="font-size:13px;">🌙</span>
+                            <span class="bt-title" id="sleepBridgeToggleLabel" style="font-size:11.5px;">Spánkový most: ZAP</span>
+                        </button>
+                    </div>
                     <div class="choice-grid-5" style="margin-bottom:12px;">
                         <button class="big-tile-btn active" data-sleep="0" onclick="setSleepTimerPreset(0)" style="min-height:56px;">
                             <span class="bt-title">Vypnuto</span>
@@ -2416,13 +2477,16 @@
     <div class="dock-inner">
         <div class="dock-ver-pill" title="Aktuální verze aplikace AtmoRead">
             <span>AtmoRead</span>
-            <span style="color:var(--accent); font-size:12.5px;">v7.2.0 CLEAN UI</span>
+            <span style="color:var(--accent); font-size:12.5px;">v8.0.0 MASTER</span>
         </div>
         <button id="mainActionBtn" class="btn-primary-run" onclick="handleMainAction()">
             ▶️ SPUSTIT ODPOSLECH
         </button>
         <button id="pauseResumeBtn" class="btn-pause-resume" onclick="togglePauseResume()" title="Pozastavit nebo navázat čtení" style="display:none;">
             ⏸️ PAUZA
+        </button>
+        <button id="handoverAiDockBtn" class="btn-pause-resume" onclick="handoverToAiNarrator()" title="Plynule předat čtení šeptavému AI Vypravěči z aktuálního slova" style="display:none; background:rgba(251,191,36,0.18); border-color:var(--accent); color:var(--accent-soft);">
+            🤝 Dočti to za mě
         </button>
         <button class="btn-blackout-dock" onclick="toggleScreenBlackout(true)" title="Zhasnout displej pro úsporu baterie (AMOLED)">
             🌑 Zhasnout
@@ -2435,7 +2499,7 @@
 
 <script>
 /* ============================================================================
-   ATMOREAD v7.2.0 CLEAN UI — HLAVNÍ LOGIKA A DVOUVRSTVÝ REÁLNÝ AUDIO ENGINE
+   ATMOREAD v8.0.0 MASTER — HLAVNÍ LOGIKA A DVOUVRSTVÝ REÁLNÝ AUDIO ENGINE
    (Databáze zvuků, barev, nálad a příběhů 5/15/30 min se načítá z data.js)
    ============================================================================ */
 
@@ -2649,8 +2713,14 @@ const SoundEngine = {
         const prio = cluster.priority || 2;
 
         if (!isManualClick) {
-            // Globální rozestup mezi jakýmikoliv zvuky při automatickém čtení: max 1× za 5,5 sekundy
-            if (this.lastAnySfxTime && (now - this.lastAnySfxTime < 5500)) {
+            // Režim "Čistá atmosféra": zcela vypne jednorázové One-Shot zvukové efekty slov
+            if (typeof sfxDensityMode !== 'undefined' && sfxDensityMode === 'ambient_only') {
+                return;
+            }
+
+            // Rozestup mezi jakýmikoliv zvuky: v 'sparse' (Filmový) max 1× za 18 sekund, v 'story' (Pohádkový) max 1× za 5,5 sekundy
+            const minGapMs = (typeof sfxDensityMode !== 'undefined' && sfxDensityMode === 'sparse') ? 18000 : 5500;
+            if (this.lastAnySfxTime && (now - this.lastAnySfxTime < minGapMs)) {
                 return;
             }
             // Dlouhý cooldown na stejný zvuk: 45 000 ms (45 sekund)
@@ -2716,10 +2786,15 @@ const SoundEngine = {
             const prioFactor = prio === 1 ? 1.0 : (prio === 2 ? 0.96 : 0.88);
             let targetVol = Math.min(1.0, this.sfxVolumeLevel * prioFactor);
 
+            // Režim "Filmový (Sparse Micro-Foley)": jemný prostorový mikro-zvuk (sfxVolumeLevel * 0.55)
+            if (typeof sfxDensityMode !== 'undefined' && sfxDensityMode === 'sparse') {
+                targetVol = targetVol * 0.55;
+            }
+
             // Špičkový limit hlasitosti (0.52) pro prioritní a hlasité zvuky
             const isLoudSound = prio === 1 || /^(thunder|storm|gunfire|explosion|dog|train|siren|dragon|bell)$/.test(cluster.id);
             if (isLoudSound) {
-                targetVol = Math.min(targetVol, 0.52);
+                targetVol = Math.min(targetVol, (typeof sfxDensityMode !== 'undefined' && sfxDensityMode === 'sparse') ? 0.28 : 0.52);
             }
 
             // 3D PROSTOROVÝ EFEKT VZDÁLENOSTI (55 % běžné hlasitosti)
@@ -2764,7 +2839,10 @@ const SoundEngine = {
         if (this.isMuted || !this.ctx || !this.sfxBoostGain) return;
         const now = this.ctx.currentTime;
         const id = cluster.id || '';
-        const baseV = Math.min(0.45, this.sfxVolumeLevel * (prio === 1 ? 0.34 : 0.24) * (isDistant ? 0.40 : 1.0)) * 0.25;
+        let baseV = Math.min(0.45, this.sfxVolumeLevel * (prio === 1 ? 0.34 : 0.24) * (isDistant ? 0.40 : 1.0)) * 0.25;
+        if (typeof sfxDensityMode !== 'undefined' && sfxDensityMode === 'sparse') {
+            baseV = baseV * 0.55;
+        }
 
         const osc = this.ctx.createOscillator();
         const g = this.ctx.createGain();
@@ -2839,7 +2917,7 @@ const SoundEngine = {
         }
     },
 
-    playChildNameMagic() {
+    playChildNameMagic(name = '') {
         if (this.isMuted) return;
         this.init();
         if (!this.ctx) return;
@@ -2864,7 +2942,8 @@ const SoundEngine = {
         });
 
         if (typeof setAuraRgb === 'function') {
-            setAuraRgb([255, 215, 0], `✨ Zlatá záře: ${childName || 'Děťátko'} ✨`);
+            const displayName = name || (childName ? childName.split(/[,;&]+/)[0].trim() : 'Děťátko');
+            setAuraRgb([255, 215, 0], `✨ Zlatá záře: ${displayName} ✨`);
         }
         const appEl = document.querySelector('.app-wrapper') || document.body;
         appEl.style.transition = 'filter 0.38s ease';
@@ -3099,20 +3178,20 @@ const SoundEngine = {
         }
     },
 
-    // Dynamický crossfade podkresu podle nálady posledních vět
-    transitionMoodScene(newMoodId) {
+    // Dynamický crossfade podkresu podle nálady posledních vět nebo celé stránky
+    transitionMoodScene(newMoodId, isPageLookahead = false) {
         const scene = MOOD_SCENES[newMoodId];
         if (!scene) return;
         const changed = (this.currentMoodId !== newMoodId);
         this.currentMoodId = newMoodId;
 
         const badge = document.getElementById('activeSceneBadge');
-        if (badge) badge.innerText = `Scéna: ${scene.name}`;
+        if (badge) badge.innerText = isPageLookahead ? `Scéna stránky: ${scene.name}` : `Scéna: ${scene.name}`;
 
         if (this.bgMode !== 'auto_mood') return;
 
         const lbl = document.getElementById('bgStateLabel');
-        if (lbl) lbl.innerText = `Dynamicky: ${scene.name}`;
+        if (lbl) lbl.innerText = isPageLookahead ? `Scéna stránky: ${scene.name}` : `Dynamicky: ${scene.name}`;
 
         if (this.isMuted) return;
         if (!changed && this.moodCrossfadeAudios.length > 0) return;
@@ -3250,9 +3329,9 @@ const SoundEngine = {
         this.init();
 
         if (preset === 'auto_mood') {
-            const initialScene = currentProfile === 'adults' ? 'cafe' : 'meadow';
+            const initialScene = this.currentMoodId || (currentProfile === 'adults' ? 'cafe' : 'meadow');
             this.currentMoodId = '';
-            this.transitionMoodScene(initialScene);
+            this.transitionMoodScene(initialScene, !!this.currentMoodId);
             return;
         }
         else if (preset === 'classic_piano') {
@@ -3872,6 +3951,13 @@ const SoundEngine = {
         }
         selectAmbience('off');
         setSleepTimerPreset(0);
+        if (typeof sleepBridgeCountdown !== 'undefined' && sleepBridgeCountdown) {
+            clearInterval(sleepBridgeCountdown);
+            sleepBridgeCountdown = null;
+        }
+        if (typeof sleepBridgePhase !== 'undefined') {
+            sleepBridgePhase = 1;
+        }
         isPaused = false;
         updatePauseResumeButton();
         updateMainButtonLabel();
@@ -3925,9 +4011,50 @@ let childName = localStorage.getItem('atmoread_child_name') || '';
 let lastChildMagicTrigger = 0;
 let readingQueue = [];
 const READING_QUEUE_STORAGE_KEY = 'atmoread_reading_queue_v7';
+let sfxDensityMode = 'story'; // 'story' | 'sparse' | 'ambient_only'
+let isSleepBridgeEnabled = true;   // 🌙 Spánkový most (výchozí pro profil kids: ZAP)
+let sleepBridgePhase = 1;          // 1: běžné čtení (0-80 %), 2: klid & červená (80-100 %), 3: 20min šum
+let sleepBridgeCountdown = null;
+let okayToWakeTime = null;         // 🌅 Čas ranního vstávání např. "06:30"
+let okayToWakeInterval = null;
+let isOkayToWakeActive = false;
 
 function getStoryKey() {
     return `${currentProfile}_${currentLang}`;
+}
+
+function getRecommendedSfxDensity(profile = currentProfile, mode = currentMode) {
+    if (mode === 'silent') return 'ambient_only';
+    if (profile === 'adults') return 'sparse';
+    return 'story';
+}
+
+function setSfxDensityMode(mode, isManual = false) {
+    if (!['story', 'sparse', 'ambient_only'].includes(mode)) mode = 'story';
+    sfxDensityMode = mode;
+    document.querySelectorAll('[data-density]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.density === mode);
+    });
+
+    if (mode === 'ambient_only') {
+        if (SoundEngine.currentOneShot) {
+            try { SoundEngine.currentOneShot.stopSmoothly(250); } catch (e) {}
+            SoundEngine.currentOneShot = null;
+        }
+        if (SoundEngine.bgMode === 'off' && !SoundEngine.isMuted) {
+            SoundEngine.startAmbience('auto_mood');
+        }
+    }
+
+    if (isManual) {
+        const labels = {
+            story: '🎭 Pohádkový režim: Živé zvuky klíčových slov (5,5s rozestup)',
+            sparse: '🎬 Filmový režim: Jemné prostorové mikro-zvuky (max 1× za 18s, zjemněná hlasitost)',
+            ambient_only: '🧘 Čistá atmosféra: Zvukové efekty slov vypnuty, hraje pouze plynulý podkres scény'
+        };
+        showAutoBadge(mode === 'story' ? '🎭 Živé zvuky' : (mode === 'sparse' ? '🎬 Filmový foley' : '🧘 Čistá atmosféra'));
+        setStatus(labels[mode] || 'Hustota zvuků změněna.');
+    }
 }
 
 // Přepnutí 3 karet v úvodním rozcestníku (Děti vs. Dospělí vs. Lampička)
@@ -3953,6 +4080,15 @@ function selectProfileHub(target) {
 
     // Výchozí styl hlasu podle profilu (pro děti Pohádkový, pro dospělé Hluboký sametový)
     setTtsVoiceStyle(currentProfile === 'adults' ? 'deep' : 'kind', true);
+
+    // Spánkový most: ve výchozím stavu zapnuto pro profil kids
+    if (currentProfile === 'kids') {
+        isSleepBridgeEnabled = true;
+    }
+    updateSleepBridgeUI();
+
+    // Automaticky nastavit hustotu zvuků podle profilu a režimu
+    setSfxDensityMode(getRecommendedSfxDensity(currentProfile, currentMode), false);
 
     populateStoryDropdown();
     loadSelectedStory(true);
@@ -4033,16 +4169,21 @@ function checkWordTriggers(rawWord, isManualClick = false) {
     const clean = normWord(rawWord);
     if (!clean || clean.length < 3) return false;
 
-    // Dětská personalizace: Kouzelný zvuk zvonkohry a zlatá záře při vyslovení/přečtení jména dítěte
+    // Dětská personalizace a sourozenecký kompromis: Kouzelný zvuk zvonkohry a zlatá záře pro každého sourozence zvlášť
     if (childName && currentProfile === 'kids' && (Date.now() - lastChildMagicTrigger > 2600)) {
-        const cleanChild = normWord(childName);
-        const stemLen = Math.max(3, cleanChild.length - 2);
-        const childStem = cleanChild.slice(0, stemLen);
-        if (clean === cleanChild || (clean.length >= 3 && clean.startsWith(childStem))) {
-            lastChildMagicTrigger = Date.now();
-            SoundEngine.playChildNameMagic();
-            showAutoBadge(`✨ Kouzlo: ${childName}! ✨`);
-            setStatus(`✨ Zaznělo jméno ${childName}! Kouzelná zvonkohra a zlatá záře...`);
+        const siblingNames = childName.split(/[,;&]+/).map(s => s.trim()).filter(Boolean);
+        for (const sibName of siblingNames) {
+            const cleanChild = normWord(sibName);
+            if (cleanChild.length < 3) continue;
+            const stemLen = Math.max(3, cleanChild.length - 2);
+            const childStem = cleanChild.slice(0, stemLen);
+            if (clean === cleanChild || (clean.length >= 3 && clean.startsWith(childStem))) {
+                lastChildMagicTrigger = Date.now();
+                SoundEngine.playChildNameMagic(sibName);
+                showAutoBadge(`✨ Kouzlo: ${sibName}! ✨`);
+                setStatus(`✨ Zaznělo jméno ${sibName}! Kouzelná zvonkohra a zlatá záře...`);
+                break;
+            }
         }
     }
 
@@ -4297,6 +4438,115 @@ async function togglePureLamp(show) {
     }
 }
 
+/* ============================================================================
+   SPÁNKOVÝ SEMAFOR V LAMPIČCE („OKAY-TO-WAKE“ RANNÍ ZELENÁ PRO DĚTI)
+   ============================================================================ */
+function setOkayToWakeAlarm() {
+    if (isOkayToWakeActive) {
+        const action = confirm(`Ranní semafor je aktivní na ${okayToWakeTime}.\n\nChceš semafor VYPNUT, nebo nastavit nový čas?\n\n[OK] = Vypnout semafor\n[Storno] = Nastavit jiný čas`);
+        if (action) {
+            cancelOkayToWakeAlarm();
+            return;
+        }
+    }
+    const currentVal = okayToWakeTime || '06:30';
+    const input = prompt('Zadej čas ranního vstávání pro děti ve formátu HH:MM (např. 06:30 nebo 07:00):', currentVal);
+    if (input === null) return;
+    const trimmed = input.trim();
+    if (!trimmed) {
+        cancelOkayToWakeAlarm();
+        return;
+    }
+    const match = trimmed.match(/^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$/);
+    if (!match) {
+        alert('Prosím zadej platný čas ve formátu HH:MM (např. 06:30).');
+        return;
+    }
+    const hh = match[1].padStart(2, '0');
+    const mm = match[2];
+    okayToWakeTime = `${hh}:${mm}`;
+    isOkayToWakeActive = true;
+
+    // Dokud čas nenastane, lampička drží tlumenou spánkovou červenou s nápisem 🔴 Ještě spinkáme v postýlce
+    setLampBrightnessLevel(0.45);
+    setAuraRgb([225, 38, 24], '🔴 Ranní semafor: Ještě spinkáme v postýlce');
+    updateOkayToWakeUI(false);
+
+    if (okayToWakeInterval) clearInterval(okayToWakeInterval);
+    okayToWakeInterval = setInterval(checkOkayToWakeTick, 1000);
+
+    showAutoBadge(`🌅 Semafor: ${okayToWakeTime}`);
+    setStatus(`🌅 Ranní semafor (Okay-to-Wake) nastaven na ${okayToWakeTime}. Lampička drží tlumenou spánkovou červenou s nápisem „🔴 Ještě spinkáme v postýlce“ a v ${okayToWakeTime} se plynule rozzáří zeleně.`);
+}
+
+function cancelOkayToWakeAlarm() {
+    isOkayToWakeActive = false;
+    okayToWakeTime = null;
+    if (okayToWakeInterval) {
+        clearInterval(okayToWakeInterval);
+        okayToWakeInterval = null;
+    }
+    updateOkayToWakeUI(false);
+    selectLampMode('candle');
+    setLampBrightnessLevel(1.0);
+    showAutoBadge('🌅 Semafor vypnut');
+    setStatus('🌅 Ranní semafor byl vypnut.');
+}
+
+function updateOkayToWakeUI(isMorningWake = false) {
+    const ind = document.getElementById('okayToWakeIndicator');
+    const btnTitle = document.getElementById('okayToWakeBtnTitle');
+    const btn = document.getElementById('okayToWakeBtn');
+    if (ind) {
+        ind.style.display = isOkayToWakeActive ? 'block' : 'none';
+        ind.innerText = isMorningWake ? '🟢 Dobré ráno! Už můžeš vstát' : '🔴 Ještě spinkáme v postýlce';
+        ind.style.borderColor = isMorningWake ? '#22c55e' : '#e12618';
+        ind.style.color = isMorningWake ? '#4ade80' : '#fca5a5';
+        ind.style.background = isMorningWake ? 'rgba(6, 78, 59, 0.72)' : 'rgba(0, 0, 0, 0.55)';
+    }
+    if (btnTitle) {
+        btnTitle.innerText = isOkayToWakeActive
+            ? `🌅 Ranní semafor (${okayToWakeTime})${isMorningWake ? ' – VSTÁVAT!' : ''}`
+            : '🌅 Ranní semafor (Okay-to-Wake)';
+    }
+    if (btn) btn.classList.toggle('active', isOkayToWakeActive);
+}
+
+function checkOkayToWakeTick() {
+    if (!isOkayToWakeActive || !okayToWakeTime) return;
+    const now = new Date();
+    const currentHh = String(now.getHours()).padStart(2, '0');
+    const currentMm = String(now.getMinutes()).padStart(2, '0');
+    const currentTimeStr = `${currentHh}:${currentMm}`;
+
+    if (currentTimeStr === okayToWakeTime) {
+        triggerMorningWake();
+    }
+}
+
+function triggerMorningWake() {
+    if (okayToWakeInterval) {
+        clearInterval(okayToWakeInterval);
+        okayToWakeInterval = null;
+    }
+    // Přesně v nastavený ranní čas plynule změní barvu obrazovky na měkkou ranní zelenou (#22c55e),
+    // zobrazí 🟢 Dobré ráno! Už můžeš vstát a jemně pustí zpěv ranních ptáčků (meadow)
+    setAuraRgb([34, 197, 94], '🟢 Dobré ráno! Už můžeš vstát');
+    setLampBrightnessLevel(0.78);
+    updateOkayToWakeUI(true);
+
+    SoundEngine.init();
+    SoundEngine.isMuted = false;
+    SoundEngine.bgVolumeLevel = 0.22;
+    if (SoundEngine.bgGain && SoundEngine.ctx) {
+        SoundEngine.bgGain.gain.setTargetAtTime(0.22, SoundEngine.ctx.currentTime, 0.5);
+    }
+    selectAmbience('summer_meadow');
+
+    showAutoBadge('🟢 Dobré ráno! Už můžeš vstát');
+    setStatus('🟢 Dobré ráno! Čas ranního vstávání nastal – lampička svítí měkkou zelenou a zpívají ranní ptáčci.');
+}
+
 function renderAmbienceTiles(animateTransition = false) {
     const titleEl = document.getElementById('ambienceTileTitle');
     const lullWrap = document.getElementById('lullabyGridMain');
@@ -4544,6 +4794,125 @@ function setSleepTimerPreset(minutes) {
 }
 
 /* ============================================================================
+   AUTOMATICKÝ 3FÁZOVÝ „SPÁNKOVÝ MOST“ (BEDTIME SLEEP BRIDGE PO DOČTENÍ POHÁDKY)
+   ============================================================================ */
+function toggleSleepBridge(forceVal) {
+    isSleepBridgeEnabled = (typeof forceVal === 'boolean') ? forceVal : !isSleepBridgeEnabled;
+    updateSleepBridgeUI();
+    showAutoBadge(isSleepBridgeEnabled ? '🌙 Spánkový most: ZAP' : '🌙 Spánkový most: VYP');
+    setStatus(isSleepBridgeEnabled
+        ? '🌙 Spánkový most aktivován: V posledních 20 % slov ztiší náhlé efekty a zčervená lampu, po dočtení automaticky naváže 20min spánkový šum.'
+        : '🌙 Spánkový most vypnut.');
+}
+
+function updateSleepBridgeUI() {
+    const btn = document.getElementById('sleepBridgeToggleBtn');
+    const lbl = document.getElementById('sleepBridgeToggleLabel');
+    if (btn) btn.classList.toggle('active', isSleepBridgeEnabled);
+    if (lbl) {
+        lbl.innerText = isSleepBridgeEnabled ? 'Spánkový most: ZAP' : 'Spánkový most: VYP';
+    }
+}
+
+function checkSleepBridgePhase(idx) {
+    if (!isSleepBridgeEnabled || !storyWordsData || !storyWordsData.length) return;
+    const progress = (idx + 1) / storyWordsData.length;
+    if (progress < 0.80) {
+        if (sleepBridgePhase !== 1) {
+            sleepBridgePhase = 1;
+        }
+    } else if (progress >= 0.80) {
+        // Fáze 2 (posledních 20 % slov příběhu): čistý podkres (vypne náhlé SFX) + Spánková červená [225, 38, 24] pro melatonin
+        if (sleepBridgePhase !== 2) {
+            sleepBridgePhase = 2;
+            setSfxDensityMode('ambient_only', false);
+            setAuraRgb([225, 38, 24], '🌙 Spánková červená (Melatonin)');
+            showAutoBadge('🌙 Spánkový most: Fáze 2');
+            setStatus('🌙 Spánkový most: Posledních 20 % příběhu – vypínám náhlé efekty pro klidné usnutí a ladím světlo do spánkové červené pro tvorbu melatoninu.');
+        }
+    }
+}
+
+function triggerSleepBridgePhase3() {
+    sleepBridgePhase = 3;
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    if (ttsWordTimer) { clearTimeout(ttsWordTimer); ttsWordTimer = null; }
+    if (ttsSentenceTimer) { clearTimeout(ttsSentenceTimer); ttsSentenceTimer = null; }
+    if (silentInterval) { clearTimeout(silentInterval); silentInterval = null; }
+    if (recognition) {
+        try { recognition.onend = null; recognition.stop(); } catch (e) {}
+        recognition = null;
+    }
+    if (typeof stopWhisperMicMonitor === 'function') {
+        stopWhisperMicMonitor();
+    }
+
+    isSessionRunning = true;
+    isPaused = false;
+    updateMainButtonLabel();
+    updatePauseResumeButton();
+    updateHandoverButtonVisibility();
+
+    // Fáze 3: NEVYPÍNEJ zvuk do náhlého ticha! Spustí 20minutový tichý spánkový šum (pinknoise na 0.18)
+    SoundEngine.stopAmbience();
+    SoundEngine.isMuted = false;
+    SoundEngine.bgVolumeLevel = 0.18;
+    SoundEngine.baseSfxVolumeLevel = 0.18;
+    SoundEngine.sfxVolumeLevel = 0.18;
+    if (SoundEngine.bgGain && SoundEngine.ctx) {
+        SoundEngine.bgGain.gain.setTargetAtTime(0.18, SoundEngine.ctx.currentTime, 0.4);
+    }
+    SoundEngine.startAmbience('pinknoise');
+    setAuraRgb([225, 38, 24], '🌙 Spánková červená (Melatonin)');
+
+    showAutoBadge('🌙 Spánkový most (20 min)');
+    setStatus('🌙 Pohádka skončila – běží 20min Spánkový most pro hluboké usnutí...');
+
+    startSleepBridgeTimer(20);
+}
+
+function startSleepBridgeTimer(minutes = 20) {
+    if (sleepCountdown) clearInterval(sleepCountdown);
+    if (sleepBridgeCountdown) clearInterval(sleepBridgeCountdown);
+
+    let remSec = minutes * 60; // 1200 s
+    const totalFadeSec = 5 * 60; // Posledních 5 minut = 300 s
+    const badge = document.getElementById('audioVolBadge');
+
+    const updateCountdownUI = () => {
+        const mm = String(Math.floor(remSec / 60)).padStart(2, '0');
+        const ss = String(remSec % 60).padStart(2, '0');
+        const timeStr = `⏳ Most ${mm}:${ss}`;
+        if (badge) badge.innerText = timeStr;
+    };
+    updateCountdownUI();
+
+    sleepBridgeCountdown = setInterval(() => {
+        remSec--;
+        updateCountdownUI();
+
+        // Posledních 5 minut: nepozorovaně ztiší šum do nuly
+        if (remSec <= totalFadeSec && remSec > 0 && !SoundEngine.isMuted) {
+            const fadeRatio = remSec / totalFadeSec;
+            const currentVol = 0.18 * fadeRatio;
+            SoundEngine.bgVolumeLevel = currentVol;
+            if (SoundEngine.bgGain && SoundEngine.ctx) {
+                SoundEngine.bgGain.gain.setTargetAtTime(Math.max(0.0001, currentVol), SoundEngine.ctx.currentTime, 0.8);
+            }
+        }
+
+        if (remSec <= 0) {
+            clearInterval(sleepBridgeCountdown);
+            sleepBridgeCountdown = null;
+            SoundEngine.stopAllEverything();
+            setSleepTimerPreset(0);
+            sleepBridgePhase = 1;
+            setStatus('😴 Spánkový most dokončen – klidný spánek v tichu a bezpečí.');
+        }
+    }, 1000);
+}
+
+/* ============================================================================
    SEKCE 4: REŽIMY ČTENÍ, VOLBA DÉLKY (5/15/30 MIN), TEMPO, HLAS A AI VYPRAVĚČ
    ============================================================================ */
 function switchMode(mode) {
@@ -4577,7 +4946,73 @@ function switchMode(mode) {
         if (readBtn) readBtn.classList.toggle('active', mode === 'read');
         if (silentBtn) silentBtn.classList.toggle('active', mode === 'silent');
     }
+
+    // Automaticky nastavit doporučenou hustotu zvuků pro daný profil a režim
+    setSfxDensityMode(getRecommendedSfxDensity(currentProfile, currentMode), false);
+
     updateMainButtonLabel();
+    updateHandoverButtonVisibility();
+}
+
+/* ============================================================================
+   TLAČÍTKO „🤝 DOČTI TO ZA MĚ“ (PLYNULÉ PŘEDÁNÍ Z HLASU RODIČE NA AI VYPRAVĚČE)
+   ============================================================================ */
+function handoverToAiNarrator() {
+    SoundEngine.init();
+    // 1. Okamžitě bez přerušení podkresu vypne mikrofon
+    if (recognition) {
+        try { recognition.onend = null; recognition.stop(); } catch (e) {}
+        recognition = null;
+    }
+    if (typeof stopWhisperMicMonitor === 'function') {
+        stopWhisperMicMonitor();
+    }
+    if (silentInterval) {
+        clearTimeout(silentInterval);
+        silentInterval = null;
+    }
+
+    // 2. Přepne currentMode = 'tts'
+    currentMode = 'tts';
+    document.querySelectorAll('[data-mode]').forEach(b => {
+        b.classList.toggle('active', b.dataset.mode === 'tts');
+    });
+    const storyTile = document.getElementById('storyTile');
+    const freeBar = document.getElementById('freeRecordBar');
+    if (freeBar) freeBar.classList.add('hidden');
+    if (storyTile) storyTile.classList.add('visible');
+    const dispToggle = document.getElementById('displayReadModeToggle');
+    if (dispToggle) dispToggle.style.display = 'none';
+
+    // 3. Nastaví styl hlasu na šeptavý a pomalejší uspávací tempo (0.78)
+    setTtsVoiceStyle('whisper', true);
+    ttsTempoMultiplier = 0.78;
+    document.querySelectorAll('[data-tempo]').forEach(b => {
+        b.classList.toggle('active', Math.abs(parseFloat(b.dataset.tempo) - 0.78) < 0.04);
+    });
+
+    isSessionRunning = true;
+    isPaused = false;
+    updateMainButtonLabel();
+    updatePauseResumeButton();
+    updateHandoverButtonVisibility();
+
+    if (!storyWordsData || !storyWordsData.length) {
+        loadSelectedStory(false);
+    }
+
+    // 4. Plynule naváže čtením AI Vypravěče přesně od aktuálního slova (currentWordIndex)
+    showAutoBadge('🤝 Předáno AI Vypravěči');
+    setStatus(`🤝 Předáno AI Vypravěči: Šeptavý hlas plynule navazuje od slova ${currentWordIndex + 1}/${storyWordsData.length}...`);
+    startAiStoryReading();
+}
+
+function updateHandoverButtonVisibility() {
+    const isParentReading = isSessionRunning && (currentMode === 'read' || currentMode === 'free');
+    const statusBtn = document.getElementById('handoverAiStatusBtn');
+    const dockBtn = document.getElementById('handoverAiDockBtn');
+    if (statusBtn) statusBtn.style.display = isParentReading ? 'inline-flex' : 'none';
+    if (dockBtn) dockBtn.style.display = isParentReading ? 'inline-flex' : 'none';
 }
 /* LEGACY_SWITCH_CLEANUP
     }
@@ -4612,6 +5047,7 @@ function setStoryDuration(mins) {
     const wasRunning = isSessionRunning && (currentMode === 'tts' || currentMode === 'silent');
     if (wasRunning) stopActiveSession();
 
+    populateStoryDropdown();
     loadSelectedStory(true);
 
     const labelMap = {
@@ -4629,8 +5065,10 @@ function setStoryDuration(mins) {
 function setTtsTempo(mult) {
     ttsTempoMultiplier = mult;
     document.querySelectorAll('[data-tempo]').forEach(b => {
-        b.classList.toggle('active', Math.abs(parseFloat(b.dataset.tempo) - mult) < 0.01);
+        b.classList.toggle('active', Math.abs(parseFloat(b.dataset.tempo) - mult) < 0.04);
     });
+
+    populateStoryDropdown();
 
     // Pokud AI Vypravěč zrovna čte, plynule aplikujeme nové tempo od aktuální věty
     if (isSessionRunning && currentMode === 'tts') {
@@ -4816,6 +5254,7 @@ function updateBottomDockVisibility() {
     if (panicBtn) {
         panicBtn.style.display = isRunningOrPaused ? 'inline-flex' : 'none';
     }
+    updateHandoverButtonVisibility();
 }
 
 function updateMainButtonLabel() {
@@ -5342,44 +5781,98 @@ function loadQueueItemIntoReaderAndPlay(nextItem) {
 }
 
 function promptChildName() {
-    const input = prompt('Zadej jméno dítěte (např. Emička, Davídek, Kubík, Anička):', childName || '');
+    const input = prompt('Zadej jména dětí / sourozenců oddělená čárkou (např. Emička, Kubík nebo Adámek, Eliška, Filípek):', childName || '');
     if (input === null) return;
     childName = input.trim();
     localStorage.setItem('atmoread_child_name', childName);
     const titleEl = document.getElementById('childNameBtnTitle');
-    if (titleEl) titleEl.innerText = childName ? `👶 Jméno: ${childName}` : '👶 Jméno dítěte';
+    const subEl = document.getElementById('childNameBtnSub');
+    if (titleEl) {
+        titleEl.innerText = childName ? (childName.includes(',') ? `👶 Sourozenci: ${childName}` : `👶 Jméno: ${childName}`) : '👶 Jméno dítěte';
+    }
+    if (subEl) {
+        subEl.innerText = childName.includes(',') ? 'Kouzelná zvonkohra pro každé dítě' : 'Kouzelná zvonkohra + zlatá záře';
+    }
     if (childName) {
-        showAutoBadge(`👶 Jméno: ${childName}`);
-        setStatus(`👶 Jméno dítěte nastaveno na: „${childName}“. Kdykoliv zazní v textu nebo do mikrofonu, rozezní se kouzelná zvonkohra a zlatá záře!`);
-        SoundEngine.playChildNameMagic();
+        const firstChild = childName.split(/[,;&]+/)[0].trim();
+        showAutoBadge(`👶 Sourozenci: ${childName}`);
+        setStatus(`👶 Jména nastavena na: „${childName}“. Kdykoliv kterékoliv z nich zazní v textu nebo do mikrofonu, rozezní se kouzelná zvonkohra a zlatá záře pro konkrétní dítě!`);
+        SoundEngine.playChildNameMagic(firstChild);
     } else {
-        setStatus('👶 Personalizace jména dítěte byla vypnuta.');
+        setStatus('👶 Personalizace jmen dětí byla vypnuta.');
     }
 }
 
 async function promptThreeWordsStory() {
-    const input = prompt('Zadej 3 libovolná slova pro pohádku na dobrou noc (oddělená čárkou nebo mezerou, např. pejsek, mašinka, les):', 'pejsek, mašinka, les');
-    if (input === null) return;
-    const words = input.split(/[,;\s]+/).map(w => w.trim()).filter(Boolean);
-    if (!words.length) return;
-    const w1 = words[0];
-    const w2 = words[1] || 'hvězdička';
-    const w3 = words[2] || 'les';
+    const siblingList = childName ? childName.split(/[,;&]+/).map(s => s.trim()).filter(Boolean) : [];
+    const sibLabel = siblingList.length >= 2 ? `pro ${siblingList.join(' a ')}` : (siblingList.length === 1 ? `pro ${siblingList[0]}` : 'pro sourozence');
 
-    setStatus(`⏳ Skládám novou pohádku na dobrou noc ze slov „${w1}, ${w2}, ${w3}“...`);
-    showAutoBadge('🎲 Generuji pohádku...');
+    const defaultExample = siblingList.length >= 2
+        ? `${siblingList[0]}: bagr, ${siblingList[1]}: koťátko`
+        : 'bagr, koťátko';
+
+    const promptMsg = `🎲 Pohádka na přání / Sourozenecký kompromis (${sibLabel}):\n\nKaždé dítě řekne své oblíbené slovo, zvířátko nebo přání (např. Dítě 1: bagr, Dítě 2: koťátko).\nAplikace přímo do příběhu zapracuje jména sourozenců i obě jejich přání, aby obě děti usínaly spokojeně:\n\nZadej přání oddělená čárkou (nebo ve formátu Jméno: přání):`;
+
+    const input = prompt(promptMsg, defaultExample);
+    if (input === null) return;
+    const trimmedInput = input.trim();
+    if (!trimmedInput) return;
+
+    // Rozparsování slov a případných jmen dětí
+    let wishes = [];
+    let children = [...siblingList];
+
+    // Pokud uživatel zadal formát "Emička: bagr, Kubík: koťátko"
+    if (trimmedInput.includes(':')) {
+        const parts = trimmedInput.split(/[,;]+/).map(p => p.trim()).filter(Boolean);
+        parts.forEach(part => {
+            if (part.includes(':')) {
+                const [n, w] = part.split(':').map(s => s.trim());
+                if (n && !children.includes(n)) children.push(n);
+                if (w) wishes.push(w);
+            } else {
+                wishes.push(part);
+            }
+        });
+    } else {
+        wishes = trimmedInput.split(/[,;]+/).map(w => w.trim()).filter(Boolean);
+    }
+
+    if (!wishes.length) {
+        wishes = ['bagr', 'koťátko'];
+    }
+
+    // Pokud ještě nemáme alespoň 2 jména dětí, doplníme přirozená jména
+    if (children.length === 0) {
+        children = ['Emička', 'Kubík'];
+    } else if (children.length === 1 && wishes.length >= 2) {
+        children.push('Kubík');
+    }
+
+    // Uložíme zjištěná jména do localStorage, pokud dosud nebyla nastavena
+    if (!childName && children.length > 0) {
+        childName = children.join(', ');
+        localStorage.setItem('atmoread_child_name', childName);
+        const titleEl = document.getElementById('childNameBtnTitle');
+        if (titleEl) titleEl.innerText = `👶 Sourozenci: ${childName}`;
+    }
+
+    const summaryWishes = wishes.slice(0, 3).join(', ');
+    const summaryKids = children.slice(0, 2).join(' a ');
+    setStatus(`⏳ Skládám pohádku na přání a sourozenecký kompromis pro ${summaryKids} (${summaryWishes})...`);
+    showAutoBadge('🎲 Skládám kompromis...');
 
     const geminiKey = localStorage.getItem('atmoread_gemini_key') || '';
     let storyObj = null;
 
     if (geminiKey) {
         try {
-            storyObj = await generateBedtimeStoryWithGemini(w1, w2, w3, geminiKey);
+            storyObj = await generateBedtimeStoryWithGemini(wishes, children, geminiKey);
         } catch (e) {
-            storyObj = generateLocalBedtimeStory(w1, w2, w3);
+            storyObj = generateLocalBedtimeStory(wishes, children);
         }
     } else {
-        storyObj = generateLocalBedtimeStory(w1, w2, w3);
+        storyObj = generateLocalBedtimeStory(wishes, children);
     }
 
     const key = getStoryKey();
@@ -5388,7 +5881,7 @@ async function promptThreeWordsStory() {
         title: storyObj.title,
         text: storyObj.text,
         isCustom: true,
-
+        profile: currentProfile,
         savedAt: Date.now()
     });
 
@@ -5398,7 +5891,7 @@ async function promptThreeWordsStory() {
     switchMode('tts');
     loadSelectedStory(true);
     showAutoBadge('🎲 Pohádka vytvořena');
-    setStatus(`✅ Nová pohádka ze slov „${w1}, ${w2}, ${w3}“ je připravena ve čtečce! Spouštím AI Vypravěče...`);
+    setStatus(`✅ Sourozenecká pohádka pro ${summaryKids} je připravena ve čtečce! Spouštím AI Vypravěče...`);
 
     if (isSessionRunning) stopActiveSession();
     setTimeout(() => {
@@ -5406,16 +5899,31 @@ async function promptThreeWordsStory() {
     }, 350);
 }
 
-async function generateBedtimeStoryWithGemini(w1, w2, w3, apiKey) {
+async function generateBedtimeStoryWithGemini(wishes, children, apiKey) {
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`;
-    const prompt = `Jsi ten nejlaskavější český pohádkář v aplikaci AtmoRead. Napiš kouzelnou, poetickou a uklidňující pohádku na dobrou noc pro děti, ve které sehrají důležitou roli tato 3 slova: "${w1}", "${w2}" a "${w3}".
-Délka pohádky: cca 320 až 420 slov (cca 3 až 5 minut klidného poslechu).
+    const c1 = (children && children[0]) || 'Emička';
+    const c2 = (children && children[1]) || 'Kubík';
+    const w1 = (wishes && wishes[0]) || 'bagr';
+    const w2 = (wishes && wishes[1]) || 'koťátko';
+    const w3 = (wishes && wishes[2]) || '';
+    const extraWishStr = w3 ? ` a třetí přání: "${w3}"` : '';
+
+    const prompt = `Jsi ten nejlaskavější český pohádkář v aplikaci AtmoRead.
+Napiš kouzelnou, poetickou a uklidňující pohádku na dobrou noc pro sourozence (${c1} a ${c2}).
+Jedná se o SOUROZENECKÝ KOMPROMIS: děti se večer dohadovaly, čí pohádka se bude číst.
+${c1} si moc přeje, aby v pohádce vystupoval "${w1}", a ${c2} si moc přeje, aby v ní byl "${w2}"${extraWishStr}.
+
+Příběh musí přímo a rovnocenně zapracovat jména obou sourozenců (${c1} a ${c2}) i obě jejich přání ("${w1}" a "${w2}"), ukázat jejich krásnou sourozeneckou lásku, spolupráci a vzájemnou radost, aby obě děti usínaly naprosto spokojené a usmířené.
+
+Délka pohádky: cca 340 až 450 slov (cca 3 až 5 minut klidného poslechu).
+
 DŮLEŽITÁ PODMÍNKA PRO ZVUKOVÉ EFEKTY ATMOREAD:
 V textu záměrně a přirozeně použij slova spouštějící reálné zvuky v aplikaci:
 - Zvířátka (pejsek štěkal, kočička přadla, koník ržál, sovička zahoukala, ptáček zpíval)
-- Příroda (šuměl tichý les, kapaly kapky deště, vát jemný vítr, zurčel potůček, v krbu praskal oheň, na nebi svítily hvězdy)
-- Zvuky světa (houkala mašinka a jel vláček, cinkal zvoneček, klapala kopýtka, tikaly hodiny)
-Pohádka musí mít pokojný konec vedoucí ke klidnému usnutí.
+- Příroda a noc (šuměl tichý les, kapaly kapky deště, vát jemný vítr, zurčel potůček, v krbu praskal oheň, na nebi svítily hvězdy)
+- Svět a technika (houkala mašinka, jel vláček, troubilo auto, cinkal zvoneček, tikaly hodiny)
+
+Pohádka musí mít pokojný, laskavý konec vedoucí ke klidnému usnutí obou dětí.
 Piš krásnou plynulou češtinou, bez odrážek, bez markdownu a bez hvězdiček. Na prvním řádku uveď lákavý název pohádky.`;
 
     const resp = await fetch(endpoint, {
@@ -5429,23 +5937,34 @@ Piš krásnou plynulou češtinou, bez odrážek, bez markdownu a bez hvězdiče
     const data = await resp.json();
     const rawOut = (data?.candidates?.[0]?.content?.parts?.[0]?.text || '').replace(/[*#_`>-]/g, ' ').replace(/\s+/g, ' ').trim();
     const lines = rawOut.split(/\.\s+/);
-    let title = `🎲 Pohádka o ${w1}, ${w2} a ${w3}`;
+    let title = `🎲 Pohádka pro ${c1} a ${c2} (${w1} a ${w2})`;
     if (lines[0] && lines[0].length < 75) {
         title = `🎲 ${lines[0].replace(/^název[:\s]*/i, '').trim()}`;
     }
     return { title: title, text: rawOut };
 }
 
-function generateLocalBedtimeStory(w1, w2, w3) {
-    const title = `🎲 Pohádka o tom, jak ${w1}, ${w2} a ${w3} našli kouzelný spánek`;
-    const story = `Byl jednou jeden tichý večer a nad voňavou loukou se pomalu rozprostřela sametová noc. Na nebi se rozsvítily stříbrné hvězdy a jemný vánek tiše šuměl v korunách stromů. Hluboký les voněl jehličím a v mechu bublal křišťálový potůček, jehož kapky vody cinkaly o kamínky jako malý zvoneček.
-Právě v tomto lese se potkali naši tři kamarádi: ${w1}, ${w2} a ${w3}. Všichni tři se vydali na tichou večerní procházku, protože hledali to nejútulnější místečko na spaní.
-Cestou potkali moudrou sovičku, která tiše zahoukala z větve starého dubu: „Húú, copak tu ještě děláte tak pozdě? Sluníčko už dávno zašlo a noční vláček v dálce zahoukal na dobrou noc.“
-${w1} se usmál a řekl: „Hledáme pelíšek, kde by se nám zdály ty nejkrásnější pohádkové sny.“
-Vtom k nim přiběhl věrný pejsek, radostně zaštěkal a přátelsky zavrtěl ocáskem. Hned za ním přiklusal malý koník, jehož kopýtka tiše klapala po měkké lesní pěšince. V trávě spokojeně předla hebká kočička a její vrnění přinášelo do celého lesa hluboký klid.
-Na kraji mýtiny stála stará dřevěná chaloupka. Z komína stoupal tenký proužek dýmu a za okýnkem plápolal hřejivý krb. Když ${w1}, ${w2} i ${w3} vešli dovnitř, ucítili teplo praskajícího ohně. Na zdi tiše a pokojně tikaly staré hodiny: tik, tak, tik, tak.
-Za okny začal tiše padat mírný letní déšť. Kapky deště jemně bubnovaly na střechu a vítr za oknem zpíval tu nejkrásnější ukolébavku. ${w1} se zachumlal do měkoučké peřinky, ${w2} si lehl hned vedle a ${w3} spokojeně zavřel oči.
-V chaloupce zavládlo ticho a mír. Všechna zvířátka v lese už spala a noční obloha přikryla celý svět kouzelnou tmou. Oči se pomalu zavírají, dech se zklidňuje a začíná ta nejkrásnější pohádka. Dobrou noc, sladké sny.`;
+function generateLocalBedtimeStory(wishes, children) {
+    const c1 = (children && children[0]) || 'Emička';
+    const c2 = (children && children[1]) || 'Kubík';
+    const w1 = (wishes && wishes[0]) || 'bagr';
+    const w2 = (wishes && wishes[1]) || 'koťátko';
+    const w3 = (wishes && wishes[2]) || '';
+
+    const title = `🎲 Jak ${c1} a ${c2} usmířili ${w1} a ${w2}`;
+    const extraWishSentence = w3
+        ? ` A aby byl večer ještě kouzelnější, na nebi se třpytila zlatá ${w3}, která posílala své paprsky přímo do jejich pokojíčku.`
+        : '';
+
+    const story = `Byl jednou jeden tichý večer a v útulném pokojíčku leželi v pelíšku dva sourozenci: ${c1} a ${c2}. Venku za oknem se pomalu rozprostřela sametová noc, na nebi se rozsvítily stříbrné hvězdy a jemný vítr tiše šuměl v korunách stromů.
+Než se zavřela víčka, ${c1} si moc přál, aby v pohádce vystupoval ${w1}. Jenže ${c2} zase toužil po tom, aby v příběhu bylo kouzelné ${w2}. Chviličku se dohadovali, čí přání je hezčí, ale maminka s tatínkem se usmáli a řekli: „V říši snů se vejdou všechna vaše přání společně.“
+Vtom se stalo něco neobyčejného. V hlubokém lese bublal křišťálový potůček a jeho kapky vody cinkaly o kamínky jako malý zvoneček. Po měkké lesní pěšince tiše přijel velký, ale tuze laskavý ${w1}. Motor mu jen tiše a pokojně broukal, jako když někdo z dálky vypráví pohádku. Hned za ním přiběhlo heboučké a roztomilé ${w2}, zvědavě zamňoukalo a vyskočilo přímo na sedadlo, kde se spokojeně uvelebilo.
+${w1} i ${w2} se na sebe podívali, jako by byli odjakživa ti nejlepší kamarádi. Společně vyrazili k malé mýtině, kde na větvi starého dubu seděla moudrá sovička. Sovička tiše zahoukala do noci: „Húú, podívejte se na ${c1} a ${c2}, jak jim to krásně ladí. Žádné hádání, jen pokojný spánek.“
+V dálce noční vláček zahoukal na dobrou noc a jeho kola tiše klapala po kolejích. K ${c1} a ${c2} přiběhl věrný pejsek, radostně zaštěkal a přátelsky zavrtěl ocáskem. Hned za ním přiklusal malý koník, jehož kopýtka tiše klapala po mechu.
+Na kraji lesa stála stará chaloupka. V jejím krbu hřejivě plápolal a praskal oheň a na zdi pokojně tikaly staré hodiny: tik, tak, tik, tak.
+Za okny začal tiše padat letní déšť. Kapky deště jemně bubnovaly do oken a ${w1} s ${w2} se uložili přímo vedle postýlek, aby celou noc hlídali sladké sny.${extraWishSentence}
+${c1} se zachumlal do své měkoučké peřinky, ${c2} chytil svého sourozence za ruku a oba pocítili velké teplo v srdíčku. Očička se pomalu zavírají, dech se zklidňuje a začíná ten nejkrásnější společný sen. Dobrou noc, ${c1}, dobrou noc, ${c2}, sladké a pokojné sny.`;
+
     return { title: title, text: story };
 }
 
@@ -5669,6 +6188,10 @@ function startAiStoryReading() {
                     advanceQueueAndPlay();
                     return;
                 }
+                if (isSleepBridgeEnabled) {
+                    triggerSleepBridgePhase3();
+                    return;
+                }
                 stopActiveSession();
                 setStatus('😴 Příběh je dočtený. Dobrou noc a sladké sny!');
                 return;
@@ -5701,6 +6224,10 @@ function startSilentPacer() {
         if (currentWordIndex >= storyWordsData.length) {
             if (readingQueue && readingQueue.length > 0) {
                 advanceQueueAndPlay();
+                return;
+            }
+            if (isSleepBridgeEnabled) {
+                triggerSleepBridgePhase3();
                 return;
             }
             stopActiveSession();
@@ -5802,6 +6329,7 @@ function loadSelectedStory(animatePlane = true) {
     }
 
     renderStoryText(finalText, animatePlane);
+    sleepBridgePhase = 1;
 
     if (story.isEbook && typeof story.wordIndex === 'number' && story.wordIndex > 0 && story.wordIndex < storyWordsData.length) {
         currentWordIndex = story.wordIndex;
@@ -5814,6 +6342,89 @@ function loadSelectedStory(animatePlane = true) {
 
 const READER_PAGE_SIZE = 600;
 let currentReaderPage = 0;
+
+/* ============================================================================
+   1. LOOK-AHEAD SCENE MOOD ENGINE (ANALÝZA CELÉ STRÁNKY 600 SLOV DOPŘEDU)
+   - Projde okno 600 slov na aktuální stránce a spočítá vážené skóre pro všechny scény
+   - Okamžitě plynule přelije podkres do vítězné atmosféry stránky bez čekání na slovo
+   ============================================================================ */
+function analyzePageDominantMood(startWordIdx, wordCount = 600) {
+    if (typeof startWordIdx !== 'number' || isNaN(startWordIdx)) {
+        startWordIdx = (typeof currentReaderPage === 'number')
+            ? currentReaderPage * (typeof READER_PAGE_SIZE === 'number' ? READER_PAGE_SIZE : 600)
+            : (currentWordIndex || 0);
+    }
+    const defaultMood = currentProfile === 'adults' ? 'cafe' : 'meadow';
+    if (!storyWordsData || !storyWordsData.length || typeof MOOD_SCENES === 'undefined') {
+        SoundEngine.transitionMoodScene(defaultMood, true);
+        const fbScene = (typeof MOOD_SCENES !== 'undefined') ? MOOD_SCENES[defaultMood] : null;
+        const badge = document.getElementById('activeSceneBadge');
+        if (badge && fbScene) badge.innerText = `Scéna stránky: ${fbScene.name}`;
+        return defaultMood;
+    }
+
+    const start = Math.max(0, startWordIdx);
+    const end = Math.min(storyWordsData.length, start + wordCount);
+    const pageWords = storyWordsData.slice(start, end);
+
+    const scores = {};
+    const sceneKeys = Object.keys(MOOD_SCENES);
+    for (let k = 0; k < sceneKeys.length; k++) {
+        const key = sceneKeys[k];
+        // Drobný výchozí profilový tiebreaker
+        scores[key] = (key === 'cafe' && currentProfile === 'adults') ? 0.25
+                    : (key === 'meadow' && currentProfile === 'kids') ? 0.25
+                    : 0;
+    }
+
+    for (let i = 0; i < pageWords.length; i++) {
+        const clean = normWord(pageWords[i]);
+        if (clean.length < 3) continue;
+
+        for (let sIdx = 0; sIdx < sceneKeys.length; sIdx++) {
+            const key = sceneKeys[sIdx];
+            const sc = MOOD_SCENES[key];
+            if (!sc || !sc.stems) continue;
+
+            for (let stIdx = 0; stIdx < sc.stems.length; stIdx++) {
+                const rawStem = sc.stems[stIdx];
+                const nSt = normWord(rawStem);
+                if (!nSt) continue;
+
+                if (clean === nSt) {
+                    scores[key] += 3.5;
+                    break;
+                } else if (doesWordMatchStem(clean, rawStem)) {
+                    scores[key] += 2.0;
+                    break;
+                }
+            }
+        }
+    }
+
+    let dominantMood = defaultMood;
+    let maxScore = -1;
+    for (let k = 0; k < sceneKeys.length; k++) {
+        const key = sceneKeys[k];
+        if (scores[key] > maxScore) {
+            maxScore = scores[key];
+            dominantMood = key;
+        }
+    }
+
+    // Okamžitě plynule přelijeme podkres do vítězné atmosféry stránky
+    SoundEngine.transitionMoodScene(dominantMood, true);
+
+    const scene = MOOD_SCENES[dominantMood];
+    const badge = document.getElementById('activeSceneBadge');
+    if (badge && scene) {
+        badge.innerText = `Scéna stránky: ${scene.name}`;
+    }
+
+    return dominantMood;
+}
+
+const renderCurrentReaderPage = renderReaderCurrentPage;
 
 function renderStoryText(text, animatePlane = false) {
     if (typeof text === 'string') {
@@ -5844,6 +6455,9 @@ function renderReaderCurrentPage(animatePlane = false) {
 
     const startIdx = currentReaderPage * READER_PAGE_SIZE;
     const endIdx = Math.min(totalWords, startIdx + READER_PAGE_SIZE);
+
+    // LOOK-AHEAD SCENE MOOD ENGINE (ANALÝZA CELÉ STRÁNKY 600 SLOV DOPŘEDU)
+    analyzePageDominantMood(startIdx, READER_PAGE_SIZE);
 
     const populateTokens = () => {
         box.innerHTML = '';
@@ -5989,6 +6603,8 @@ function unloadCurrentStory() {
     if (delBtn) delBtn.style.display = 'none';
     const lenBadge = document.getElementById('storyLengthBadge');
     if (lenBadge) lenBadge.innerText = 'Čtečka je v klidovém stavu';
+    const activeBadge = document.getElementById('activeSceneBadge');
+    if (activeBadge) activeBadge.innerText = currentProfile === 'adults' ? 'Scéna: ☕ Kavárna a město' : 'Scéna: 🌿 Klidná louka';
     const durPlane = document.getElementById('storyDurationPlane');
     if (durPlane) durPlane.classList.remove('open');
     const switchPlane = document.getElementById('articleModeSwitchPlane');
@@ -6093,6 +6709,7 @@ if (false) {
 
 */ function highlightWordAt(idx) {
     if (!storyWordsData || !storyWordsData.length) return;
+    checkSleepBridgePhase(idx);
     const targetPage = Math.floor(idx / READER_PAGE_SIZE);
     if (targetPage !== currentReaderPage) {
         currentReaderPage = targetPage;
@@ -8354,6 +8971,83 @@ function setStoryCategoryFilter(cat) {
     }
 }
 
+let isStoryDropdownSorted = false;
+
+function toggleSortStoriesByDuration() {
+    isStoryDropdownSorted = !isStoryDropdownSorted;
+    const btn = document.getElementById('sortStoriesByDurationBtn');
+    if (btn) {
+        btn.classList.toggle('active', isStoryDropdownSorted);
+        btn.innerHTML = isStoryDropdownSorted ? '⏱️ Seřazeno (nejkratší)' : '⏱️ Od nejkratších';
+        btn.style.borderColor = isStoryDropdownSorted ? 'var(--accent)' : '';
+        btn.style.background = isStoryDropdownSorted ? 'rgba(251, 191, 36, 0.18)' : '';
+    }
+    populateStoryDropdown();
+    showAutoBadge(isStoryDropdownSorted ? '⏱️ Seřazeno od nejkratších' : '📚 Výchozí řazení');
+}
+
+function calculateStoryReadingMeta(story) {
+    let text = story.text || '';
+    const isCustomOrOcr = !!story.isCustom;
+    const isEbook = !!story.isEbook;
+
+    if (!isCustomOrOcr && typeof getStoryTextByDuration === 'function') {
+        text = getStoryTextByDuration(story, currentStoryDuration, currentProfile, currentLang);
+    } else if (story.isUrlArticle) {
+        if (story.activeVariant === 'full' && story.fullText) text = story.fullText;
+        else if (story.summaryText) text = story.summaryText;
+        else text = story.text || '';
+    }
+
+    const words = text ? text.trim().split(/\s+/).filter(Boolean) : [];
+    const wordCount = words.length;
+
+    // Tempo v slovech za minutu (základní přirozené tempo češtiny je ~125 wpm při 1.0)
+    const tempo = ttsTempoMultiplier || 0.86;
+    const wpm = Math.max(45, Math.round(125 * tempo));
+    const totalMins = Math.max(1, Math.round(wordCount / wpm));
+
+    // Zjištění uložené rozčtené pozice
+    const posMap = getStoredPositionsMap();
+    const posKey = story.ebookId || story.title;
+    let savedWordIdx = (isEbook && typeof story.wordIndex === 'number' && story.wordIndex > 0)
+        ? story.wordIndex
+        : (posMap[posKey] || 0);
+
+    if (!savedWordIdx) {
+        try {
+            const profKey = currentProfile === 'adults' ? 'atmoread_reading_pos_adults' : 'atmoread_reading_pos_kids';
+            const raw = localStorage.getItem(profKey);
+            if (raw) {
+                const p = JSON.parse(raw);
+                if (p && p.storyKey === posKey && typeof p.wordIdx === 'number' && p.wordIdx > 0) {
+                    savedWordIdx = p.wordIdx;
+                }
+            }
+        } catch (e) {}
+    }
+
+    let isPartlyRead = false;
+    let progressPct = 0;
+    let remainingMins = totalMins;
+
+    if (savedWordIdx > 0 && wordCount > 0 && savedWordIdx < wordCount) {
+        isPartlyRead = true;
+        progressPct = Math.min(99, Math.max(1, Math.round((savedWordIdx / wordCount) * 100)));
+        const remWords = Math.max(0, wordCount - savedWordIdx);
+        remainingMins = Math.max(1, Math.round(remWords / wpm));
+    }
+
+    return {
+        wordCount,
+        totalMins,
+        isPartlyRead,
+        progressPct,
+        remainingMins,
+        sortMinutes: isPartlyRead ? remainingMins : totalMins
+    };
+}
+
 function populateStoryDropdown() {
     loadCustomStoriesIntoMemory();
     loadEbooksIntoMemory();
@@ -8363,7 +9057,8 @@ function populateStoryDropdown() {
     sel.innerHTML = '';
     const list = STORIES[getStoryKey()] || STORIES.kids_cs;
 
-    let matchedCount = 0;
+    let items = [];
+
     list.forEach((s, idx) => {
         if (currentStoryCategoryFilter === 'builtin') {
             if (s.isCustom || s.isEbook || s.isUrlArticle || s.isYouTube) return;
@@ -8373,14 +9068,34 @@ function populateStoryDropdown() {
             if (!s.isUrlArticle && !s.isYouTube) return;
         }
 
-        const opt = document.createElement('option');
-        opt.value = idx;
-        opt.innerText = s.title;
-        sel.appendChild(opt);
-        matchedCount++;
+        const meta = calculateStoryReadingMeta(s);
+        const cleanTitle = s.title.replace(/\s*\((?:⏱️|🔖)[^)]+\)$/, '').trim();
+        const timeBadge = meta.isPartlyRead
+            ? `(🔖 ${meta.progressPct} % • ~${meta.remainingMins} min)`
+            : `(⏱️ ~${meta.totalMins} min)`;
+
+        const finalTitle = `${cleanTitle} ${timeBadge}`;
+
+        items.push({
+            origIndex: idx,
+            displayTitle: finalTitle,
+            sortMins: meta.sortMinutes,
+            wordCount: meta.wordCount
+        });
     });
 
-    if (matchedCount === 0) {
+    if (isStoryDropdownSorted) {
+        items.sort((a, b) => a.sortMins - b.sortMins || a.wordCount - b.wordCount);
+    }
+
+    items.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = String(item.origIndex);
+        opt.innerText = item.displayTitle;
+        sel.appendChild(opt);
+    });
+
+    if (items.length === 0) {
         const opt = document.createElement('option');
         opt.value = '-1';
         opt.innerText = '— Žádná položka v této kategorii —';
@@ -8388,6 +9103,141 @@ function populateStoryDropdown() {
     } else if ([...sel.options].some(o => o.value === prevVal)) {
         sel.value = prevVal;
     }
+}
+
+/* ============================================================================
+   LOKÁLNÍ ZÁLOHA A 1-CLICK PŘENOS MEZI TELEFONEM A TABLETEM (.JSON)
+   ============================================================================ */
+function exportAtmoReadBackup() {
+    try {
+        const backupData = {
+            app: 'AtmoRead',
+            version: 'v8.0.0 MASTER',
+            exportedAt: new Date().toISOString(),
+            data: {
+                ebooks: getStoredEbooks(),
+                customStories: getStoredCustomStories(),
+                positions: getStoredPositionsMap(),
+                readingPosAdults: localStorage.getItem('atmoread_reading_pos_adults') || null,
+                readingPosKids: localStorage.getItem('atmoread_reading_pos_kids') || null,
+                urlHistory: getSavedUrlHistory(),
+                readingQueue: (typeof readingQueue !== 'undefined' && Array.isArray(readingQueue)) ? readingQueue : (JSON.parse(localStorage.getItem(READING_QUEUE_STORAGE_KEY) || '[]')),
+                childName: childName || localStorage.getItem('atmoread_child_name') || '',
+                fontSize: localStorage.getItem(READER_FONT_SIZE_KEY) || localStorage.getItem('atmoread_font_size') || '22',
+                bionicReading: localStorage.getItem('atmoread_bionic_reading') || '0',
+                geminiKey: localStorage.getItem('atmoread_gemini_key') || ''
+            }
+        };
+
+        const jsonStr = JSON.stringify(backupData, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'atmoread-zaloha.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 2500);
+
+        showAutoBadge('📲 Záloha exportována');
+        setStatus('📲 Záloha atmoread-zaloha.json byla stažena! Můžeš ji nahrát na svém druhém zařízení (např. na tabletu).');
+    } catch (e) {
+        console.error('Export error:', e);
+        alert('Chyba při exportu zálohy: ' + (e.message || e));
+    }
+}
+
+function importAtmoReadBackup(event) {
+    const file = (event.target.files || [])[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        try {
+            const raw = e.target.result;
+            const parsed = JSON.parse(raw);
+            const data = parsed.data || parsed;
+
+            // 1. E-knihy
+            if (data.ebooks && Array.isArray(data.ebooks)) {
+                saveStoredEbooks(data.ebooks);
+            }
+
+            // 2. Vlastní příběhy
+            if (data.customStories && Array.isArray(data.customStories)) {
+                localStorage.setItem(CUSTOM_STORIES_STORAGE_KEY, JSON.stringify(data.customStories));
+            }
+
+            // 3. Pozice čtení
+            if (data.positions && typeof data.positions === 'object') {
+                localStorage.setItem(POSITIONS_STORAGE_KEY, JSON.stringify(data.positions));
+            }
+            if (data.readingPosAdults) {
+                localStorage.setItem('atmoread_reading_pos_adults', typeof data.readingPosAdults === 'string' ? data.readingPosAdults : JSON.stringify(data.readingPosAdults));
+            }
+            if (data.readingPosKids) {
+                localStorage.setItem('atmoread_reading_pos_kids', typeof data.readingPosKids === 'string' ? data.readingPosKids : JSON.stringify(data.readingPosKids));
+            }
+
+            // 4. Historie URL
+            if (data.urlHistory && Array.isArray(data.urlHistory)) {
+                localStorage.setItem(URL_HISTORY_STORAGE_KEY, JSON.stringify(data.urlHistory));
+            }
+
+            // 5. Fronta čtení
+            if (data.readingQueue && Array.isArray(data.readingQueue)) {
+                readingQueue = data.readingQueue;
+                localStorage.setItem(READING_QUEUE_STORAGE_KEY, JSON.stringify(data.readingQueue));
+            }
+
+            // 6. Jména dětí / sourozenci
+            if (typeof data.childName === 'string') {
+                childName = data.childName;
+                localStorage.setItem('atmoread_child_name', childName);
+                const titleEl = document.getElementById('childNameBtnTitle');
+                const subEl = document.getElementById('childNameBtnSub');
+                if (titleEl) {
+                    titleEl.innerText = childName ? (childName.includes(',') ? `👶 Sourozenci: ${childName}` : `👶 Jméno: ${childName}`) : '👶 Jméno dítěte';
+                }
+                if (subEl) {
+                    subEl.innerText = childName.includes(',') ? 'Kouzelná zvonkohra pro každé dítě' : 'Kouzelná zvonkohra + zlatá záře';
+                }
+            }
+
+            // 7. Písmo a doplňky
+            if (data.fontSize) {
+                localStorage.setItem(READER_FONT_SIZE_KEY, String(data.fontSize));
+            }
+            if (data.bionicReading !== undefined) {
+                localStorage.setItem('atmoread_bionic_reading', String(data.bionicReading));
+            }
+            if (data.geminiKey) {
+                localStorage.setItem('atmoread_gemini_key', String(data.geminiKey));
+            }
+
+            // Okamžitá obnova celé paměti a rozhraní
+            loadCustomStoriesIntoMemory();
+            loadEbooksIntoMemory();
+            loadReadingQueueFromStorage();
+            renderReadingQueue();
+            renderUrlHistoryList();
+            initReaderFontSize();
+            populateStoryDropdown();
+            loadSelectedStory(false);
+            restoreReadingPosition();
+
+            showAutoBadge('📥 Knihovna úspěšně obnovena');
+            setStatus('✅ Celá knihovna, e-knihy i rozčtené pozice byly úspěšně obnoveny ze zálohy!');
+            alert('✅ Záloha byla úspěšně obnovena! Všechny e-knihy, historie, rozčtené pozice i jména dětí jsou připraveny.');
+        } catch (err) {
+            console.error('Import error:', err);
+            alert('Chyba při čtení souboru se zálohou. Ujisti se, že jde o platný .json soubor AtmoRead.');
+        } finally {
+            event.target.value = '';
+        }
+    };
+    reader.readAsText(file, 'utf-8');
 }
 
 /*
@@ -8410,7 +9260,7 @@ if (false) {
     const totalStems = SOUND_LIBRARY.reduce((acc, c) => acc + c.stems.length, 0)
                      + DYNAMIC_AURA_PALETTE.reduce((acc, p) => acc + p.stems.length, 0);
     const dictEl = document.getElementById('dictCounter'); if (dictEl) dictEl.innerText = 'Živá zvuková atmosféra pro čtení a spánek'; const _oldDictStr =
-        `Verze v7.3.0 MOBILE POLISH • 100% Ověřené zvuky (${SOUND_LIBRARY.length} okruhů, ${totalStems}+ kořenů) • 5/15/30 min příběhy • Plynulé přechody`;
+        `Verze v8.0.0 MASTER • 100% Ověřené zvuky (${SOUND_LIBRARY.length} okruhů, ${totalStems}+ kořenů) • 5/15/30 min příběhy • Plynulé přechody`;
 
     // Vykreslení 4 smysluplných barev lampičky
     const mainLampWrap = document.getElementById('lampModeTilesMain');
@@ -8463,6 +9313,7 @@ if (false) {
     // Výchozí podkres: Dynamický podkres scény ('auto_mood')
     SoundEngine.bgMode = 'auto_mood';
     renderAmbienceTiles();
+    setSfxDensityMode(getRecommendedSfxDensity(currentProfile, currentMode), false);
     renderUrlHistoryList();
 
     selectLampMode('candle');
@@ -8490,7 +9341,9 @@ if (false) {
     renderReadingQueue();
     if (childName) {
         const cBtnTitle = document.getElementById('childNameBtnTitle');
-        if (cBtnTitle) cBtnTitle.innerText = `👶 Jméno: ${childName}`;
+        const cBtnSub = document.getElementById('childNameBtnSub');
+        if (cBtnTitle) cBtnTitle.innerText = childName.includes(',') ? `👶 Sourozenci: ${childName}` : `👶 Jméno: ${childName}`;
+        if (cBtnSub && childName.includes(',')) cBtnSub.innerText = 'Kouzelná zvonkohra pro každé dítě';
     }
     const kidsRowInit = document.getElementById('kidsSpecialActionsRow');
     if (kidsRowInit) kidsRowInit.style.display = (currentProfile === 'kids') ? 'flex' : 'none';
@@ -8503,6 +9356,9 @@ if (false) {
     initReaderFontSize();
     updateMainButtonLabel();
     updatePauseResumeButton();
+    updateHandoverButtonVisibility();
+    updateSleepBridgeUI();
+    updateOkayToWakeUI();
     updateSceneAuraOrb();
     const dispToggle = document.getElementById('displayReadModeToggle');
     if (dispToggle) {
