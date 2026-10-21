@@ -2,8 +2,8 @@
 <html lang="cs">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AtmoRead v9.0.0 FINAL — Živá atmosféra pro pohádky, knihy i články</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>AtmoRead v9.4.0 — Živá atmosféra pro pohádky, knihy i články</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1068,6 +1068,37 @@
             box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.4);
             transition: opacity 0.46s var(--soft-ease), transform 0.46s var(--plane-ease), background 0.55s var(--soft-ease), font-size 0.25s var(--soft-ease);
         }
+        .reader-viewport-wrap {
+            position: relative;
+            width: 100%;
+        }
+        .return-to-word-btn {
+            position: absolute;
+            bottom: 18px;
+            right: 18px;
+            z-index: 50;
+            background: var(--accent);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 999px;
+            padding: 8px 16px;
+            font-size: 13px;
+            font-weight: 800;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 14px var(--accent-glow);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            animation: planeUnfold 0.3s var(--plane-ease);
+            transition: transform 0.2s var(--plane-ease), background 0.25s var(--soft-ease);
+        }
+        .return-to-word-btn:hover {
+            transform: scale(1.05);
+        }
+        .return-to-word-btn:active {
+            transform: scale(0.96);
+        }
         .w-tok {
             padding: 2px 5px;
             border-radius: 6px;
@@ -1695,9 +1726,146 @@
             pointer-events: none;
             letter-spacing: 0.3px;
         }
+
+        /* ====================================================================
+           PŘÍSTUPNOST: PODPORA PREFERS-REDUCED-MOTION (VYPNUTÍ PULZOVÁNÍ A DEKORACÍ)
+           ==================================================================== */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.001ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.001ms !important;
+                scroll-behavior: auto !important;
+            }
+            .scene-aura-orb.pulsing,
+            .eq-bar,
+            .plane-animate,
+            .collapsible-plane,
+            .tile-story,
+            #ambientCanvas {
+                animation: none !important;
+            }
+        }
+
+        /* ====================================================================
+           UNIVERZÁLNÍ PŘÍSTUPNÝ TMAVÝ DIALOG (#customAppDialog)
+           Nikdy neblikne bílou barvou, podporuje Escape, návrat fokusu, Enter
+           ==================================================================== */
+        .app-dialog-overlay {
+            position: fixed; inset: 0; z-index: 10001;
+            display: flex; align-items: center; justify-content: center;
+            padding: 16px;
+            background: rgba(3, 6, 12, 0.84);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            opacity: 0; visibility: hidden; pointer-events: none;
+            transition: opacity 0.24s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0.24s;
+        }
+        .app-dialog-overlay.active {
+            opacity: 1; visibility: visible; pointer-events: auto;
+            transition: opacity 0.24s cubic-bezier(0.22, 1, 0.36, 1), visibility 0s linear 0s;
+        }
+        .app-dialog-card {
+            background: #0d121f;
+            color: var(--text-main);
+            border: 1.5px solid rgba(255, 255, 255, 0.14);
+            border-radius: 26px;
+            padding: 24px;
+            width: 100%;
+            max-width: 490px;
+            box-shadow: 0 24px 64px rgba(0, 0, 0, 0.88), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            transform: translateY(10px) scale(0.975);
+            transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+            display: flex; flex-direction: column; gap: 16px;
+            box-sizing: border-box;
+        }
+        .app-dialog-overlay.active .app-dialog-card {
+            transform: translateY(0) scale(1);
+        }
+        .app-dialog-header {
+            display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+        }
+        .app-dialog-title {
+            margin: 0; font-size: 19px; font-weight: 800; color: #FFFFFF;
+            line-height: 1.35; letter-spacing: -0.2px;
+        }
+        .app-dialog-close-btn {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: var(--text-muted);
+            border-radius: 12px;
+            width: 36px; height: 36px;
+            font-size: 16px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+        .app-dialog-close-btn:hover, .app-dialog-close-btn:focus-visible {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            outline: 2px solid var(--accent);
+        }
+        .app-dialog-desc {
+            font-size: 14.5px; line-height: 1.55; color: #cbd5e1;
+            white-space: pre-wrap; word-break: break-word;
+        }
+        .app-dialog-input-wrap {
+            width: 100%;
+        }
+        .app-dialog-input {
+            width: 100%; box-sizing: border-box;
+            font-size: 16px; font-weight: 600;
+            padding: 13px 16px; border-radius: 14px;
+            background: rgba(4, 7, 14, 0.9); color: #FFFFFF;
+            border: 1.5px solid rgba(255, 255, 255, 0.16); outline: none;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+        .app-dialog-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+        .app-dialog-actions {
+            display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px;
+        }
+        .app-dialog-btn-cancel {
+            min-height: 48px; padding: 10px 18px; flex: 1;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .app-dialog-btn-confirm {
+            min-height: 48px; padding: 10px 22px; flex: 1.2;
+            background: linear-gradient(135deg, var(--accent), #6366F1);
+        }
+        body[data-profile="adults"] .app-dialog-btn-confirm,
+        body.theme-adults .app-dialog-btn-confirm {
+            background: linear-gradient(135deg, var(--accent), #059669);
+        }
     </style>
 </head>
 <body data-profile="kids">
+
+<!-- UNIVERZÁLNÍ PŘÍSTUPNÝ TMAVÝ DIALOG (NAHRAZUJE PROMPT, ALERT, CONFIRM) -->
+<div id="customAppDialog" class="app-dialog-overlay" role="dialog" aria-modal="true" aria-labelledby="customDialogTitle" aria-describedby="customDialogDesc" style="display:none;" onclick="if(event.target===this)AppDialog.handleCancel()">
+    <div class="app-dialog-card" onclick="event.stopPropagation()">
+        <div class="app-dialog-header">
+            <h3 id="customDialogTitle" class="app-dialog-title">AtmoRead</h3>
+            <button type="button" class="app-dialog-close-btn" onclick="AppDialog.handleCancel()" aria-label="Zavřít dialog">✕</button>
+        </div>
+        <div id="customDialogDesc" class="app-dialog-desc"></div>
+        <div id="customDialogInputWrap" class="app-dialog-input-wrap" style="display:none;">
+            <input type="text" id="customDialogInput" class="app-dialog-input" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="app-dialog-actions" id="customDialogActions">
+            <button type="button" id="customDialogCancelBtn" class="big-tile-btn app-dialog-btn-cancel" onclick="AppDialog.handleCancel()">
+                <span class="bt-title">Zrušit</span>
+            </button>
+            <button type="button" id="customDialogConfirmBtn" class="big-tile-btn active app-dialog-btn-confirm" onclick="AppDialog.handleConfirm()">
+                <span class="bt-title">Potvrdit</span>
+            </button>
+        </div>
+    </div>
+</div>
 
 <!-- 100% ČERNÝ AMOLED DISPLEJ (ŠETŘENÍ BATERIE) -->
 <div id="screenBlackoutOverlay" ondblclick="toggleScreenBlackout(false)" onclick="handleBlackoutInteraction(event)" ontouchend="handleBlackoutInteraction(event)">
@@ -1714,7 +1882,7 @@
      ======================================================================== -->
 <div id="pureLampScreen">
     <div class="lamp-top-badge" id="lampScreenHeader">
-        🕯️ Chytrá čtecí a uspávací lampička (v8.1.0 MODERN) • <span id="lampScreenTitle">Teplá svíčka (1800K)</span>
+        🕯️ Chytrá čtecí a uspávací lampička • <span id="lampScreenTitle">Teplé světlo</span>
     </div>
 
     <div class="lamp-center-Zone" onclick="document.getElementById('pureLampScreen').classList.toggle('zen-hide')">
@@ -1785,7 +1953,7 @@
         </button>
         <button class="big-tile-btn" style="min-height:48px; margin-top:4px; flex-direction:row; gap:8px; background:rgba(0,0,0,0.55); border-color:rgba(255,255,255,0.22);" onclick="toggleScreenBlackout(true)">
             <span>🌑</span>
-            <span class="bt-title">Zhasnout displej (šetřit baterii)</span>
+            <span class="bt-title">Zhasnout plochu</span>
         </button>
         <button class="big-tile-btn" style="min-height:52px; margin-top:4px; background:rgba(255,255,255,0.14);" onclick="togglePureLamp(false)">
             <span class="bt-title">🔙 Zpět na přehled a čtečku knih</span>
@@ -1912,10 +2080,10 @@
     <div class="ocr-modal-card">
         <div class="tile-header" style="margin-bottom:2px;">
             <div class="tile-title">❓ Jak AtmoRead funguje (Stručný průvodce)</div>
-            <span class="tile-badge">📦 Verze v8.1.0 MODERN • Přehled za 30 s</span>
+            <span class="tile-badge">v9.4.0</span>
         </div>
         <p style="font-size:13.5px; color:var(--text-muted); line-height:1.45;">
-            AtmoRead (<b>v8.1.0 MODERN</b>) promění čtení pohádek, knih i webových článků v živý zvukový a světelný zážitek. Vše ovládáš <b>jedním ťuknutím na velké dlaždice</b>.
+            AtmoRead (<b>v9.4.0</b>) promění čtení pohádek, knih i webových článků v živý zvukový a světelný zážitek. Vše ovládáš <b>jedním ťuknutím na velké dlaždice</b>.
         </p>
 
         <div class="help-grid">
@@ -1924,7 +2092,7 @@
                 <div class="help-step-text">
                     • <b>🌙 Dětské pohádky:</b> Teplý medový vzhled, pohádky na 5 / 15 / 30 min a ukolébavky.<br>
                     • <b>🍷 Knihy pro dospělé:</b> Břidlicový vzhled, detektivky, fantasy, kavárna, krb, vlak a šerm.<br>
-                    • <b>🕯️ Noční lampička:</b> Rozsvítí 100 % displeje pro čtení papírové knihy nebo usínání.
+                    • <b>🕯️ Noční lampička:</b> Teplé světlo, tlumená červená nebo zhasnutí plochy pro čtení papírové knihy a usínání.
                 </div>
             </div>
 
@@ -1971,11 +2139,8 @@
         <div class="brand-box">
             <span style="font-size:34px;" id="brandEmoji">📖</span>
             <div>
-                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                    <h1 class="brand-name">AtmoRead</h1>
-                    <span class="ver-badge" title="Aktuální verze aplikace AtmoRead">📦 Verze v9.0.0 FINAL</span>
-                </div>
-                <div class="header-meta" id="dictCounter">Živá zvuková atmosféra pro čtení a spánek</div>
+                <h1 class="brand-name">AtmoRead</h1>
+                <div class="header-meta" id="dictCounter" style="display:none;"></div>
             </div>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -2053,7 +2218,7 @@
 
                         <span class="bt-icon">🎙️</span>
                         <span class="bt-title">Papírová kniha</span>
-                        <span class="bt-sub">Odposlech hlasu bez displeje</span>
+                        <span class="bt-sub">Reagovat na čtení</span>
                     </button>
                     <button class="big-tile-btn" data-mode="tts" onclick="switchMode('tts')">
                         <span class="bt-icon">🎧</span>
@@ -2362,9 +2527,9 @@
                     <!-- LIŠTA E-BOOK ČTEČKY (ČISTÉ STRÁNKOVÁNÍ, A-/A+, BIONIC, CELÁ OBRAZOVKA) -->
                     <div class="reader-status-bar" id="readerStatusBar">
                         <div class="reader-progress-wrap">
-                            <span class="reader-progress-label" id="readerProgressText">📖 Přečteno 0 % (Slovo 1 z 1)</span>
+                            <span class="reader-progress-label" id="readerProgressText" onclick="jumpToReaderPercentage()" style="cursor:pointer;" title="Klepnutím skočíš na konkrétní procento knihy">📖 Přečteno 0 % (Slovo 1 z 1)</span>
                             <div class="reader-mode-toggle" id="displayReadModeToggle" style="display:none;">
-                                <button type="button" class="compact-lamp-btn active" id="subModeReadBtn" onclick="switchMode('read')" title="Číst nahlas s odposlechem mikrofonu">🎤 Čtu nahlas</button>
+                                <button type="button" class="compact-lamp-btn active" id="subModeReadBtn" onclick="switchMode('read')" title="Reagovat na čtení nahlas s mikrofonem">🎤 Reagovat na čtení</button>
                                 <button type="button" class="compact-lamp-btn" id="subModeSilentBtn" onclick="switchMode('silent')" title="Tiché čtení očima bez mikrofonu">🤫 Čtu očima</button>
                             </div>
                             <div class="reader-page-nav" id="readerPageNav">
@@ -2387,7 +2552,12 @@
                         </div>
                     </div>
 
-                    <div class="reader-viewport" id="readerBox"></div>
+                    <div class="reader-viewport-wrap">
+                        <div class="reader-viewport" id="readerBox"></div>
+                        <button type="button" id="returnToCurrentWordBtn" class="return-to-word-btn" onclick="returnToCurrentWord()" style="display:none;" title="Zpět k aktuálně čtenému slovu">
+                            🎯 Zpět k čtenému slovu
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -2483,7 +2653,7 @@
                             <span class="bt-title">45m</span>
                             <span class="bt-sub">Dlouhý</span>
                         </button>
-                        <button class="big-tile-btn" id="customSleepBtn" data-sleep="custom" onclick="promptCustomSleepTimer()" style="min-height:56px;">
+                        <button class="big-tile-btn" id="customSleepBtn" data-sleep="custom" onclick="setCustomSleepTimer()" style="min-height:56px;">
                             <span class="bt-title">⚙️ Vlastní</span>
                             <span class="bt-sub">Minuty</span>
                         </button>
@@ -2524,10 +2694,10 @@
     <div class="dock-inner">
         <div class="dock-ver-pill" title="Aktuální verze aplikace AtmoRead">
             <span>AtmoRead</span>
-            <span style="color:var(--accent); font-size:12px; font-weight:800;">v9.0.0 FINAL</span>
+            <span style="color:var(--accent); font-size:12px; font-weight:800;">v9.4.0</span>
         </div>
         <button id="mainActionBtn" class="btn-primary-run" onclick="handleMainAction()">
-            ▶️ SPUSTIT ODPOSLECH
+            ▶️ REAGOVAT NA ČTENÍ
         </button>
         <button id="pauseResumeBtn" class="btn-pause-resume" onclick="togglePauseResume()" title="Pozastavit nebo navázat čtení" style="display:none;">
             ⏸️ PAUZA
@@ -2535,8 +2705,8 @@
         <button id="handoverAiDockBtn" class="btn-pause-resume btn-handover-ai" onclick="handoverToAiNarrator()" title="Plynule předat čtení šeptavému AI Vypravěči z aktuálního slova" style="display:none;">
             🤝 Dočti to za mě
         </button>
-        <button class="btn-blackout-dock" onclick="toggleScreenBlackout(true)" title="Zhasnout displej pro úsporu baterie (AMOLED)">
-            🌑 Zhasnout
+        <button class="btn-blackout-dock" onclick="toggleScreenBlackout(true)" title="Zhasnout plochu pro úsporu baterie (AMOLED)">
+            🌑 Zhasnout plochu
         </button>
         <button class="btn-panic" onclick="SoundEngine.stopAllEverything()" style="display:none;">
             🛑 STOP VŠE
@@ -2545,6 +2715,150 @@
 </div>
 
 <script>
+/* ============================================================================
+   UNIVERZÁLNÍ PŘÍSTUPNÝ TMAVÝ DIALOG (#customAppDialog)
+   Nahrazuje window.alert, window.confirm, window.prompt
+   - Podporuje titul, popis, volitelný input, tlačítka Potvrdit a Zrušit
+   - Zavření přes Escape, potvrzení přes Enter
+   - Návrat fokusu na původní prvek, nikdy neblikne bíle
+   ============================================================================ */
+const AppDialog = {
+    activeResolve: null,
+    previousFocusedElement: null,
+    dialogType: 'alert',
+
+    show({ title = 'AtmoRead', message = '', type = 'alert', defaultValue = '', confirmText = 'Potvrdit', cancelText = 'Zrušit' }) {
+        return new Promise((resolve) => {
+            this.activeResolve = resolve;
+            this.previousFocusedElement = document.activeElement;
+            this.dialogType = type;
+
+            const overlay = document.getElementById('customAppDialog');
+            const titleEl = document.getElementById('customDialogTitle');
+            const descEl = document.getElementById('customDialogDesc');
+            const inputWrap = document.getElementById('customDialogInputWrap');
+            const inputEl = document.getElementById('customDialogInput');
+            const cancelBtn = document.getElementById('customDialogCancelBtn');
+            const confirmBtn = document.getElementById('customDialogConfirmBtn');
+
+            if (!overlay) {
+                if (type === 'alert') { resolve(); return; }
+                if (type === 'confirm') { resolve(true); return; }
+                resolve(defaultValue || '');
+                return;
+            }
+
+            titleEl.innerText = title;
+            descEl.innerText = message;
+
+            const confirmTitle = confirmBtn.querySelector('.bt-title') || confirmBtn;
+            confirmTitle.innerText = confirmText;
+            const cancelTitle = cancelBtn.querySelector('.bt-title') || cancelBtn;
+            cancelTitle.innerText = cancelText;
+
+            if (type === 'prompt') {
+                inputWrap.style.display = 'block';
+                inputEl.value = defaultValue || '';
+                cancelBtn.style.display = 'inline-flex';
+            } else if (type === 'confirm') {
+                inputWrap.style.display = 'none';
+                cancelBtn.style.display = 'inline-flex';
+            } else {
+                inputWrap.style.display = 'none';
+                cancelBtn.style.display = 'none';
+            }
+
+            overlay.style.display = 'flex';
+            void overlay.offsetWidth;
+            overlay.classList.add('active');
+
+            setTimeout(() => {
+                if (type === 'prompt') {
+                    inputEl.focus();
+                    inputEl.select();
+                } else {
+                    confirmBtn.focus();
+                }
+            }, 60);
+        });
+    },
+
+    handleConfirm() {
+        const inputEl = document.getElementById('customDialogInput');
+        const resolve = this.activeResolve;
+        const type = this.dialogType;
+        const val = inputEl ? inputEl.value : '';
+
+        this.close();
+
+        if (resolve) {
+            if (type === 'prompt') resolve(val);
+            else if (type === 'confirm') resolve(true);
+            else resolve();
+        }
+    },
+
+    handleCancel() {
+        const resolve = this.activeResolve;
+        const type = this.dialogType;
+
+        this.close();
+
+        if (resolve) {
+            if (type === 'prompt') resolve(null);
+            else if (type === 'confirm') resolve(false);
+            else resolve();
+        }
+    },
+
+    close() {
+        const overlay = document.getElementById('customAppDialog');
+        if (overlay) {
+            overlay.classList.remove('active');
+            setTimeout(() => {
+                if (!overlay.classList.contains('active')) {
+                    overlay.style.display = 'none';
+                }
+            }, 250);
+        }
+        if (this.previousFocusedElement && typeof this.previousFocusedElement.focus === 'function') {
+            try { this.previousFocusedElement.focus(); } catch (e) {}
+        }
+        this.activeResolve = null;
+    },
+
+    alert(message, title = 'AtmoRead') {
+        return this.show({ title, message, type: 'alert', confirmText: 'Rozumím' });
+    },
+
+    confirm(message, title = 'Potvrzení') {
+        return this.show({ title, message, type: 'confirm', confirmText: 'Potvrdit', cancelText: 'Zrušit' });
+    },
+
+    prompt(message, defaultValue = '', title = 'Zadat hodnotu') {
+        return this.show({ title, message, type: 'prompt', defaultValue, confirmText: 'Potvrdit', cancelText: 'Zrušit' });
+    }
+};
+
+window.addEventListener('keydown', (e) => {
+    const dialog = document.getElementById('customAppDialog');
+    if (!dialog || !dialog.classList.contains('active')) return;
+
+    if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        AppDialog.handleCancel();
+    } else if (e.key === 'Enter' && e.target && e.target.id === 'customDialogInput') {
+        e.preventDefault();
+        e.stopPropagation();
+        AppDialog.handleConfirm();
+    }
+});
+
+// Globální přemostění všech volání window.alert / confirm / prompt na přístupný tmavý dialog
+window.alert = (msg, title) => AppDialog.alert(msg, title || 'AtmoRead');
+window.confirm = (msg, title) => AppDialog.confirm(msg, title || 'Potvrzení');
+window.prompt = (msg, def, title) => AppDialog.prompt(msg, def, title || 'Zadat hodnotu');
 /* ============================================================================
    ATMOREAD v9.0.0 FINAL — HLAVNÍ LOGIKA A DVOUVRSTVÝ REÁLNÝ AUDIO ENGINE
    (Databáze zvuků, barev, nálad a příběhů 5/15/30 min se načítá z data.js)
@@ -2558,6 +2872,53 @@ function normWord(str) {
     return (str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
 }
 
+function computeContentHash(str) {
+    let hash = 0;
+    const s = String(str || '');
+    for (let i = 0; i < s.length; i++) {
+        hash = ((hash << 5) - hash) + s.charCodeAt(i);
+        hash |= 0;
+    }
+    return Math.abs(hash).toString(36);
+}
+
+function getOrAssignBookId(story, fallbackIdx = 0, categoryKey = '') {
+    if (!story) return '';
+    if (story.bookId) return story.bookId;
+    const isBuiltin = !story.isCustom && !story.isEbook && !story.isUrlArticle && !story.isYouTube;
+    if (isBuiltin) {
+        const cat = (categoryKey || (typeof getStoryKey === 'function' ? getStoryKey() : '') || 'kids_cs').split('_')[0] || 'kids';
+        const sId = (fallbackIdx !== undefined && fallbackIdx >= 0) ? fallbackIdx : (story.id || 0);
+        story.bookId = `builtin_${cat}_${sId}`;
+    } else {
+        const titleStr = story.title || '';
+        const len = (story.text || story.fullText || '').length;
+        const hash = computeContentHash(`${titleStr}_${len}`);
+        story.bookId = `book_${hash}`;
+    }
+    return story.bookId;
+}
+
+function ensureAllStoryBookIds() {
+    if (typeof STORIES !== 'undefined') {
+        for (const catKey of Object.keys(STORIES)) {
+            const list = STORIES[catKey];
+            if (Array.isArray(list)) {
+                let builtinCounter = 0;
+                list.forEach((s) => {
+                    const isBuiltin = !s.isCustom && !s.isEbook && !s.isUrlArticle && !s.isYouTube;
+                    if (isBuiltin) {
+                        getOrAssignBookId(s, builtinCounter++, catKey);
+                    } else {
+                        getOrAssignBookId(s, 0, catKey);
+                    }
+                });
+            }
+        }
+    }
+}
+ensureAllStoryBookIds();
+
 /* ============================================================================
    SEKCE 1: DVOUVRSTVÝ REÁLNÝ AUDIO ENGINE v9.0.0 FINAL (VYSOKÁ SLYŠITELNOST & DYNAMIKA)
    - Polyfonní přehrávání One-Shot efektů (nové slovo ve větě nikdy neusekne předchozí zvuk!)
@@ -2566,6 +2927,10 @@ function normWord(str) {
    - Web Audio API Pre-Amp Boost + okamžitá akustická prezence (0 ms odezva bez čekání na síť)
    - Přednačítání (Preload) zvuků z vybraného příběhu do mezipaměti prohlížeče
    ============================================================================ */
+let activeSessionId = 0;
+let sessionState = 'idle'; // 'idle' | 'playing' | 'paused' | 'ending'
+let currentVolumePreset = 'medium';
+
 const SoundEngine = {
     ctx: null,
     compressor: null,
@@ -2604,6 +2969,7 @@ const SoundEngine = {
 
     bgMode: 'auto_mood', // Výchozí: Dynamický podkres scény
     currentMoodId: 'meadow',
+    lastMoodTransitionTime: 0,
     moodCrossfadeAudios: [],
     bgSeqInterval: null,
     bgLoopAudios: [],
@@ -2685,6 +3051,7 @@ const SoundEngine = {
     // Dočasné ztišení podkresu (Sidechain Ducking) po dobu trvání efektu
     duckAmbienceForSfx(holdMs = 2500) {
         if (this.isMuted) return;
+        const mySessionId = activeSessionId;
         const duckedVol = this.bgVolumeLevel * 0.25;
         if (this.bgGain && this.ctx) {
             this.bgGain.gain.setTargetAtTime(Math.max(0.001, duckedVol), this.ctx.currentTime, 0.05);
@@ -2703,6 +3070,7 @@ const SoundEngine = {
             this.duckRestoreTimer = null;
         }
         this.duckRestoreTimer = setTimeout(() => {
+            if (mySessionId !== activeSessionId) return;
             if (this.isMuted) return;
             if (this.bgGain && this.ctx) {
                 this.bgGain.gain.setTargetAtTime(this.bgVolumeLevel, this.ctx.currentTime, 0.35);
@@ -2765,6 +3133,7 @@ const SoundEngine = {
     },
 
     triggerCluster(cluster, spokenWord = '', isManualClick = false) {
+        if (sessionState === 'ending') return;
         const now = Date.now();
         const prio = cluster.priority || 2;
 
@@ -2989,7 +3358,7 @@ const SoundEngine = {
     },
 
     playChildNameMagic(name = '') {
-        if (this.isMuted) return;
+        if (sessionState === 'ending' || this.isMuted) return;
         this.init();
         if (!this.ctx) return;
         const now = this.ctx.currentTime;
@@ -3055,6 +3424,7 @@ const SoundEngine = {
        - Nativní audio.volume (0.0 až 1.0) s plynulým intervalem: Fade-In (250 ms), Fade-Out (600 ms)
        ======================================================================== */
     playRealAudioWithEnvelope(urlOrUrls, opts = {}) {
+        const mySessionId = activeSessionId;
         const urls = Array.isArray(urlOrUrls) ? urlOrUrls : [urlOrUrls];
         const isOneShot = !opts.loop;
         const targetV = Math.min(opts.maxPeakCap || 1.0, Math.min(1.0, opts.targetVolume !== undefined ? opts.targetVolume : 0.85));
@@ -3083,12 +3453,14 @@ const SoundEngine = {
         // BEZPEČNOSTNÍ POJISTKA PROTI ZASEKNUTÍ ZVUKU (WATCHDOG: 4200 ms pro všechny One-Shot efekty)
         if (isOneShot) {
             watchdogTimer = setTimeout(() => {
+                if (mySessionId !== activeSessionId) { cleanup(); return; }
                 cleanup();
             }, 4200);
             this.activeTimers.add(watchdogTimer);
         }
 
         const fadeOutAndStop = (durationMs = 600) => {
+            if (mySessionId !== activeSessionId) { cleanup(); return; }
             if (stopped || !currentAudio) {
                 cleanup();
                 return;
@@ -3106,6 +3478,11 @@ const SoundEngine = {
             let step = 0;
 
             fadeOutInt = setInterval(() => {
+                if (mySessionId !== activeSessionId) {
+                    clearInterval(fadeOutInt);
+                    cleanup();
+                    return;
+                }
                 if (stopped || !currentAudio) {
                     clearInterval(fadeOutInt);
                     return;
@@ -3126,6 +3503,7 @@ const SoundEngine = {
         };
 
         const tryPlayIndex = (idx) => {
+            if (mySessionId !== activeSessionId) { cleanup(); return; }
             if (stopped || this.isMuted || idx >= urls.length) {
                 cleanup();
                 return;
@@ -3142,6 +3520,7 @@ const SoundEngine = {
 
             let advancedToFallback = false;
             const fallbackNext = () => {
+                if (mySessionId !== activeSessionId) { cleanup(); return; }
                 if (advancedToFallback || stopped) return;
                 advancedToFallback = true;
                 this.activeAudioEls.delete(audio);
@@ -3156,6 +3535,7 @@ const SoundEngine = {
 
             // Jakmile prohlížeč zjistí délku nahrávky, nastavíme Fade-Out
             audio.addEventListener('loadedmetadata', () => {
+                if (mySessionId !== activeSessionId) { cleanup(); return; }
                 if (stopped || !isOneShot || !isFinite(audio.duration) || audio.duration <= 0) return;
 
                 const fileMs = audio.duration * 1000;
@@ -3163,12 +3543,14 @@ const SoundEngine = {
                 const fadeStart = Math.max(100, Math.min(fileMs - fileFadeOutMs, (opts.totalDurationMs || 2200) - fileFadeOutMs));
                 if (fadeOutTimer) { clearTimeout(fadeOutTimer); fadeOutTimer = null; }
                 fadeOutTimer = setTimeout(() => {
+                    if (mySessionId !== activeSessionId) { cleanup(); return; }
                     fadeOutAndStop(fileFadeOutMs);
                 }, fadeStart);
                 this.activeTimers.add(fadeOutTimer);
             }, { once: true });
 
             audio.play().then(() => {
+                if (mySessionId !== activeSessionId) { cleanup(); return; }
                 if (stopped || this.isMuted) {
                     cleanup();
                     return;
@@ -3177,6 +3559,11 @@ const SoundEngine = {
                 const inSteps = Math.max(2, Math.floor(fadeMs / 25));
                 let curStep = 0;
                 fadeInInt = setInterval(() => {
+                    if (mySessionId !== activeSessionId) {
+                        clearInterval(fadeInInt);
+                        cleanup();
+                        return;
+                    }
                     if (stopped || !currentAudio || isFadingOut) {
                         clearInterval(fadeInInt);
                         return;
@@ -3198,6 +3585,7 @@ const SoundEngine = {
 
                 if (!isFinite(audio.duration) || audio.duration <= 0) {
                     fadeOutTimer = setTimeout(() => {
+                        if (mySessionId !== activeSessionId) { cleanup(); return; }
                         fadeOutAndStop(fOutMs);
                     }, fadeStart);
                     this.activeTimers.add(fadeOutTimer);
@@ -3207,6 +3595,7 @@ const SoundEngine = {
             });
 
             audio.onended = () => {
+                if (mySessionId !== activeSessionId) { cleanup(); return; }
                 if (!audio.loop) cleanup();
             };
         };
@@ -3225,8 +3614,10 @@ const SoundEngine = {
         this.stopIdleWatcher();
         // Pokud už na pozadí hraje jakýkoliv podkres nebo ukolébavka (this.bgMode !== 'off'), IdleWatcher vůbec nespouštěj
         if (this.bgMode !== 'off') return;
+        const mySessionId = activeSessionId;
         this.lastTriggerTime = Date.now();
         this.idleWatcherInt = setInterval(() => {
+            if (mySessionId !== activeSessionId) return;
             if (!isSessionRunning || this.isMuted || this.bgMode !== 'off') return;
             // Pokud je bgMode === 'off', interval 25 sekund s velmi jemnou hlasitostí 0.18
             if (Date.now() - this.lastTriggerTime >= 25000) {
@@ -3256,11 +3647,29 @@ const SoundEngine = {
     },
 
     // Dynamický crossfade podkresu podle nálady posledních vět nebo celé stránky
-    transitionMoodScene(newMoodId, isPageLookahead = false) {
+    transitionMoodScene(newMoodId, options = {}) {
         const scene = MOOD_SCENES[newMoodId];
         if (!scene) return;
+
+        const isPageLookahead = (typeof options === 'boolean') ? options : !!options.isPageLookahead;
+        const isImmediate = (typeof options === 'object' && options.isImmediate) || false;
+        const matchCount = (typeof options === 'object' && typeof options.matchCount === 'number') ? options.matchCount : (isImmediate ? 2 : 0);
+
+        const now = Date.now();
+
+        // Stabilita atmosféry: automatická změna scény smí přepnout podkres maximálně 1× za 30 sekund
+        // (s plynulým 6s prolínáním) a jen tehdy, když nová scéna získá alespoň 2 klíčové shody
+        // (přímý skok na jinou kapitolu nebo ruční volba uživatele se provede ihned).
+        if (!isImmediate) {
+            if (matchCount < 2) return;
+            if (this.lastMoodTransitionTime && (now - this.lastMoodTransitionTime < 30000)) {
+                return;
+            }
+        }
+
         const changed = (this.currentMoodId !== newMoodId);
         this.currentMoodId = newMoodId;
+        this.lastMoodTransitionTime = now;
 
         const badge = document.getElementById('activeSceneBadge');
         if (badge) badge.innerText = isPageLookahead ? `Scéna stránky: ${scene.name}` : `Scéna: ${scene.name}`;
@@ -3273,17 +3682,19 @@ const SoundEngine = {
         if (this.isMuted) return;
         if (!changed && this.moodCrossfadeAudios.length > 0) return;
 
+        const crossfadeMs = isImmediate ? 2200 : 6000;
+
         const oldControllers = [...this.moodCrossfadeAudios];
-        oldControllers.forEach(ctrl => ctrl.fadeOutAndStop(2200));
+        oldControllers.forEach(ctrl => ctrl.fadeOutAndStop(crossfadeMs));
         this.moodCrossfadeAudios = [];
 
         const targetVol = Math.min(1.0, this.bgVolumeLevel * 0.85);
         scene.urls.forEach((u, idx) => {
             const ctrl = this.playRealAudioWithEnvelope(u, {
                 targetVolume: idx === 0 ? targetVol : targetVol * 0.70,
-                fadeInMs: 2200,
+                fadeInMs: crossfadeMs,
                 totalDurationMs: 3600 * 1000,
-                fadeOutMs: 2400,
+                fadeOutMs: crossfadeMs,
                 loop: true
             });
             this.moodCrossfadeAudios.push(ctrl);
@@ -3416,7 +3827,7 @@ const SoundEngine = {
         if (preset === 'auto_mood') {
             const initialScene = currentProfile === 'adults' ? 'fireplace' : 'meadow';
             this.currentMoodId = '';
-            this.transitionMoodScene(initialScene, false);
+            this.transitionMoodScene(initialScene, { isImmediate: true, isPageLookahead: false });
             return;
         }
         else if (preset === 'classic_piano') {
@@ -3800,7 +4211,7 @@ const SoundEngine = {
         }
         else if (preset === 'deep_focus') {
             this.startPinkNoiseGenerator();
-            this.addLoopAudio('https://actions.google.com/sounds/v1/water/ocean_wave_rock_beach.ogg', 0.44);
+            this.addLoopAudio('https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg', 0.44);
         }
         else if (preset === 'old_library') {
             const varIdx = this.bgVariationIndex;
@@ -3827,7 +4238,7 @@ const SoundEngine = {
                 this.addLoopAudio('https://actions.google.com/sounds/v1/weather/wind_through_window.ogg', 0.28, fadeInMs);
             } else if (varIdx === 2) {
                 // Variace 2: Vlny u mola & lehký přímořský déšť
-                this.addLoopAudio('https://actions.google.com/sounds/v1/water/ocean_wave_rock_beach.ogg', 0.44, fadeInMs);
+                this.addLoopAudio('https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg', 0.44, fadeInMs);
                 this.addLoopAudio('https://actions.google.com/sounds/v1/weather/light_rain.ogg', 0.26, fadeInMs);
             } else {
                 // Variace 3: Vzdálené hřmění na moři & mohutný příboj
@@ -4015,41 +4426,101 @@ const SoundEngine = {
         if (typeof updateSceneAuraOrb === 'function') updateSceneAuraOrb();
     },
 
-    stopAllEverything() {
-        stopActiveSession();
+    stopAll() {
         this.stopIdleWatcher();
         this.lastAnySfxTime = 0;
         if (this.currentTailObj) {
-            this.currentTailObj.stopSmoothly(300);
+            try { this.currentTailObj.stopSmoothly(150); } catch (e) {}
             this.currentTailObj = null;
         }
-        this.activeAudioEls.forEach(a => {
-            try { a.pause(); a.currentTime = 0; } catch (e) {}
-        });
-        this.activeAudioEls.clear();
-        this.activeOneShots.clear();
-        this.activeTimers.forEach(t => { clearTimeout(t); clearInterval(t); });
-        this.activeTimers.clear();
+
+        // Okamžitě zastav speechSynthesis
+        if ('speechSynthesis' in window) {
+            try { window.speechSynthesis.cancel(); } catch (e) {}
+        }
+
+        // Uvolni mikrofon a nahrávání
         if (typeof mediaRecorder !== 'undefined' && mediaRecorder && mediaRecorder.state === 'recording') {
             try { mediaRecorder.stop(); } catch (e) {}
         }
         if (typeof stopWhisperMicMonitor === 'function') {
             stopWhisperMicMonitor();
         }
+
+        // Plynulé stažení hlasitosti podkresu i aktivních efektů do nuly během 150 ms
+        if (this.bgGain && this.ctx) {
+            try {
+                this.bgGain.gain.cancelScheduledValues(this.ctx.currentTime);
+                this.bgGain.gain.setTargetAtTime(0.0001, this.ctx.currentTime, 0.03);
+            } catch (e) {}
+        }
+
+        const allAudios = new Set([...this.activeAudioEls, ...this.bgLoopAudios]);
+        this.moodCrossfadeAudios.forEach(ctrl => {
+            if (ctrl && ctrl.audio) allAudios.add(ctrl.audio);
+        });
+
+        const audioList = Array.from(allAudios);
+        const startVolumes = new Map();
+        audioList.forEach(a => startVolumes.set(a, a.volume));
+
+        const fadeSteps = 6;
+        const stepMs = 25; // 6 * 25ms = 150 ms
+        let currentStep = 0;
+
+        const fadeOutInterval = setInterval(() => {
+            currentStep++;
+            const progress = Math.min(1, currentStep / fadeSteps);
+            const factor = Math.max(0, 1 - progress);
+
+            audioList.forEach(a => {
+                try {
+                    a.volume = (startVolumes.get(a) || 0) * factor;
+                } catch (e) {}
+            });
+
+            if (currentStep >= fadeSteps) {
+                clearInterval(fadeOutInterval);
+                audioList.forEach(a => {
+                    try {
+                        a.pause();
+                        a.currentTime = 0;
+                    } catch (e) {}
+                });
+            }
+        }, stepMs);
+
+        // Vyčistit všechny časovače
+        this.activeTimers.forEach(t => {
+            clearTimeout(t);
+            clearInterval(t);
+        });
+        this.activeTimers.clear();
+        this.activeAudioEls.clear();
+        this.activeOneShots.clear();
+        this.bgLoopAudios = [];
+        this.moodCrossfadeAudios = [];
+
+        if (this.bgSeqInterval) {
+            clearInterval(this.bgSeqInterval);
+            this.bgSeqInterval = null;
+        }
+        if (this.pinkNoiseNode) {
+            try { this.pinkNoiseNode.stop(); } catch (e) {}
+            this.pinkNoiseNode = null;
+        }
+        this.bgMode = 'off';
+        const lbl = document.getElementById('bgStateLabel');
+        if (lbl) lbl.innerText = 'Bez podkresu';
+        if (typeof updateSceneAuraOrb === 'function') updateSceneAuraOrb();
+    },
+
+    stopAllEverything() {
+        finishSession('user_stop');
         selectAmbience('off');
         setSleepTimerPreset(0);
-        if (typeof sleepBridgeCountdown !== 'undefined' && sleepBridgeCountdown) {
-            clearInterval(sleepBridgeCountdown);
-            sleepBridgeCountdown = null;
-        }
-        if (typeof sleepBridgePhase !== 'undefined') {
-            sleepBridgePhase = 1;
-        }
-        isPaused = false;
         updatePauseResumeButton();
         updateMainButtonLabel();
-        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-
         const autoBox = document.getElementById('autoBadgesBox');
         if (autoBox) autoBox.innerHTML = '';
         setStatus('🛑 Všechny zvuky, čtení i podkres byly okamžitě zastaveny.');
@@ -4103,6 +4574,7 @@ let sfxDensityMode = 'story'; // 'story' | 'sparse' | 'ambient_only'
 let isSleepBridgeEnabled = true;   // 🌙 Spánkový most (výchozí pro profil kids: ZAP)
 let sleepBridgePhase = 1;          // 1: běžné čtení (0-80 %), 2: klid & červená (80-100 %), 3: 20min šum
 let sleepBridgeCountdown = null;
+let sleepBridgeEndTimestamp = 0;
 let okayToWakeTime = null;         // 🌅 Čas ranního vstávání např. "06:30"
 let okayToWakeInterval = null;
 let isOkayToWakeActive = false;
@@ -4195,7 +4667,7 @@ function selectProfileHub(target) {
     if (kidsRow) kidsRow.style.display = (currentProfile === 'kids') ? 'flex' : 'none';
 
     if (SoundEngine.bgMode === 'auto_mood') {
-        SoundEngine.transitionMoodScene(currentProfile === 'adults' ? 'fireplace' : 'meadow');
+        SoundEngine.transitionMoodScene(currentProfile === 'adults' ? 'fireplace' : 'meadow', { isImmediate: true });
     }
 
     setStatus(currentProfile === 'adults'
@@ -4314,10 +4786,46 @@ function doesWordMatchStem(rawWord, stem) {
     return false;
 }
 
-function checkWordTriggers(rawWord, isManualClick = false) {
+const NEGATION_WORDS = new Set([
+    'ne', 'nebyl', 'nebyla', 'nebylo', 'nebyly', 'nebude', 'nebudou', 'neni', 'nejsou',
+    'zadny', 'zadna', 'zadne', 'zadnou', 'zadneho', 'zadnemu', 'zadnem', 'zadnych', 'zadnym', 'zadnymi',
+    'ani', 'bez'
+]);
+
+function hasSentenceNegation(prevWords) {
+    if (!prevWords || !prevWords.length) return false;
+    for (let i = 0; i < prevWords.length; i++) {
+        const clean = stripAccents(prevWords[i]).replace(/[^a-z0-9]/g, '');
+        if (NEGATION_WORDS.has(clean)) return true;
+    }
+    return false;
+}
+
+function getPrecedingWordsInSentence(wordsArr, currentIndex, maxLookback = 3) {
+    const res = [];
+    if (!wordsArr || typeof currentIndex !== 'number' || currentIndex <= 0) return res;
+    for (let k = currentIndex - 1; k >= Math.max(0, currentIndex - maxLookback); k--) {
+        const w = wordsArr[k];
+        if (/[.!?…]+["„“»')]*$/.test(w)) {
+            break;
+        }
+        res.unshift(w);
+    }
+    return res;
+}
+
+function checkWordTriggers(rawWord, isManualClick = false, prevWordsContext = null) {
+    if (sessionState === 'ending') return false;
     const cleanNoAcc = stripAccents(rawWord).replace(/[^a-z0-9]/g, '');
     const cleanWithAcc = (rawWord || '').toLowerCase().trim().replace(/[^a-záčďéěíňóřšťúůýž0-9]/gi, '');
     if (!cleanNoAcc || cleanNoAcc.length < 3) return false;
+
+    // Detekce negací: zkontroluj předchozí 3 slova ve větě.
+    // Pokud obsahují zápor („ne“, „nebyl“, „nebyla“, „nebylo“, „žádný“, „žádná“, „žádné“, „ani“, „bez“ – např. „nebyla tu žádná řeka“), zvukový efekt nepouštěj!
+    const prevWords = (prevWordsContext && prevWordsContext.length)
+        ? prevWordsContext
+        : getPrecedingWordsInSentence(storyWordsData, currentWordIndex, 3);
+    const hasNegation = hasSentenceNegation(prevWords);
 
     // Dětská personalizace a sourozenecký kompromis: Kouzelný zvuk zvonkohry a zlatá záře pro každého sourozence zvlášť
     if (childName && currentProfile === 'kids' && (Date.now() - lastChildMagicTrigger > 2600)) {
@@ -4371,10 +4879,12 @@ function checkWordTriggers(rawWord, isManualClick = false) {
     }
 
     if (bestCluster) {
-        SoundEngine.triggerCluster(bestCluster, rawWord, isManualClick);
+        if (!hasNegation) {
+            SoundEngine.triggerCluster(bestCluster, rawWord, isManualClick);
+        }
         SoundEngine.recentWordsHistory.push(cleanNoAcc);
         if (SoundEngine.recentWordsHistory.length > 15) SoundEngine.recentWordsHistory.shift();
-        return true;
+        return !hasNegation;
     }
     SoundEngine.recentWordsHistory.push(cleanNoAcc);
     if (SoundEngine.recentWordsHistory.length > 15) SoundEngine.recentWordsHistory.shift();
@@ -4395,7 +4905,9 @@ function evaluateDynamicMood(rawWord) {
                 counts[m] = (counts[m] || 0) + 1;
                 if (counts[m] >= maxC) { maxC = counts[m]; topMood = m; }
             });
-            SoundEngine.transitionMoodScene(topMood);
+            if (maxC >= 2) {
+                SoundEngine.transitionMoodScene(topMood, { isPageLookahead: false, matchCount: maxC, isImmediate: false });
+            }
             break;
         }
     }
@@ -4565,6 +5077,41 @@ function handleBlackoutInteraction(e) {
     lastBlackoutInteractionTime = now;
 }
 
+let isWakeLockVisibilityListenerAttached = false;
+
+async function requestWakeLock() {
+    if (!isWakeLockVisibilityListenerAttached) {
+        isWakeLockVisibilityListenerAttached = true;
+        document.addEventListener('visibilitychange', async () => {
+            if (!document.hidden) {
+                const isLampActive = !!document.getElementById('pureLampScreen')?.classList.contains('active');
+                if (isSessionRunning || isLampActive) {
+                    await requestWakeLock();
+                }
+            }
+        });
+    }
+
+    if ('wakeLock' in navigator) {
+        try {
+            if (!wakeLockSentinel || wakeLockSentinel.released) {
+                wakeLockSentinel = await navigator.wakeLock.request('screen');
+            }
+        } catch (e) {
+            console.warn('Wake Lock request error:', e);
+        }
+    }
+}
+
+async function releaseWakeLock() {
+    if (wakeLockSentinel) {
+        try {
+            await wakeLockSentinel.release();
+        } catch (e) {}
+        wakeLockSentinel = null;
+    }
+}
+
 async function togglePureLamp(show) {
     if (show) {
         syncPureLampState();
@@ -4587,26 +5134,26 @@ async function togglePureLamp(show) {
             if (hl) hl.classList.remove('active');
         }
     }
-    if (show && 'wakeLock' in navigator) {
-        try { wakeLockSentinel = await navigator.wakeLock.request('screen'); } catch (e) {}
-    } else if (!show && wakeLockSentinel) {
-        try { await wakeLockSentinel.release(); wakeLockSentinel = null; } catch (e) {}
+    if (show) {
+        await requestWakeLock();
+    } else if (!isSessionRunning && wakeLockSentinel) {
+        await releaseWakeLock();
     }
 }
 
 /* ============================================================================
    SPÁNKOVÝ SEMAFOR V LAMPIČCE („OKAY-TO-WAKE“ RANNÍ ZELENÁ PRO DĚTI)
    ============================================================================ */
-function setOkayToWakeAlarm() {
+async function setOkayToWakeAlarm() {
     if (isOkayToWakeActive) {
-        const action = confirm(`Ranní semafor je aktivní na ${okayToWakeTime}.\n\nChceš semafor VYPNUT, nebo nastavit nový čas?\n\n[OK] = Vypnout semafor\n[Storno] = Nastavit jiný čas`);
+        const action = await AppDialog.confirm(`Ranní semafor je aktivní na ${okayToWakeTime}.\n\nChceš semafor VYPNUT? (Při volbě Zrušit můžeš zadat nový čas)`, '🌅 Ranní semafor (Okay-to-Wake)');
         if (action) {
             cancelOkayToWakeAlarm();
             return;
         }
     }
     const currentVal = okayToWakeTime || '06:30';
-    const input = prompt('Zadej čas ranního vstávání pro děti ve formátu HH:MM (např. 06:30 nebo 07:00):', currentVal);
+    const input = await AppDialog.prompt('Zadej čas ranního vstávání pro děti ve formátu HH:MM (např. 06:30 nebo 07:00):', currentVal, '🌅 Nastavit čas vstávání');
     if (input === null) return;
     const trimmed = input.trim();
     if (!trimmed) {
@@ -4615,7 +5162,7 @@ function setOkayToWakeAlarm() {
     }
     const match = trimmed.match(/^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$/);
     if (!match) {
-        alert('Prosím zadej platný čas ve formátu HH:MM (např. 06:30).');
+        await AppDialog.alert('Prosím zadej platný čas ve formátu HH:MM (např. 06:30).', 'Neplatný formát času');
         return;
     }
     const hh = match[1].padStart(2, '0');
@@ -4782,6 +5329,9 @@ function selectAmbience(preset) {
 }
 
 function setVolumePreset(level) {
+    if (level && level !== 'off') {
+        currentVolumePreset = level;
+    }
     document.querySelectorAll('[data-vol]').forEach(b => {
         b.classList.toggle('active', b.dataset.vol === level);
     });
@@ -4891,8 +5441,8 @@ function getActiveVolumeBadgeLabel() {
     return map[level] || '🔊 Střední';
 }
 
-function promptCustomSleepTimer() {
-    const res = prompt('Zadej počet minut do automatického vypnutí:', '20');
+async function setCustomSleepTimer() {
+    const res = await AppDialog.prompt('Zadej počet minut do automatického vypnutí:', '20', '⏲️ Vlastní časovač usínání');
     if (res === null) return;
     const mins = parseInt(res.trim(), 10);
     if (!isNaN(mins) && mins > 0) {
@@ -4901,16 +5451,65 @@ function promptCustomSleepTimer() {
     } else if (mins === 0) {
         setSleepTimerPreset(0);
     } else {
-        alert('Prosím zadej platné číslo minut větší než 0.');
+        await AppDialog.alert('Prosím zadej platné číslo minut větší než 0.', 'Neplatný časovač');
+    }
+}
+const promptCustomSleepTimer = setCustomSleepTimer;
+
+let sleepCountdown = null;
+let sleepTimerEndTimestamp = 0;
+
+function checkSleepTimerTick() {
+    if (!sleepTimerEndTimestamp) return;
+    const now = Date.now();
+    const remSec = Math.max(0, Math.ceil((sleepTimerEndTimestamp - now) / 1000));
+
+    if (remSec <= 0) {
+        if (sleepCountdown) {
+            clearInterval(sleepCountdown);
+            sleepCountdown = null;
+        }
+        sleepTimerEndTimestamp = 0;
+        setSleepTimerPreset(0);
+        finishSession('timer_expired');
+        return;
+    }
+
+    updateSleepTimerUI(remSec);
+
+    if (remSec <= 60 && !SoundEngine.isMuted) {
+        const ratio = remSec / 60;
+        SoundEngine.sfxVolumeLevel = Math.max(0.02, SoundEngine.baseSfxVolumeLevel * ratio);
+        if (SoundEngine.bgGain && SoundEngine.ctx) {
+            try {
+                SoundEngine.bgGain.gain.setTargetAtTime(SoundEngine.bgVolumeLevel * ratio, SoundEngine.ctx.currentTime, 0.5);
+            } catch (e) {}
+        }
     }
 }
 
-let sleepCountdown = null;
+function updateSleepTimerUI(remSec) {
+    const badge = document.getElementById('audioVolBadge');
+    const activeBtn = document.querySelector('[data-sleep].active');
+    const mm = String(Math.floor(remSec / 60)).padStart(2, '0');
+    const ss = String(remSec % 60).padStart(2, '0');
+    const timeStr = `⏳ Zbývá ${mm}:${ss}`;
+
+    if (badge) badge.innerText = timeStr;
+    if (activeBtn) {
+        const sEl = activeBtn.querySelector('.bt-sub');
+        if (sEl) sEl.innerText = timeStr;
+    }
+}
+
 function setSleepTimerPreset(minutes) {
     resetSleepTimerLabels();
     const isPreset = [0, 15, 30, 45].includes(minutes);
     const badge = document.getElementById('audioVolBadge');
-    clearInterval(sleepCountdown);
+    if (sleepCountdown) {
+        clearInterval(sleepCountdown);
+        sleepCountdown = null;
+    }
 
     document.querySelectorAll('[data-sleep]').forEach(b => {
         if (isPreset) {
@@ -4921,50 +5520,45 @@ function setSleepTimerPreset(minutes) {
     });
 
     if (minutes <= 0) {
+        sleepTimerEndTimestamp = 0;
         if (badge) badge.innerText = getActiveVolumeBadgeLabel();
         setStatus('⏲️ Časovač usínání je vypnutý.');
         return;
     }
 
-    let remSec = minutes * 60;
+    sleepTimerEndTimestamp = Date.now() + (minutes * 60 * 1000);
     const activeBtn = document.querySelector('[data-sleep].active');
     if (!isPreset && activeBtn) {
         const tEl = activeBtn.querySelector('.bt-title');
         if (tEl) tEl.innerText = `⚙️ ${minutes} min`;
     }
 
-    const updateCountdownUI = () => {
-        const mm = String(Math.floor(remSec / 60)).padStart(2, '0');
-        const ss = String(remSec % 60).padStart(2, '0');
-        const timeStr = `⏳ Zbývá ${mm}:${ss}`;
+    const remSec = Math.max(0, Math.ceil((sleepTimerEndTimestamp - Date.now()) / 1000));
+    updateSleepTimerUI(remSec);
+    setStatus(`⏲️ Časovač usínání nastaven na ${minutes} minut (přesný čas hodin).`);
 
-        if (badge) badge.innerText = timeStr;
-        if (activeBtn) {
-            const sEl = activeBtn.querySelector('.bt-sub');
-            if (sEl) sEl.innerText = timeStr;
+    sleepCountdown = setInterval(checkSleepTimerTick, 1000);
+}
+
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+        if (sleepTimerEndTimestamp > 0) {
+            checkSleepTimerTick();
         }
-    };
-
-    updateCountdownUI();
-    setStatus(`⏲️ Časovač usínání nastaven na ${minutes} minut (na konci plynule ztiší zvuk).`);
-    sleepCountdown = setInterval(() => {
-        remSec--;
-        updateCountdownUI();
-        if (remSec <= 60 && remSec > 0 && !SoundEngine.isMuted) {
-            const ratio = remSec / 60;
-            SoundEngine.sfxVolumeLevel = Math.max(0.02, SoundEngine.baseSfxVolumeLevel * ratio);
-            if (SoundEngine.bgGain && SoundEngine.ctx) {
-                SoundEngine.bgGain.gain.setTargetAtTime(SoundEngine.bgVolumeLevel * ratio, SoundEngine.ctx.currentTime, 0.5);
+        if (sleepBridgeEndTimestamp > 0 && sessionState === 'ending') {
+            const remBridge = Math.max(0, Math.ceil((sleepBridgeEndTimestamp - Date.now()) / 1000));
+            if (remBridge <= 0) {
+                if (sleepBridgeCountdown) {
+                    clearInterval(sleepBridgeCountdown);
+                    sleepBridgeCountdown = null;
+                }
+                sleepBridgeEndTimestamp = 0;
+                finishSession('timer_expired');
+                setStatus('😴 Spánkový most dokončen během uspání displeje.');
             }
         }
-        if (remSec <= 0) {
-            clearInterval(sleepCountdown);
-
-            SoundEngine.stopAllEverything();
-            setSleepTimerPreset(0);
-        }
-    }, 1000);
-}
+    }
+});
 
 /* ============================================================================
    AUTOMATICKÝ 3FÁZOVÝ „SPÁNKOVÝ MOST“ (BEDTIME SLEEP BRIDGE PO DOČTENÍ POHÁDKY)
@@ -5006,14 +5600,52 @@ function checkSleepBridgePhase(idx) {
     }
 }
 
+/* ============================================================================
+   PŘESNÁ LOGIKA ŘÍZENÍ A UKONČENÍ RELACE: finishSession(reason)
+   reason: 'natural_end' | 'user_stop' | 'timer_expired' | 'error'
+   ============================================================================ */
+function finishSession(reason = 'user_stop') {
+    if (reason === 'natural_end') {
+        // Automatický Spánkový most se smí spustit VÝHRADNĚ tehdy, když reason === 'natural_end'
+        // A uživatel má zapnutý přepínač Spánkového mostu
+        if (isSleepBridgeEnabled) {
+            startSleepBridgeAfterStory();
+        } else {
+            stopActiveSession();
+            setStatus('📖 Příběh byl úspěšně dočten do konce.');
+        }
+    } else {
+        // 'user_stop' | 'timer_expired' | 'error' -> Ruční kliknutí na STOP, časovač ani chyba jej NIKDY nesmí spustit!
+        if (sleepBridgeCountdown) {
+            clearInterval(sleepBridgeCountdown);
+            sleepBridgeCountdown = null;
+        }
+        sleepBridgeEndTimestamp = 0;
+        sleepBridgePhase = 1;
+        stopActiveSession();
+
+        if (reason === 'timer_expired') {
+            setStatus('⏲️ Časovač usínání vypršel – relace byla tiše ukončena.');
+        } else if (reason === 'user_stop') {
+            setStatus('⏹️ Čtení bylo zastaveno.');
+        } else if (reason === 'error') {
+            setStatus('⚠️ Čtení bylo ukončeno kvůli chybě.');
+        }
+    }
+}
+
 function startSleepBridgeAfterStory() {
+    activeSessionId++;
+    sessionState = 'ending';
     sleepBridgePhase = 3;
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    if ('speechSynthesis' in window) {
+        try { window.speechSynthesis.cancel(); } catch (e) {}
+    }
     if (ttsWordTimer) { clearTimeout(ttsWordTimer); ttsWordTimer = null; }
     if (ttsSentenceTimer) { clearTimeout(ttsSentenceTimer); ttsSentenceTimer = null; }
     if (silentInterval) { clearTimeout(silentInterval); silentInterval = null; }
     if (recognition) {
-        try { recognition.onend = null; recognition.onerror = null; recognition.stop(); } catch (e) {}
+        try { recognition.onend = null; recognition.onerror = null; recognition.onresult = null; recognition.stop(); } catch (e) {}
         recognition = null;
     }
     if (typeof stopWhisperMicMonitor === 'function') {
@@ -5048,26 +5680,32 @@ function startSleepBridgeAfterStory() {
 const triggerSleepBridgePhase3 = startSleepBridgeAfterStory;
 
 function startSleepBridgeTimer(minutes = 20) {
-    if (sleepCountdown) clearInterval(sleepCountdown);
-    if (sleepBridgeCountdown) clearInterval(sleepBridgeCountdown);
+    if (sleepCountdown) {
+        clearInterval(sleepCountdown);
+        sleepCountdown = null;
+    }
+    if (sleepBridgeCountdown) {
+        clearInterval(sleepBridgeCountdown);
+        sleepBridgeCountdown = null;
+    }
 
     const initialMinutes = minutes || 20;
-    let remSec = initialMinutes * 60; // 1200 s
-    const totalSec = remSec;
+    const totalSec = initialMinutes * 60; // 1200 s
+    sleepBridgeEndTimestamp = Date.now() + (initialMinutes * 60 * 1000);
     const initialVol = SoundEngine.bgVolumeLevel || 0.22;
     const badge = document.getElementById('audioVolBadge');
 
-    const updateCountdownUI = () => {
+    const updateCountdownUI = (remSec) => {
         const mm = String(Math.floor(remSec / 60)).padStart(2, '0');
         const ss = String(remSec % 60).padStart(2, '0');
         const timeStr = `⏳ Most ${mm}:${ss}`;
         if (badge) badge.innerText = timeStr;
     };
-    updateCountdownUI();
+    updateCountdownUI(totalSec);
 
     sleepBridgeCountdown = setInterval(() => {
-        remSec--;
-        updateCountdownUI();
+        const remSec = Math.max(0, Math.ceil((sleepBridgeEndTimestamp - Date.now()) / 1000));
+        updateCountdownUI(remSec);
 
         // 20minutový plynulý Fade-Out do úplného ticha
         if (!SoundEngine.isMuted && totalSec > 0) {
@@ -5086,8 +5724,8 @@ function startSleepBridgeTimer(minutes = 20) {
         if (remSec <= 0) {
             clearInterval(sleepBridgeCountdown);
             sleepBridgeCountdown = null;
-            SoundEngine.stopAllEverything();
-            setSleepTimerPreset(0);
+            sleepBridgeEndTimestamp = 0;
+            finishSession('timer_expired');
             sleepBridgePhase = 1;
             setStatus('😴 Spánkový most dokončen – klidný spánek v tichu a bezpečí.');
         }
@@ -5148,27 +5786,45 @@ function switchMode(mode) {
     updateHandoverButtonVisibility();
 }
 
-/* ============================================================================
-   TLAČÍTKO „🤝 DOČTI TO ZA MĚ“ (PLYNULÉ PŘEDÁNÍ Z HLASU RODIČE NA AI VYPRAVĚČE)
-   ============================================================================ */
-function handoverToAiNarrator() {
-    SoundEngine.init();
-    // 1. Okamžitě bez přerušení hudebního podkresu vypne mikrofon
+function stopVoiceRecognition() {
     if (recognition) {
-        try { recognition.onend = null; recognition.onerror = null; recognition.stop(); } catch (e) {}
+        try {
+            recognition.onend = null;
+            recognition.onerror = null;
+            recognition.onresult = null;
+            recognition.stop();
+        } catch (e) {}
         recognition = null;
     }
     if (typeof stopWhisperMicMonitor === 'function') {
         stopWhisperMicMonitor();
     }
+}
+
+/* ============================================================================
+   TLAČÍTKO „🤝 DOČTI TO ZA MĚ“ (PLYNULÉ PŘEDÁNÍ Z HLASU RODIČE NA AI VYPRAVĚČE)
+   ============================================================================ */
+function handoverToAiNarrator() {
+    // 1. Nejprve kompletně ukonči mikrofon a jeho callbacky
+    activeSessionId++;
+    stopVoiceRecognition();
+
     if (silentInterval) {
         clearTimeout(silentInterval);
         silentInterval = null;
     }
+    if ('speechSynthesis' in window) {
+        try { window.speechSynthesis.cancel(); } catch (e) {}
+    }
+    if (ttsWordTimer) { clearTimeout(ttsWordTimer); ttsWordTimer = null; }
+    if (ttsSentenceTimer) { clearTimeout(ttsSentenceTimer); ttsSentenceTimer = null; }
 
-    // Ujistíme se, že je příběh/kniha načtena do paměti
+    SoundEngine.init();
+
+    // Tlačítko povol pouze tehdy, když je načtený konkrétní text v #readerBox (storyWordsData.length > 0)
     if (!storyWordsData || !storyWordsData.length) {
-        loadSelectedStory(false);
+        setStatus('⚠️ Pro předání čtení AI Vypravěči musí být v čtečce načtený konkrétní text.');
+        return;
     }
 
     // 2. Přepne currentMode = 'tts'
@@ -5195,12 +5851,13 @@ function handoverToAiNarrator() {
     });
 
     isSessionRunning = true;
+    sessionState = 'playing';
     isPaused = false;
     updateMainButtonLabel();
     updatePauseResumeButton();
     updateHandoverButtonVisibility();
 
-    const totalWords = (storyWordsData && storyWordsData.length) || 1;
+    const totalWords = storyWordsData.length;
     currentWordIndex = Math.max(0, Math.min(currentWordIndex, totalWords - 1));
 
     // 4. Plynule naváže čtením AI Vypravěče přesně od aktuálního slova (currentWordIndex)
@@ -5211,8 +5868,9 @@ function handoverToAiNarrator() {
 
 function updateHandoverButtonVisibility() {
     const isParentReading = (isSessionRunning || isPaused) && (currentMode === 'read' || currentMode === 'free');
-    const sel = document.getElementById('storySelect');
-    const hasStory = (storyWordsData && storyWordsData.length > 0) || (sel && sel.value !== '-1' && sel.value !== '');
+    // Povol pouze tehdy, když je načtený konkrétní text v #readerBox (storyWordsData.length > 0).
+    // Ve volném vyprávění z hlavy bez načtené knihy toto tlačítko skryj!
+    const hasStory = !!(storyWordsData && storyWordsData.length > 0);
     const shouldShow = isParentReading && hasStory;
 
     const statusBtn = document.getElementById('handoverAiStatusBtn');
@@ -5475,7 +6133,7 @@ function updateMainButtonLabel() {
         return;
     }
     btn.classList.remove('running');
-    if (currentMode === 'free') btn.innerText = '▶️ SPUSTIT ODPOSLECH';
+    if (currentMode === 'free') btn.innerText = '▶️ REAGOVAT NA ČTENÍ';
     else if (currentMode === 'read') btn.innerText = '▶️ ČÍST NAHLAS';
     else if (currentMode === 'tts') btn.innerText = '▶️ AI VYPRAVĚČ';
     else if (currentMode === 'silent') btn.innerText = '▶️ TICHÉ ČTENÍ';
@@ -5484,12 +6142,31 @@ function updateMainButtonLabel() {
 }
 
 let lastPositionSaveTime = 0;
-const POSITIONS_STORAGE_KEY = 'atmoread_positions_v71';
+const POSITIONS_STORAGE_KEY = 'atmoread_positions_v9';
 
 function getStoredPositionsMap() {
     try {
         const raw = localStorage.getItem(POSITIONS_STORAGE_KEY);
-        return raw ? JSON.parse(raw) : {};
+        if (raw) return JSON.parse(raw);
+        // Automatický fallback a migrace ze starších verzí pozic
+        const oldRaw = localStorage.getItem('atmoread_positions_v71');
+        if (oldRaw) {
+            const oldMap = JSON.parse(oldRaw);
+            const migrated = {};
+            for (const [k, v] of Object.entries(oldMap)) {
+                if (typeof v === 'number') {
+                    migrated[k] = {
+                        wordIdx: v,
+                        pageIdx: Math.floor(v / (typeof READER_PAGE_SIZE === 'number' ? READER_PAGE_SIZE : 600)),
+                        updatedAt: Date.now()
+                    };
+                } else if (v && typeof v === 'object') {
+                    migrated[k] = v;
+                }
+            }
+            return migrated;
+        }
+        return {};
     } catch (e) {
         return {};
     }
@@ -5503,62 +6180,98 @@ function saveReadingPosition(force = false) {
     lastPositionSaveTime = now;
     try {
         const sel = document.getElementById('storySelect');
-        const storyIdx = sel ? parseInt(sel.value || '0', 10) : 0;
         const list = STORIES[getStoryKey()] || [];
-        const activeStory = list[storyIdx];
-        const storyKey = activeStory ? (activeStory.ebookId || activeStory.title) : `story_${storyIdx}`;
+        const selVal = sel?.value;
+        let activeStory = null;
+        if (selVal && selVal !== '-1') {
+            activeStory = list.find(s => s.bookId === selVal);
+            if (!activeStory && !isNaN(parseInt(selVal, 10))) {
+                const idx = parseInt(selVal, 10);
+                if (idx >= 0 && idx < list.length) activeStory = list[idx];
+            }
+        }
+        if (!activeStory && list.length > 0) activeStory = list[0];
+        if (!activeStory) return;
 
-        // 1. Lehký objekt { [storyIdOrTitle]: currentWordIndex } do atmoread_positions_v71
+        const bookId = getOrAssignBookId(activeStory, 0, getStoryKey());
+        if (!bookId) return;
+
+        // 1. Ukládání pozice výhradně pod unikátním bookId do atmoread_positions_v9
         const posMap = getStoredPositionsMap();
-        posMap[storyKey] = currentWordIndex;
+        posMap[bookId] = {
+            wordIdx: currentWordIndex,
+            pageIdx: currentReaderPage,
+            updatedAt: now
+        };
         localStorage.setItem(POSITIONS_STORAGE_KEY, JSON.stringify(posMap));
 
-        // 2. Profilově specifická poslední pozice
+        // 2. Pro aktivní profil uložíme lastActiveBookId (žádný pořadový index storyIdx!)
+        localStorage.setItem(`atmoread_last_book_${currentProfile}`, bookId);
         const profKey = currentProfile === 'adults' ? 'atmoread_reading_pos_adults' : 'atmoread_reading_pos_kids';
-        const data = {
+        localStorage.setItem(profKey, JSON.stringify({
             profile: currentProfile,
-            storyIdx: isNaN(storyIdx) ? 0 : storyIdx,
-            storyKey: storyKey,
-            wordIdx: currentWordIndex
-        };
-        localStorage.setItem(profKey, JSON.stringify(data));
+            lastActiveBookId: bookId,
+            wordIdx: currentWordIndex,
+            pageIdx: currentReaderPage,
+            updatedAt: now
+        }));
 
-        // 3. Pouze paměťová aktualizace bez ukládání celého textu e-knihy
-        if (activeStory && activeStory.isEbook) {
+        // 3. Paměťová aktualizace
+        if (activeStory.isEbook) {
             activeStory.wordIndex = currentWordIndex;
         }
     } catch (e) {}
 }
 
-
-
 function restoreReadingPosition() {
     try {
+        ensureAllStoryBookIds();
         const profKey = currentProfile === 'adults' ? 'atmoread_reading_pos_adults' : 'atmoread_reading_pos_kids';
-        let raw = localStorage.getItem(profKey);
-        if (!raw) {
-            const oldRaw = localStorage.getItem('atmoread_reading_pos');
-            if (oldRaw) {
-                const oldSaved = JSON.parse(oldRaw);
-                if (oldSaved && oldSaved.profile === currentProfile) raw = oldRaw;
+        let targetBookId = localStorage.getItem(`atmoread_last_book_${currentProfile}`);
+        if (!targetBookId) {
+            const rawProf = localStorage.getItem(profKey);
+            if (rawProf) {
+                const p = JSON.parse(rawProf);
+                targetBookId = p.lastActiveBookId || p.storyKey || null;
             }
         }
-        if (!raw) return;
-        const saved = JSON.parse(raw);
-        if (!saved || typeof saved.wordIdx !== 'number') return;
-        if (saved.profile && saved.profile !== currentProfile) return;
+
+        const list = STORIES[getStoryKey()] || [];
+        if (!list.length) return;
+
+        let foundIdx = -1;
+        if (targetBookId) {
+            foundIdx = list.findIndex(s => {
+                const bId = s.bookId || getOrAssignBookId(s, -1, getStoryKey());
+                return bId === targetBookId || s.ebookId === targetBookId || s.title === targetBookId;
+            });
+        }
 
         const sel = document.getElementById('storySelect');
-        if (sel && typeof saved.storyIdx === 'number' && sel.options[saved.storyIdx]) {
-            sel.value = String(saved.storyIdx);
+        if (foundIdx !== -1) {
+            const story = list[foundIdx];
+            if (sel) {
+                sel.value = story.bookId;
+                if (sel.value !== story.bookId && sel.options[foundIdx]) {
+                    sel.selectedIndex = foundIdx;
+                }
+            }
             loadSelectedStory(false);
-        }
-        if (saved.wordIdx > 0 && saved.wordIdx < storyWordsData.length) {
-            currentWordIndex = saved.wordIdx;
-            highlightWordAt(currentWordIndex);
-            updatePauseResumeButton();
-            showAutoBadge(`🔖 Pozice ${currentWordIndex + 1}/${storyWordsData.length}`);
-            setStatus(`🔖 Načtena uložená pozice (${currentWordIndex + 1}/${storyWordsData.length}). Můžeš pokračovat v četbě!`);
+
+            const posMap = getStoredPositionsMap();
+            const bookId = story.bookId;
+            const pos = posMap[bookId] || (story.ebookId ? posMap[story.ebookId] : null);
+            const targetWordIdx = (pos && typeof pos.wordIdx === 'number') ? pos.wordIdx : ((typeof pos === 'number') ? pos : 0);
+            const targetPageIdx = (pos && typeof pos.pageIdx === 'number') ? pos.pageIdx : Math.floor(targetWordIdx / READER_PAGE_SIZE);
+
+            if (targetWordIdx > 0 && targetWordIdx < storyWordsData.length) {
+                currentWordIndex = targetWordIdx;
+                currentReaderPage = targetPageIdx;
+                highlightWordAt(currentWordIndex);
+                updatePauseResumeButton();
+                showAutoBadge(`🔖 Pozice ${currentWordIndex + 1}/${storyWordsData.length}`);
+                setStatus(`🔖 Načtena uložená pozice v knize „${story.title}“ (${currentWordIndex + 1}/${storyWordsData.length}). Můžeš pokračovat v četbě!`);
+            }
         }
     } catch (e) {}
 }
@@ -5588,8 +6301,10 @@ function togglePauseResume() {
         // POKRAČOVAT: plynule naváže od currentWordIndex
         isPaused = false;
         isSessionRunning = true;
+        sessionState = 'playing';
         updatePauseResumeButton();
         updateMainButtonLabel();
+        requestWakeLock();
         SoundEngine.startIdleWatcher();
         if (!SoundEngine.isMuted && SoundEngine.bgMode !== 'off') {
             SoundEngine.startAmbience(SoundEngine.bgMode);
@@ -5601,6 +6316,8 @@ function togglePauseResume() {
     } else if (isSessionRunning) {
         // PAUZA: pozastaví čtení přesně na aktuálním currentWordIndex (bez vymazání pozice)
         isPaused = true;
+        sessionState = 'paused';
+        activeSessionId++;
         updatePauseResumeButton();
         updateMainButtonLabel();
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
@@ -5627,13 +6344,20 @@ function startActiveSession() {
 function handleMainAction() {
     SoundEngine.init();
     if (isSessionRunning) {
-        stopActiveSession();
+        finishSession('user_stop');
         return;
     }
+    activeSessionId++;
+    sessionState = 'playing';
     isSessionRunning = true;
     isPaused = false;
     updatePauseResumeButton();
     updateMainButtonLabel();
+    requestWakeLock();
+
+    // Obnovit uživatelské hlasitosti podle aktivního presetu
+    setVolumePreset(currentVolumePreset || 'medium');
+
     SoundEngine.startIdleWatcher();
 
     // Spustíme zvolený podkres (výchozí je 'auto_mood' - Dynamický podkres scény)
@@ -5647,6 +6371,13 @@ function handleMainAction() {
 }
 
 function stopActiveSession() {
+    activeSessionId++;
+    sessionState = 'idle';
+
+    userManualScrollLock = false;
+    const returnBtn = document.getElementById('returnToCurrentWordBtn');
+    if (returnBtn) returnBtn.style.display = 'none';
+
     if (currentMode === 'free' && lastRecordedInterim && !recordedFreeTranscript.includes(lastRecordedInterim)) {
         recordedFreeTranscript.push(lastRecordedInterim);
         lastRecordedInterim = '';
@@ -5658,14 +6389,19 @@ function stopActiveSession() {
     isPaused = false;
     updatePauseResumeButton();
     processedSpeechWords = {};
-    SoundEngine.stopIdleWatcher();
 
     if (recognition) {
-        try { recognition.onend = null; recognition.onerror = null; recognition.stop(); } catch (e) {}
+        try {
+            recognition.onend = null;
+            recognition.onerror = null;
+            recognition.onresult = null;
+            recognition.stop();
+        } catch (e) {}
         recognition = null;
     }
     if (silentInterval) {
         clearTimeout(silentInterval);
+        clearInterval(silentInterval);
         silentInterval = null;
     }
     if (ttsWordTimer) {
@@ -5676,11 +6412,24 @@ function stopActiveSession() {
         clearTimeout(ttsSentenceTimer);
         ttsSentenceTimer = null;
     }
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    if ('speechSynthesis' in window) {
+        try { window.speechSynthesis.cancel(); } catch (e) {}
+    }
+
+    SoundEngine.stopAll();
     updateMainButtonLabel();
+
+    const isLampActive = !!document.getElementById('pureLampScreen')?.classList.contains('active');
+    if (!isLampActive) {
+        releaseWakeLock();
+    }
 }
 
 function startVoiceRecognition() {
+    activeSessionId++;
+    sessionState = 'playing';
+    const mySessionId = activeSessionId;
+
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) {
         setStatus('⚠️ Tvůj prohlížeč nepodporuje hlasový odposlech (doporučujeme Google Chrome nebo režim AI Vypravěč).');
@@ -5690,7 +6439,7 @@ function startVoiceRecognition() {
 
     processedSpeechWords = {};
     if (recognition) {
-        try { recognition.onend = null; recognition.onerror = null; recognition.stop(); } catch (e) {}
+        try { recognition.onend = null; recognition.onerror = null; recognition.onresult = null; recognition.stop(); } catch (e) {}
         recognition = null;
     }
 
@@ -5705,29 +6454,49 @@ function startVoiceRecognition() {
     setStatus('🎙️ Naslouchám tvému hlasu...');
 
     recognition.onresult = (event) => {
+        if (mySessionId !== activeSessionId) return;
         for (let i = event.resultIndex; i < event.results.length; i++) {
             const res = event.results[i];
+            const isFinal = !!res.isFinal;
             const phrase = res[0].transcript.trim();
             if (!phrase) continue;
             const words = phrase.split(/\s+/);
-            if (!processedSpeechWords[i]) processedSpeechWords[i] = [];
+
+            if (!processedSpeechWords[i]) {
+                processedSpeechWords[i] = {
+                    processedWordIndices: new Set(),
+                    triggeredWords: new Set()
+                };
+            }
+            const state = processedSpeechWords[i];
 
             for (let wIdx = 0; wIdx < words.length; wIdx++) {
                 const word = words[wIdx];
                 const clean = stripAccents(word).replace(/[^a-z0-9]/g, '');
                 if (clean.length < 3) continue;
 
-                if (processedSpeechWords[i][wIdx] !== clean) {
-                    processedSpeechWords[i][wIdx] = clean;
-                    checkWordTriggers(word);
+                // Rozlišuj předběžný a potvrzený přepis: jednorázové zvukové efekty spouštěj pro každé vyslovené slovo v dané větě maximálně jednou
+                const alreadyTriggered = state.processedWordIndices.has(wIdx) || state.triggeredWords.has(clean);
+                if (!alreadyTriggered) {
+                    state.processedWordIndices.add(wIdx);
+                    const prevWords = words.slice(Math.max(0, wIdx - 3), wIdx);
+                    const didTrigger = checkWordTriggers(word, false, prevWords);
+                    if (didTrigger) {
+                        state.triggeredWords.add(clean);
+                    }
                     saveReadingPosition(true);
                     if (currentMode === 'read' || (currentMode === 'free' && storyWordsData && storyWordsData.length > 0)) {
+                        advanceReaderBySpokenWord(word);
+                    }
+                } else if (currentMode === 'read' || (currentMode === 'free' && storyWordsData && storyWordsData.length > 0)) {
+                    if (!state.processedWordIndices.has(wIdx)) {
+                        state.processedWordIndices.add(wIdx);
                         advanceReaderBySpokenWord(word);
                     }
                 }
             }
             if (currentMode === 'free') {
-                if (res.isFinal) {
+                if (isFinal) {
                     if (phrase && !recordedFreeTranscript.includes(phrase)) {
                         recordedFreeTranscript.push(phrase);
                     }
@@ -5737,7 +6506,7 @@ function startVoiceRecognition() {
                 }
             }
 
-            setStatus(`🗣️ Slyším: „${words.slice(-7).join(' ')}“`);
+            setStatus(`🗣️ Slyším (${isFinal ? 'potvrzeno' : 'předběžně'}): „${words.slice(-7).join(' ')}“`);
         }
     };
 
@@ -5745,6 +6514,7 @@ function startVoiceRecognition() {
     const restartRecognition = () => {
         if (restartTimer) clearTimeout(restartTimer);
         restartTimer = setTimeout(() => {
+            if (mySessionId !== activeSessionId) return;
             if (isSessionRunning && !isPaused && (currentMode === 'free' || currentMode === 'read') && recognition) {
                 processedSpeechWords = {};
                 try {
@@ -5758,6 +6528,7 @@ function startVoiceRecognition() {
     };
 
     recognition.onerror = (event) => {
+        if (mySessionId !== activeSessionId) return;
         if (event && event.error === 'no-speech') {
             // Tichá pauza rodiče při otočení stránky nebo pohlazení dítěte — tiše restartujeme za 250 ms bez bliknutí UI
             setStatus('🎙️ Naslouchám tvému hlasu...');
@@ -5774,6 +6545,7 @@ function startVoiceRecognition() {
     };
 
     recognition.onend = () => {
+        if (mySessionId !== activeSessionId) return;
         if (isSessionRunning && !isPaused && (currentMode === 'free' || currentMode === 'read')) {
             setStatus('🎙️ Naslouchám tvému hlasu...');
             restartRecognition();
@@ -5959,7 +6731,7 @@ function playQueueItemAt(idx) {
 
 function advanceQueueAndPlay() {
     if (!readingQueue || !readingQueue.length) {
-        startSleepBridgeAfterStory();
+        finishSession('natural_end');
         return;
     }
     const nextItem = readingQueue.shift();
@@ -6001,8 +6773,12 @@ function loadQueueItemIntoReaderAndPlay(nextItem) {
     }, 450);
 }
 
-function promptChildName() {
-    const input = prompt('Zadej jména dětí / sourozenců oddělená čárkou (např. Emička, Kubík nebo Adámek, Eliška, Filípek):', childName || '');
+async function promptChildName() {
+    const input = await AppDialog.prompt(
+        'Zadej jména dětí / sourozenců oddělená čárkou (např. Emička, Kubík nebo Adámek, Eliška, Filípek):',
+        childName || '',
+        '👶 Jména dětí / sourozenců'
+    );
     if (input === null) return;
     childName = input.trim();
     localStorage.setItem('atmoread_child_name', childName);
@@ -6032,9 +6808,9 @@ async function promptThreeWordsStory() {
         ? `${siblingList[0]}: bagr, ${siblingList[1]}: koťátko`
         : 'bagr, koťátko';
 
-    const promptMsg = `🎲 Pohádka na přání / Sourozenecký kompromis (${sibLabel}):\n\nKaždé dítě řekne své oblíbené slovo, zvířátko nebo přání (např. Dítě 1: bagr, Dítě 2: koťátko).\nAplikace přímo do příběhu zapracuje jména sourozenců i obě jejich přání, aby obě děti usínaly spokojeně:\n\nZadej přání oddělená čárkou (nebo ve formátu Jméno: přání):`;
+    const promptMsg = `Každé dítě řekne své oblíbené slovo, zvířátko nebo přání (např. Dítě 1: bagr, Dítě 2: koťátko).\nAplikace přímo do příběhu zapracuje jména sourozenců i obě jejich přání:\n\nZadej přání oddělená čárkou (nebo ve formátu Jméno: přání):`;
 
-    const input = prompt(promptMsg, defaultExample);
+    const input = await AppDialog.prompt(promptMsg, defaultExample, `🎲 Pohádka na přání (${sibLabel})`);
     if (input === null) return;
     const trimmedInput = input.trim();
     if (!trimmedInput) return;
@@ -6098,17 +6874,19 @@ async function promptThreeWordsStory() {
 
     const key = getStoryKey();
     if (!STORIES[key]) STORIES[key] = [];
-    STORIES[key].unshift({
+    const newStory = {
         title: storyObj.title,
         text: storyObj.text,
         isCustom: true,
         profile: currentProfile,
         savedAt: Date.now()
-    });
+    };
+    getOrAssignBookId(newStory, 0, key);
+    STORIES[key].unshift(newStory);
 
     populateStoryDropdown();
     const sel = document.getElementById('storySelect');
-    if (sel) sel.value = '0';
+    if (sel) sel.value = newStory.bookId;
     switchMode('tts');
     loadSelectedStory(true);
     showAutoBadge('🎲 Pohádka vytvořena');
@@ -6226,6 +7004,10 @@ function estimateWordDurationMs(word, rate = 0.86) {
 }
 
 function startAiStoryReading() {
+    activeSessionId++;
+    sessionState = 'playing';
+    const mySessionId = activeSessionId;
+
     if (!('speechSynthesis' in window)) {
         setStatus('⚠️ Prohlížeč nepodporuje syntézu řeči.');
         stopActiveSession();
@@ -6298,6 +7080,7 @@ function startAiStoryReading() {
     // okamžitě na pozadí předřadíme do syntezátoru Slot B, aby prohlížeč vygeneroval zvuk dopředu
     // a přešel na další větu s nulovou prodlevou!
     const enqueueSentenceSlot = (sIdx) => {
+        if (mySessionId !== activeSessionId) return;
         if (!isSessionRunning || currentMode !== 'tts') return;
         if (sIdx >= sentences.length) return;
 
@@ -6314,6 +7097,7 @@ function startAiStoryReading() {
 
         // Vlastní plynulý časovač slov (100% funkční na Androidu i Desktopu)
         const stepWordSync = () => {
+            if (mySessionId !== activeSessionId) return;
             if (!isSessionRunning || currentMode !== 'tts') return;
             if (localWordPtr >= sent.indices.length) return;
 
@@ -6327,7 +7111,10 @@ function startAiStoryReading() {
             localWordPtr++;
             if (localWordPtr < sent.indices.length && !boundaryFired) {
                 const dur = estimateWordDurationMs(wordStr, rate);
-                ttsWordTimer = setTimeout(stepWordSync, dur);
+                ttsWordTimer = setTimeout(() => {
+                    if (mySessionId !== activeSessionId) return;
+                    stepWordSync();
+                }, dur);
             }
         };
 
@@ -6335,6 +7122,7 @@ function startAiStoryReading() {
         const needsDramaticPauseAfter = false;
 
         utterance.onstart = () => {
+            if (mySessionId !== activeSessionId) return;
             if (!isSessionRunning || currentMode !== 'tts') return;
             if (ttsWordTimer) { clearTimeout(ttsWordTimer); ttsWordTimer = null; }
             SoundEngine.sentenceSfxEvents = [];
@@ -6350,6 +7138,7 @@ function startAiStoryReading() {
         };
 
         utterance.onboundary = (e) => {
+            if (mySessionId !== activeSessionId) return;
             if (e.name === 'word') {
                 boundaryFired = true;
                 if (ttsWordTimer) { clearTimeout(ttsWordTimer); ttsWordTimer = null; }
@@ -6369,6 +7158,7 @@ function startAiStoryReading() {
         };
 
         utterance.onend = () => {
+            if (mySessionId !== activeSessionId) return;
             if (ttsWordTimer) { clearTimeout(ttsWordTimer); ttsWordTimer = null; }
             while (localWordPtr < sent.indices.length && isSessionRunning && currentMode === 'tts') {
                 const gIdx = sent.indices[localWordPtr];
@@ -6390,8 +7180,8 @@ function startAiStoryReading() {
                     advanceQueueAndPlay();
                     return;
                 }
-                // Jakmile AI Vypravěč dočte poslední větu příběhu (a fronta je prázdná), nesmí nastat náhlé ticho – automaticky Spánkový most!
-                startSleepBridgeAfterStory();
+                // Jakmile AI Vypravěč dočte poslední položku ve frontě, vyvoláme finishSession('natural_end')
+                finishSession('natural_end');
                 return;
             }
 
@@ -6402,9 +7192,13 @@ function startAiStoryReading() {
         };
 
         utterance.onerror = () => {
+            if (mySessionId !== activeSessionId) return;
             if (ttsWordTimer) clearTimeout(ttsWordTimer);
             if (isSessionRunning && currentMode === 'tts' && (sIdx + 1 < sentences.length) && !sentences[sIdx + 1].queued) {
-                ttsSentenceTimer = setTimeout(() => enqueueSentenceSlot(sIdx + 1), 150);
+                ttsSentenceTimer = setTimeout(() => {
+                    if (mySessionId !== activeSessionId) return;
+                    enqueueSentenceSlot(sIdx + 1);
+                }, 150);
             }
         };
 
@@ -6425,9 +7219,8 @@ function startSilentPacer() {
     // 1. Nezvýrazňuj žádné skákající slovo (.active-word), aby čtenáře nic vizuálně nestresovalo
     document.querySelectorAll('.w-tok.active-word').forEach(el => el.classList.remove('active-word'));
 
-    // 2. Okamžitě spusť analyzePageDominantMood() pro aktuální stránku (600 slov) a udržuj plynulý atmosférický podkres scény
-    const startIdx = currentReaderPage * READER_PAGE_SIZE;
-    analyzePageDominantMood(startIdx, READER_PAGE_SIZE);
+    // 2. Okamžitě spusť analyzePageDominantMood() pro aktuální viditelný úsek (120 slov) a udržuj plynulý atmosférický podkres scény
+    analyzePageDominantMood(currentWordIndex, 120);
 
     if (SoundEngine.bgMode === 'auto_mood' && !SoundEngine.isMuted) {
         SoundEngine.startAmbience('auto_mood');
@@ -6442,8 +7235,17 @@ function startSilentPacer() {
 function loadSelectedStory(animatePlane = true) {
     const list = STORIES[getStoryKey()] || STORIES.kids_cs;
     const selVal = document.getElementById('storySelect')?.value;
-    const idx = parseInt(selVal || '0', 10);
-    const story = (idx >= 0 && list[idx]) ? list[idx] : (selVal === '' ? null : list[0]);
+    let story = null;
+    if (selVal && selVal !== '-1') {
+        story = list.find(s => (s.bookId && s.bookId === selVal) || s.ebookId === selVal);
+        if (!story && !isNaN(parseInt(selVal, 10))) {
+            const idx = parseInt(selVal, 10);
+            if (idx >= 0 && idx < list.length) story = list[idx];
+        }
+    }
+    if (!story && selVal !== '' && list.length > 0) {
+        story = list[0];
+    }
     const delBtn = document.getElementById('deleteStoryBtn');
     if (delBtn) {
         delBtn.style.display = (story && (story.isCustom || story.isEbook || story.isUrlArticle || story.isYouTube)) ? 'inline-flex' : 'none';
@@ -6531,37 +7333,38 @@ const READER_PAGE_SIZE = 600;
 let currentReaderPage = 0;
 
 /* ============================================================================
-   1. LOOK-AHEAD SCENE MOOD ENGINE (ANALÝZA CELÉ STRÁNKY 600 SLOV DOPŘEDU)
-   - Projde okno 600 slov na aktuální stránce a spočítá vážené skóre pro všechny scény
-   - Okamžitě plynule přelije podkres do vítězné atmosféry stránky bez čekání na slovo
+   1. LOOK-AHEAD SCENE MOOD ENGINE (AKTUÁLNÍ VIDITELNÝ ÚSEK: PRVNÍCH 120 SLOV OD currentWordIndex)
+   - Analyzuje pouze aktuální viditelný úsek (prvních 120 slov), nikoliv konec stránky o 600 slov dál,
+     aby atmosféra nikdy dopředu neprozradila zvrat nebo bouři, ke které čtenář ještě nedošel.
    ============================================================================ */
-function analyzePageDominantMood(startWordIdx, wordCount = 600) {
+function analyzePageDominantMood(startWordIdx, wordCount = 120) {
     if (typeof startWordIdx !== 'number' || isNaN(startWordIdx)) {
-        startWordIdx = (typeof currentReaderPage === 'number')
-            ? currentReaderPage * (typeof READER_PAGE_SIZE === 'number' ? READER_PAGE_SIZE : 600)
-            : (currentWordIndex || 0);
+        startWordIdx = (typeof currentWordIndex === 'number') ? currentWordIndex : 0;
     }
     const defaultMood = currentProfile === 'adults' ? 'fireplace' : 'meadow';
     if (!storyWordsData || !storyWordsData.length || typeof MOOD_SCENES === 'undefined') {
-        SoundEngine.transitionMoodScene(defaultMood, true);
+        SoundEngine.transitionMoodScene(defaultMood, { isImmediate: true, isPageLookahead: true });
         const fbScene = (typeof MOOD_SCENES !== 'undefined') ? MOOD_SCENES[defaultMood] : null;
         const badge = document.getElementById('activeSceneBadge');
         if (badge && fbScene) badge.innerText = `Scéna stránky: ${fbScene.name}`;
         return defaultMood;
     }
 
+    // Analyzuj pouze aktuální viditelný úsek (max 120 slov od startWordIdx / currentWordIndex)
+    const lookAheadCount = Math.min(120, Math.max(1, wordCount || 120));
     const start = Math.max(0, startWordIdx);
-    const end = Math.min(storyWordsData.length, start + wordCount);
+    const end = Math.min(storyWordsData.length, start + lookAheadCount);
     const pageWords = storyWordsData.slice(start, end);
 
     const scores = {};
+    const matchCounts = {};
     const sceneKeys = Object.keys(MOOD_SCENES);
     for (let k = 0; k < sceneKeys.length; k++) {
         const key = sceneKeys[k];
-        // Drobný výchozí profilový tiebreaker
         scores[key] = (key === 'fireplace' && currentProfile === 'adults') ? 0.25
                     : (key === 'meadow' && currentProfile === 'kids') ? 0.25
                     : 0;
+        matchCounts[key] = 0;
     }
 
     for (let i = 0; i < pageWords.length; i++) {
@@ -6575,6 +7378,7 @@ function analyzePageDominantMood(startWordIdx, wordCount = 600) {
                 const rawStem = sc.stems[stIdx];
                 if (doesWordMatchStem(raw, rawStem)) {
                     scores[key] += 2.5;
+                    matchCounts[key] = (matchCounts[key] || 0) + 1;
                     break;
                 }
             }
@@ -6591,8 +7395,12 @@ function analyzePageDominantMood(startWordIdx, wordCount = 600) {
         }
     }
 
-    // Okamžitě plynule přelijeme podkres do vítězné atmosféry stránky
-    SoundEngine.transitionMoodScene(dominantMood, true);
+    const bestMatches = matchCounts[dominantMood] || 0;
+    SoundEngine.transitionMoodScene(dominantMood, {
+        isPageLookahead: true,
+        matchCount: bestMatches,
+        isImmediate: false
+    });
 
     const scene = MOOD_SCENES[dominantMood];
     const badge = document.getElementById('activeSceneBadge');
@@ -6635,8 +7443,8 @@ function renderReaderCurrentPage(animatePlane = false) {
     const startIdx = currentReaderPage * READER_PAGE_SIZE;
     const endIdx = Math.min(totalWords, startIdx + READER_PAGE_SIZE);
 
-    // LOOK-AHEAD SCENE MOOD ENGINE (ANALÝZA CELÉ STRÁNKY 600 SLOV DOPŘEDU)
-    analyzePageDominantMood(startIdx, READER_PAGE_SIZE);
+    // LOOK-AHEAD SCENE MOOD ENGINE (POUZE AKTUÁLNÍCH 120 SLOV OD currentWordIndex)
+    analyzePageDominantMood(currentWordIndex, 120);
 
     const populateTokens = () => {
         box.innerHTML = '';
@@ -6656,10 +7464,8 @@ function renderReaderCurrentPage(animatePlane = false) {
             }
 
             span.onclick = () => {
-                currentWordIndex = idx;
-                highlightWordAt(idx);
+                seekToWordIndex(idx);
                 checkWordTriggers(word, true);
-                saveReadingPosition(true);
             };
 
             frag.appendChild(span);
@@ -6670,6 +7476,7 @@ function renderReaderCurrentPage(animatePlane = false) {
         applyReaderFontSize();
         updateReaderProgressBar();
         updatePageNavUI();
+        initReaderScrollDetection();
         SoundEngine.preloadStorySounds(storyWordsData.slice(startIdx, Math.min(totalWords, startIdx + 200)));
     };
 
@@ -6715,15 +7522,14 @@ function goToReaderPage(targetPage) {
     const totalPages = Math.max(1, Math.ceil(storyWordsData.length / READER_PAGE_SIZE));
     if (targetPage < 0 || targetPage >= totalPages) return;
     currentReaderPage = targetPage;
-    currentWordIndex = targetPage * READER_PAGE_SIZE;
+    seekToWordIndex(targetPage * READER_PAGE_SIZE);
     renderReaderCurrentPage(true);
     if (currentMode === 'silent') {
         document.querySelectorAll('.w-tok.active-word').forEach(el => el.classList.remove('active-word'));
-        analyzePageDominantMood(currentWordIndex, READER_PAGE_SIZE);
-    } else {
-        highlightWordAt(currentWordIndex);
     }
-    saveReadingPosition(true);
+    // Přímý skok na jinou kapitolu/stránku se provede ihned
+    SoundEngine.lastMoodTransitionTime = 0;
+    analyzePageDominantMood(currentWordIndex, 120);
     setStatus(`📄 Přechod na stranu ${currentReaderPage + 1} / ${totalPages}...`);
 }
 const changeReaderPage = goToReaderPage;
@@ -6797,23 +7603,31 @@ function unloadCurrentStory() {
     setStatus('🧹 Text byl zavřen. Čtečka je v klidovém stavu.');
 }
 
-function deleteCurrentCustomStory() {
+async function deleteCurrentCustomStory() {
     const sel = document.getElementById('storySelect');
-    const idx = parseInt(sel?.value || '-1', 10);
+    const selVal = sel?.value;
     const key = getStoryKey();
     const list = STORIES[key] || [];
-    const story = list[idx];
+    let idx = -1;
+    if (selVal && selVal !== '-1') {
+        idx = list.findIndex(s => s.bookId === selVal || s.ebookId === selVal);
+        if (idx === -1 && !isNaN(parseInt(selVal, 10))) {
+            const numIdx = parseInt(selVal, 10);
+            if (numIdx >= 0 && numIdx < list.length) idx = numIdx;
+        }
+    }
+    const story = idx >= 0 ? list[idx] : null;
     if (!story || (!story.isCustom && !story.isEbook && !story.isUrlArticle && !story.isYouTube)) {
-        alert('Tento příběh je vestavěný a nelze jej smazat.');
+        await AppDialog.alert('Tento příběh je vestavěný a nelze jej smazat.', 'Knihovna');
         return;
     }
-    if (!confirm(`Opravdu si přeješ trvale smazat „${story.title}“ z knihovny?`)) {
+    const confirmed = await AppDialog.confirm(`Opravdu si přeješ trvale smazat „${story.title}“ z knihovny?`, 'Smazat z knihovny');
+    if (!confirmed) {
         return;
     }
 
     if (story.isEbook) {
-        const stored = getStoredEbooks().filter(b => (!story.ebookId || b.id !== story.ebookId) && b.title !== story.title);
-        saveStoredEbooks(stored);
+        await AtmoReadDB.deleteEbook(story.ebookId || story.id);
     }
     if (story.isUrlArticle && story.sourceUrl) {
         const history = getSavedUrlHistory().filter(h => h.url !== story.sourceUrl);
@@ -6824,11 +7638,18 @@ function deleteCurrentCustomStory() {
         localStorage.setItem(CUSTOM_STORIES_STORAGE_KEY, JSON.stringify(customStories));
     }
 
-    const posKey = story.ebookId || story.title;
+    const bookId = story.bookId || getOrAssignBookId(story, -1, key);
     const posMap = getStoredPositionsMap();
-    if (posMap[posKey] !== undefined) {
-        delete posMap[posKey];
+    if (posMap[bookId] !== undefined) {
+        delete posMap[bookId];
         localStorage.setItem(POSITIONS_STORAGE_KEY, JSON.stringify(posMap));
+    }
+    if (story.ebookId && posMap[story.ebookId] !== undefined) {
+        delete posMap[story.ebookId];
+        localStorage.setItem(POSITIONS_STORAGE_KEY, JSON.stringify(posMap));
+    }
+    if (localStorage.getItem(`atmoread_last_book_${currentProfile}`) === bookId) {
+        localStorage.removeItem(`atmoread_last_book_${currentProfile}`);
     }
 
     list.splice(idx, 1);
@@ -6836,6 +7657,65 @@ function deleteCurrentCustomStory() {
     populateStoryDropdown();
     showAutoBadge('🗑️ Smazáno z knihovny');
     setStatus(`🗑️ „${story.title}“ byl úspěšně smazán z knihovny.`);
+}
+
+let userManualScrollLock = false;
+
+function returnToCurrentWord() {
+    userManualScrollLock = false;
+    const btn = document.getElementById('returnToCurrentWordBtn');
+    if (btn) btn.style.display = 'none';
+    const target = document.getElementById(`w-${currentWordIndex}`);
+    if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+function initReaderScrollDetection() {
+    const box = document.getElementById('readerBox');
+    if (!box || box.dataset.scrollDetectInit === 'true') return;
+    box.dataset.scrollDetectInit = 'true';
+
+    const handleUserManualScroll = () => {
+        if (currentMode === 'tts' && (sessionState === 'playing' || (isSessionRunning && !isPaused))) {
+            if (!userManualScrollLock) {
+                userManualScrollLock = true;
+                const btn = document.getElementById('returnToCurrentWordBtn');
+                if (btn) btn.style.display = 'inline-flex';
+            }
+        }
+    };
+
+    box.addEventListener('wheel', handleUserManualScroll, { passive: true });
+    box.addEventListener('touchmove', handleUserManualScroll, { passive: true });
+}
+
+function seekToWordIndex(targetIndex) {
+    activeSessionId++;
+    if ('speechSynthesis' in window) {
+        try { window.speechSynthesis.cancel(); } catch (e) {}
+    }
+    if (ttsWordTimer) { clearTimeout(ttsWordTimer); ttsWordTimer = null; }
+    if (ttsSentenceTimer) { clearTimeout(ttsSentenceTimer); ttsSentenceTimer = null; }
+
+    userManualScrollLock = false;
+    const returnBtn = document.getElementById('returnToCurrentWordBtn');
+    if (returnBtn) returnBtn.style.display = 'none';
+
+    if (!storyWordsData || !storyWordsData.length) return;
+    const total = storyWordsData.length;
+    currentWordIndex = Math.max(0, Math.min(total - 1, targetIndex));
+    highlightWordAt(currentWordIndex);
+    saveReadingPosition(true);
+
+    if (sessionState === 'playing' || (isSessionRunning && !isPaused)) {
+        if (currentMode === 'tts') {
+            startAiStoryReading();
+        } else if (currentMode === 'silent') {
+            if (silentInterval) { clearTimeout(silentInterval); silentInterval = null; }
+            startSilentPacer();
+        }
+    }
 }
 
 function highlightWordAt(idx) {
@@ -6854,7 +7734,9 @@ function highlightWordAt(idx) {
     const target = document.getElementById(`w-${idx}`);
     if (target) {
         target.classList.add('active-word');
-        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (!userManualScrollLock) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
         updateReaderProgressBar();
         updatePageNavUI();
     }
@@ -7044,9 +7926,12 @@ async function confirmOcrRecognize() {
         const cleaned = (res.data.text || '').replace(/\s+/g, ' ').trim();
         if (cleaned.length > 8) {
             const key = getStoryKey();
-            STORIES[key].unshift({ title: '📷 Vyfocená stránka knihy (oříznutý text)', text: cleaned, isCustom: true });
+            const newStory = { title: '📷 Vyfocená stránka knihy (oříznutý text)', text: cleaned, isCustom: true };
+            getOrAssignBookId(newStory, 0, key);
+            STORIES[key].unshift(newStory);
             populateStoryDropdown();
-            document.getElementById('storySelect').value = '0';
+            const sel = document.getElementById('storySelect');
+            if (sel) sel.value = newStory.bookId;
             loadSelectedStory(true);
             setStatus('✅ Text ze stránky (mimo ilustrace) byl úspěšně přečten a napojen na reálné zvuky!');
         } else {
@@ -7057,8 +7942,8 @@ async function confirmOcrRecognize() {
     }
 }
 
-function promptCustomText() {
-    const txt = prompt('Vlož vlastní text pohádky nebo kapitoly knihy:');
+async function promptCustomText() {
+    const txt = await AppDialog.prompt('Vlož vlastní text pohádky nebo kapitoly knihy:', '', '✍️ Vlastní vložený text');
     if (txt && txt.trim().length > 5) {
         const key = getStoryKey();
         const newStory = {
@@ -7068,11 +7953,13 @@ function promptCustomText() {
             profile: currentProfile,
             savedAt: Date.now()
         };
+        getOrAssignBookId(newStory, 0, key);
         STORIES[key].unshift(newStory);
         try {
             const savedList = getStoredCustomStories();
             savedList.unshift({
                 key: key,
+                bookId: newStory.bookId,
                 profile: currentProfile,
                 title: newStory.title,
                 text: newStory.text,
@@ -7081,20 +7968,8 @@ function promptCustomText() {
             localStorage.setItem(CUSTOM_STORIES_STORAGE_KEY, JSON.stringify(savedList));
         } catch (e) {}
         populateStoryDropdown();
-        document.getElementById('storySelect').value = '0';
-        loadSelectedStory(true);
-        setStatus('✅ Vlastní příběh byl vložen a připraven ke čtení.');
-    }
-}
-
-// legacy promptCustomText removed
-if (false) {
-    const txt = prompt('Vlož vlastní text pohádky nebo kapitoly knihy:');
-    if (txt && txt.trim().length > 5) {
-        const key = getStoryKey();
-        STORIES[key].unshift({ title: '✍️ Vlastní vložený příběh', text: txt.trim(), isCustom: true });
-        populateStoryDropdown();
-        document.getElementById('storySelect').value = '0';
+        const sel = document.getElementById('storySelect');
+        if (sel) sel.value = newStory.bookId;
         loadSelectedStory(true);
         setStatus('✅ Vlastní příběh byl vložen a připraven ke čtení.');
     }
@@ -7277,7 +8152,7 @@ function loadArticleFromHistory(idx) {
 
     // Odstraníme duplicitní výskyt ve STORIES, pokud už tam je
     STORIES[key] = (STORIES[key] || []).filter(s => s.sourceUrl !== item.url);
-    STORIES[key].unshift({
+    const newStory = {
         title: (item.title.startsWith('▶️') ? item.title : (item.isYouTube || /(?:youtube\.com|youtu\.be)/i.test(item.url || '') ? `▶️ ${item.title}` : `🔗 ${item.title}`)).slice(0, 68),
         isYouTube: !!item.isYouTube || /(?:youtube\.com|youtu\.be)/i.test(item.url || ''),
         text: activeText,
@@ -7287,10 +8162,13 @@ function loadArticleFromHistory(idx) {
         isUrlArticle: true,
         sourceUrl: item.url,
         profile: currentProfile
-    });
+    };
+    getOrAssignBookId(newStory, 0, key);
+    STORIES[key].unshift(newStory);
 
     populateStoryDropdown();
-    document.getElementById('storySelect').value = '0';
+    const sel = document.getElementById('storySelect');
+    if (sel) sel.value = newStory.bookId;
 
     switchMode('tts');
     loadSelectedStory(true);
@@ -8212,7 +9090,7 @@ async function fetchAndProcessUrlArticle() {
         const key = getStoryKey();
 
         STORIES[key] = (STORIES[key] || []).filter(s => s.sourceUrl !== rawUrl);
-        STORIES[key].unshift({
+        const newStory = {
             title: (title.startsWith('▶️') ? title : (isYouTube ? `▶️ ${title}` : `🔗 ${title}`)).slice(0, 66),
             text: activeText,
             summaryText: summaryText,
@@ -8222,10 +9100,13 @@ async function fetchAndProcessUrlArticle() {
             isUrlArticle: true,
             sourceUrl: rawUrl,
             profile: currentProfile
-        });
+        };
+        getOrAssignBookId(newStory, 0, key);
+        STORIES[key].unshift(newStory);
 
         populateStoryDropdown();
-        document.getElementById('storySelect').value = '0';
+        const sel = document.getElementById('storySelect');
+        if (sel) sel.value = newStory.bookId;
 
         // Automaticky přepneme do režimu AI Vypravěče (TTS), aby se plynule rozbalila čtečka a začala číst
         switchMode('tts');
@@ -8371,39 +9252,26 @@ function updateReaderProgressBar() {
     textEl.innerText = `📖 Přečteno ${pct} % (Slovo ${cur} z ${total})`;
 }
 
-function promptJumpToPercent() {
+async function jumpToReaderPercentage() {
     if (!storyWordsData || !storyWordsData.length) {
         setStatus('⚠️ Nejprve vyber nebo nahraj příběh.');
         return;
     }
     const total = storyWordsData.length;
     const curPct = Math.round(((currentWordIndex + 1) / total) * 100);
-    const input = prompt('Zadej procento, na které chceš skočit (0 až 100 %):', String(curPct));
+    const input = await AppDialog.prompt('Zadej procento, na které chceš skočit v knize (0 až 100 %):', String(curPct), '🎯 Skok na procento textu');
     if (input === null) return;
     const targetPct = parseFloat(input.replace('%', '').trim());
     if (isNaN(targetPct) || targetPct < 0 || targetPct > 100) {
-        alert('Zadej prosím platné číslo v rozmezí 0 až 100.');
+        await AppDialog.alert('Zadej prosím platné číslo v rozmezí 0 až 100.', 'Neplatné procento');
         return;
     }
     const targetIdx = Math.min(total - 1, Math.max(0, Math.round((targetPct / 100) * (total - 1))));
-    currentWordIndex = targetIdx;
-    highlightWordAt(targetIdx);
-    saveReadingPosition();
+    seekToWordIndex(targetIdx);
     showAutoBadge(`🎯 Skok na ${Math.round(targetPct)} %`);
     setStatus(`🎯 Přeskočeno na ${Math.round(targetPct)} % (slovo ${targetIdx + 1}/${total}).`);
-
-    if (isSessionRunning) {
-        if (currentMode === 'tts') {
-            window.speechSynthesis.cancel();
-            if (ttsWordTimer) clearTimeout(ttsWordTimer);
-            if (ttsSentenceTimer) clearTimeout(ttsSentenceTimer);
-            startAiStoryReading();
-        } else if (currentMode === 'silent') {
-            if (silentInterval) clearTimeout(silentInterval);
-            startSilentPacer();
-        }
-    }
 }
+const promptJumpToPercent = jumpToReaderPercentage;
 
 function buildLocalSmartRecap(snippet) {
     const sentences = snippet.match(/[^.!?…]+[.!?…]+/g) || [snippet];
@@ -8498,38 +9366,194 @@ async function readPreviousRecap() {
     speakRecapViaAi(recapText);
 }
 
-function getStoredEbooks() {
-    try {
-        const raw = localStorage.getItem(EBOOKS_STORAGE_KEY);
-        const parsed = raw ? JSON.parse(raw) : [];
-        return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
-        return [];
+/* ============================================================================
+   TRANSAKČNÍ ÚLOŽIŠTĚ E-KNIH PŘES INDEXEDDB (AtmoReadDB, store ebooks)
+   - Ukládá velké soubory EPUB/PDF mimo 5MB limit localStorage
+   - Automatická migrace a fallback ze starého klíče atmoread_ebooks_v7
+   - Zobrazuje varování při překročení limitu nebo chybě zápisu
+   ============================================================================ */
+const AtmoReadDB = {
+    db: null,
+    isAvailable: true,
+
+    async init() {
+        if (!window.indexedDB) {
+            this.isAvailable = false;
+            return null;
+        }
+        if (this.db) return this.db;
+        return new Promise((resolve) => {
+            try {
+                const req = indexedDB.open('AtmoReadDB', 1);
+                req.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains('ebooks')) {
+                        db.createObjectStore('ebooks', { keyPath: 'id' });
+                    }
+                };
+                req.onsuccess = (e) => {
+                    this.db = e.target.result;
+                    resolve(this.db);
+                };
+                req.onerror = () => {
+                    this.isAvailable = false;
+                    resolve(null);
+                };
+            } catch (err) {
+                this.isAvailable = false;
+                resolve(null);
+            }
+        });
+    },
+
+    async getAllEbooks() {
+        await this.init();
+        if (!this.db || !this.isAvailable) {
+            try {
+                const raw = localStorage.getItem(EBOOKS_STORAGE_KEY);
+                return raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+        return new Promise((resolve) => {
+            try {
+                const tx = this.db.transaction('ebooks', 'readonly');
+                const store = tx.objectStore('ebooks');
+                const req = store.getAll();
+                req.onsuccess = () => resolve(req.result || []);
+                req.onerror = () => resolve([]);
+            } catch (e) {
+                resolve([]);
+            }
+        });
+    },
+
+    async putEbook(ebook) {
+        await this.init();
+        if (!this.db || !this.isAvailable) {
+            try {
+                const raw = localStorage.getItem(EBOOKS_STORAGE_KEY);
+                let list = raw ? JSON.parse(raw) : [];
+                list = list.filter(b => b.id !== ebook.id && b.title !== ebook.title);
+                list.unshift(ebook);
+                localStorage.setItem(EBOOKS_STORAGE_KEY, JSON.stringify(list));
+                return true;
+            } catch (e) {
+                await AppDialog.alert('⚠️ Chyba při ukládání e-knihy: Úložiště localStorage je plné (limit 5 MB). Povolte prosím IndexedDB v prohlížeči.', 'Úložiště e-knih');
+                setStatus('⚠️ Chyba při ukládání: Úložiště je plné.');
+                return false;
+            }
+        }
+        return new Promise((resolve) => {
+            try {
+                const tx = this.db.transaction('ebooks', 'readwrite');
+                const store = tx.objectStore('ebooks');
+                const req = store.put(ebook);
+                req.onsuccess = () => resolve(true);
+                req.onerror = async (e) => {
+                    await AppDialog.alert('⚠️ Chyba při ukládání e-knihy do IndexedDB: Úložiště selhalo nebo došlo místo na disku.', 'Úložiště e-knih');
+                    setStatus('⚠️ Chyba při ukládání e-knihy.');
+                    resolve(false);
+                };
+            } catch (err) {
+                AppDialog.alert('⚠️ Chyba při transakčním zápisu e-knihy: ' + (err.message || err), 'Úložiště e-knih');
+                setStatus('⚠️ Chyba při ukládání e-knihy.');
+                resolve(false);
+            }
+        });
+    },
+
+    async deleteEbook(id) {
+        await this.init();
+        if (!this.db || !this.isAvailable) {
+            try {
+                const raw = localStorage.getItem(EBOOKS_STORAGE_KEY);
+                let list = raw ? JSON.parse(raw) : [];
+                list = list.filter(b => b.id !== id);
+                localStorage.setItem(EBOOKS_STORAGE_KEY, JSON.stringify(list));
+            } catch (e) {}
+            return true;
+        }
+        return new Promise((resolve) => {
+            try {
+                const tx = this.db.transaction('ebooks', 'readwrite');
+                const store = tx.objectStore('ebooks');
+                store.delete(id);
+                tx.oncomplete = () => resolve(true);
+                tx.onerror = () => resolve(false);
+            } catch (e) {
+                resolve(false);
+            }
+        });
+    },
+
+    async clearEbooks() {
+        await this.init();
+        if (!this.db || !this.isAvailable) {
+            localStorage.removeItem(EBOOKS_STORAGE_KEY);
+            return true;
+        }
+        return new Promise((resolve) => {
+            try {
+                const tx = this.db.transaction('ebooks', 'readwrite');
+                const store = tx.objectStore('ebooks');
+                store.clear();
+                tx.oncomplete = () => resolve(true);
+                tx.onerror = () => resolve(false);
+            } catch (e) {
+                resolve(false);
+            }
+        });
+    },
+
+    async migrateFromLocalStorage() {
+        try {
+            const raw = localStorage.getItem(EBOOKS_STORAGE_KEY);
+            if (!raw) return;
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                for (const book of parsed) {
+                    await this.putEbook(book);
+                }
+                localStorage.removeItem(EBOOKS_STORAGE_KEY);
+            }
+        } catch (e) {}
     }
+};
+
+let cachedEbooks = [];
+
+function getStoredEbooks() {
+    return cachedEbooks;
 }
 
 function saveStoredEbooks(list) {
-    try {
-        localStorage.setItem(EBOOKS_STORAGE_KEY, JSON.stringify(list));
-    } catch (e) {
-        console.warn('LocalStorage error while saving ebooks:', e);
-    }
+    cachedEbooks = list || [];
 }
 
 function updateActiveEbookWordIndex(wordIdx) {
     try {
         const sel = document.getElementById('storySelect');
-        const storyIdx = sel ? parseInt(sel.value || '0', 10) : 0;
+        const selVal = sel?.value;
         const list = STORIES[getStoryKey()];
-        const activeStory = list && list[storyIdx];
+        let activeStory = null;
+        if (selVal) {
+            activeStory = list && list.find(s => s.bookId === selVal || s.ebookId === selVal);
+        }
         if (activeStory && activeStory.isEbook) {
             activeStory.wordIndex = wordIdx;
         }
     } catch (e) {}
 }
 
-function loadEbooksIntoMemory() {
-    const saved = getStoredEbooks();
+async function loadEbooksIntoMemory() {
+    try {
+        cachedEbooks = await AtmoReadDB.getAllEbooks();
+    } catch (e) {
+        cachedEbooks = [];
+    }
+    const saved = cachedEbooks;
     if (!saved || !saved.length) return;
     const currentKey = getStoryKey();
     if (!STORIES[currentKey]) STORIES[currentKey] = [];
@@ -8539,22 +9563,28 @@ function loadEbooksIntoMemory() {
         const itemProfile = item.profile || 'adults';
         if (itemProfile !== currentProfile) return;
 
-        const posKey = item.id || item.title;
-        const savedPos = (posKey && typeof positions[posKey] === 'number') ? positions[posKey] : (item.wordIndex || 0);
-        const existing = STORIES[currentKey].find(s => (item.id && s.ebookId === item.id) || s.title === item.title);
+        const posKey = item.bookId || item.id || item.title;
+        const savedPos = (posKey && positions[posKey] && typeof positions[posKey].wordIdx === 'number')
+            ? positions[posKey].wordIdx
+            : ((posKey && typeof positions[posKey] === 'number') ? positions[posKey] : (item.wordIndex || 0));
+
+        let existing = STORIES[currentKey].find(s => (item.id && s.ebookId === item.id) || s.title === item.title);
         if (!existing) {
-            STORIES[currentKey].unshift({
+            const newStory = {
                 ebookId: item.id,
                 title: item.title,
                 text: item.text,
                 isEbook: true,
                 isCustom: true,
-        
+                profile: itemProfile,
                 wordIndex: savedPos,
                 savedAt: item.savedAt || Date.now()
-            });
+            };
+            getOrAssignBookId(newStory, 0, currentKey);
+            STORIES[currentKey].unshift(newStory);
         } else {
             existing.wordIndex = savedPos;
+            getOrAssignBookId(existing, 0, currentKey);
         }
     });
 }
@@ -8584,49 +9614,141 @@ async function extractTextFromEpub(file) {
     const arrayBuffer = await file.arrayBuffer();
     const zip = await JSZip.loadAsync(arrayBuffer);
 
-    const chapterEntries = [];
-    zip.forEach((relativePath, zipEntry) => {
-        if (!zipEntry.dir && /\.(xhtml|html|htm)$/i.test(relativePath)) {
-            chapterEntries.push({ path: relativePath, entry: zipEntry });
+    // 1. Přečtení META-INF/container.xml a vyhledání cesty k .opf souboru (full-path)
+    let containerEntry = zip.file('META-INF/container.xml');
+    if (!containerEntry) {
+        zip.forEach((path, entry) => {
+            if (/meta-inf\/container\.xml$/i.test(path)) {
+                containerEntry = entry;
+            }
+        });
+    }
+    if (!containerEntry) {
+        throw new Error('V archivu EPUB chybí META-INF/container.xml.');
+    }
+
+    const containerXml = await containerEntry.async('string');
+    const containerDoc = new DOMParser().parseFromString(containerXml, 'text/xml');
+    const rootfileEl = containerDoc.querySelector('rootfile[full-path], rootfile');
+    let opfPath = rootfileEl ? rootfileEl.getAttribute('full-path') : '';
+    if (!opfPath) {
+        const match = containerXml.match(/full-path\s*=\s*["']([^"']+)["']/i);
+        if (match) opfPath = match[1];
+    }
+    if (!opfPath) {
+        throw new Error('V container.xml nebyla nalezena cesta k souboru balíčku OPF.');
+    }
+    opfPath = decodeURIComponent(opfPath.trim());
+
+    // 2. Načtení a naparsování .opf souboru
+    let opfEntry = zip.file(opfPath);
+    if (!opfEntry) {
+        zip.forEach((path, entry) => {
+            if (path.toLowerCase() === opfPath.toLowerCase() || path.endsWith(opfPath)) {
+                opfEntry = entry;
+            }
+        });
+    }
+    if (!opfEntry) {
+        throw new Error(`Soubor OPF „${opfPath}“ nebyl v EPUB archivu nalezen.`);
+    }
+
+    const opfXml = await opfEntry.async('string');
+    const opfDoc = new DOMParser().parseFromString(opfXml, 'text/xml');
+    const opfDir = opfPath.includes('/') ? opfPath.slice(0, opfPath.lastIndexOf('/') + 1) : '';
+
+    // 3. Naparsování <manifest> (mapování id -> href)
+    const manifestMap = new Map();
+    const itemEls = opfDoc.querySelectorAll('manifest > item, item');
+    itemEls.forEach(item => {
+        const id = item.getAttribute('id');
+        const href = item.getAttribute('href');
+        if (id && href) {
+            manifestMap.set(id, href);
         }
     });
 
-    if (!chapterEntries.length) {
-        throw new Error('V souboru EPUB nebyly nalezeny žádné textové kapitoly (.xhtml/.html).');
+    // 4. Naparsování <spine> (pořadí <itemref idref="..."/>)
+    const itemrefs = opfDoc.querySelectorAll('spine > itemref, itemref');
+    const spineHrefs = [];
+    itemrefs.forEach(ref => {
+        const idref = ref.getAttribute('idref');
+        if (idref && manifestMap.has(idref)) {
+            spineHrefs.push(manifestMap.get(idref));
+        }
+    });
+
+    function resolvePath(base, rel) {
+        const cleanRel = decodeURIComponent(rel.split('#')[0]);
+        if (!base) return cleanRel;
+        const parts = (base + cleanRel).split('/');
+        const resolved = [];
+        for (const p of parts) {
+            if (!p || p === '.') continue;
+            if (p === '..') resolved.pop();
+            else resolved.push(p);
+        }
+        return resolved.join('/');
     }
 
-    chapterEntries.sort((a, b) => a.path.localeCompare(b.path, undefined, { numeric: true, sensitivity: 'base' }));
+    let chapterPaths = spineHrefs.map(href => resolvePath(opfDir, href));
 
+    // Fallback: pokud je spine prázdný, vyhledáme všechny xhtml/html soubory
+    if (!chapterPaths.length) {
+        const fallbackEntries = [];
+        zip.forEach((path, entry) => {
+            if (!entry.dir && /\.(xhtml|html|htm)$/i.test(path)) {
+                fallbackEntries.push(path);
+            }
+        });
+        chapterPaths = fallbackEntries.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+    }
+
+    if (!chapterPaths.length) {
+        throw new Error('V souboru EPUB nebyly nalezeny žádné textové kapitoly.');
+    }
+
+    // 5. Načtení kapitol přesně v pořadí spine se zachováním h1–h3 a p a odstraněním script/style
     let fullText = '';
-    const parser = new DOMParser();
+    const htmlParser = new DOMParser();
 
-    for (const item of chapterEntries) {
-        if (chapterEntries.length > 2 && /cover|toc|nav/i.test(item.path)) {
-            continue;
+    for (const chapPath of chapterPaths) {
+        let entry = zip.file(chapPath);
+        if (!entry) {
+            zip.forEach((p, e) => {
+                if (p.toLowerCase() === chapPath.toLowerCase() || p.endsWith(chapPath)) {
+                    entry = e;
+                }
+            });
         }
-        const htmlStr = await item.entry.async('string');
-        const doc = parser.parseFromString(htmlStr, 'text/html');
-        doc.querySelectorAll('script, style, svg, noscript').forEach(el => el.remove());
+        if (!entry) continue;
 
-        const paras = Array.from(doc.querySelectorAll('h1, h2, h3, h4, p, div.paragraph, blockquote'));
-        if (paras.length > 0) {
-            const chapterText = paras.map(p => p.textContent.trim()).filter(t => t.length > 0).join('\n\n');
-            if (chapterText) fullText += chapterText + '\n\n';
+        const htmlStr = await entry.async('string');
+        const doc = htmlParser.parseFromString(htmlStr, 'text/html');
+
+        doc.querySelectorAll('script, style, noscript, svg, iframe').forEach(el => el.remove());
+
+        const nodes = Array.from(doc.querySelectorAll('h1, h2, h3, p'));
+        if (nodes.length > 0) {
+            const chapParas = nodes
+                .map(n => (n.textContent || '').replace(/\s+/g, ' ').trim())
+                .filter(t => t.length > 0);
+            if (chapParas.length > 0) {
+                fullText += chapParas.join('\n\n') + '\n\n';
+            }
         } else if (doc.body) {
-            const bodyText = doc.body.textContent.trim();
-            if (bodyText) fullText += bodyText + '\n\n';
+            const bodyTxt = (doc.body.textContent || '').replace(/\s+/g, ' ').trim();
+            if (bodyTxt.length > 20) {
+                fullText += bodyTxt + '\n\n';
+            }
         }
     }
 
-    if (!fullText.trim()) {
-        for (const item of chapterEntries) {
-            const htmlStr = await item.entry.async('string');
-            const doc = parser.parseFromString(htmlStr, 'text/html');
-            if (doc.body) fullText += doc.body.textContent.trim() + '\n\n';
-        }
+    const cleanResult = fullText.replace(/\s+/g, ' ').trim();
+    if (!cleanResult) {
+        throw new Error('Ze souboru EPUB se nepodařilo extrahovat žádný čitelný text.');
     }
-
-    return fullText.replace(/\s+/g, ' ').trim();
+    return cleanResult;
 }
 
 function extractTextFromTxt(file) {
@@ -8655,13 +9777,13 @@ async function handleEbookFileSelect(event) {
         } else if (ext === '.txt') {
             extractedText = await extractTextFromTxt(file);
         } else {
-            alert('Podporovány jsou pouze formáty .pdf, .epub a .txt.');
+            await AppDialog.alert('Podporovány jsou pouze formáty .pdf, .epub a .txt.', 'Formát e-knihy');
             return;
         }
 
         extractedText = extractedText.replace(/\s+/g, ' ').trim();
         if (extractedText.length < 20) {
-            alert('Ze souboru se nepodařilo vytáhnout čitelný text. Může jít o naskenované PDF bez textové vrstvy.');
+            await AppDialog.alert('Ze souboru se nepodařilo vytáhnout čitelný text. Může jít o naskenované PDF bez textové vrstvy.', 'Čtení e-knihy');
             setStatus('⚠️ V e-knize nebyl nalezen čitelný text.');
             return;
         }
@@ -8681,15 +9803,15 @@ async function handleEbookFileSelect(event) {
             savedAt: Date.now()
         };
 
-        const stored = getStoredEbooks();
-        const filtered = stored.filter(b => b.filename !== file.name && b.title !== ebookTitle);
-        filtered.unshift(newEbook);
-        saveStoredEbooks(filtered);
+        const saveSuccess = await AtmoReadDB.putEbook(newEbook);
+        if (!saveSuccess) {
+            return;
+        }
 
         const key = getStoryKey();
         if (!STORIES[key]) STORIES[key] = [];
         STORIES[key] = STORIES[key].filter(s => s.ebookId !== ebookId && s.title !== ebookTitle);
-        STORIES[key].unshift({
+        const newStory = {
             ebookId: ebookId,
             title: ebookTitle,
             text: extractedText,
@@ -8698,19 +9820,22 @@ async function handleEbookFileSelect(event) {
             profile: currentProfile,
             wordIndex: 0,
             savedAt: newEbook.savedAt
-        });
+        };
+        getOrAssignBookId(newStory, 0, key);
+        STORIES[key].unshift(newStory);
 
         populateStoryDropdown();
-        document.getElementById('storySelect').value = '0';
+        const sel = document.getElementById('storySelect');
+        if (sel) sel.value = newStory.bookId;
         switchMode('read');
         loadSelectedStory(true);
 
         const wordCount = extractedText.split(/\s+/).length;
         showAutoBadge(`✅ E-kniha načtena (${wordCount} slov)`);
-        setStatus(`✅ E-kniha „${file.name}“ (${wordCount} slov) byla úspěšně načtena a trvale uložena! Můžeš číst.`);
+        setStatus(`✅ E-kniha „${file.name}“ (${wordCount} slov) byla úspěšně načtena a uložena do IndexedDB! Můžeš číst.`);
     } catch (err) {
         console.error('Ebook extraction error:', err);
-        alert('Chyba při zpracování e-knihy: ' + (err.message || err));
+        await AppDialog.alert('Chyba při zpracování e-knihy: ' + (err.message || err), 'Chyba e-knihy');
         setStatus('⚠️ Chyba při otevírání e-knihy.');
     } finally {
         event.target.value = '';
@@ -8738,30 +9863,36 @@ function loadCustomStoriesIntoMemory() {
     saved.forEach(item => {
         const itemProf = item.profile || (item.key && item.key.startsWith('adults') ? 'adults' : (item.key && item.key.startsWith('kids') ? 'kids' : currentProfile));
         if (itemProf !== currentProfile) return;
-        const exists = STORIES[currentKey].some(s => s.title === item.title && s.text === item.text);
-        if (!exists) {
-            STORIES[currentKey].unshift({
+        let existing = STORIES[currentKey].find(s => (item.bookId && s.bookId === item.bookId) || (s.title === item.title && s.text === item.text));
+        if (!existing) {
+            const newStory = {
                 title: item.title,
                 text: item.text,
                 isCustom: true,
                 profile: currentProfile,
                 savedAt: item.savedAt || Date.now()
-            });
+            };
+            if (item.bookId) newStory.bookId = item.bookId;
+            getOrAssignBookId(newStory, 0, currentKey);
+            STORIES[currentKey].unshift(newStory);
+        } else {
+            if (item.bookId && !existing.bookId) existing.bookId = item.bookId;
+            getOrAssignBookId(existing, 0, currentKey);
         }
     });
 }
 
 
 
-function saveFreeTranscriptToLibrary() {
+async function saveFreeTranscriptToLibrary() {
     if (lastRecordedInterim && !recordedFreeTranscript.includes(lastRecordedInterim)) {
         recordedFreeTranscript.push(lastRecordedInterim);
         lastRecordedInterim = '';
     }
     const fullText = recordedFreeTranscript.join(' ').replace(/\s+/g, ' ').trim();
     if (!fullText) {
-        setStatus('⚠️ Žádný nadiktovaný text k uložení. Spusťte odposlech v režimu Volné čtení a mluvte do mikrofonu.');
-        alert('Zatím nebyl nadiktován žádný text. V režimu Volné čtení spusťte odposlech a čtěte nahlas do mikrofonu.');
+        setStatus('⚠️ Žádný nadiktovaný text k uložení. Spusťte čtení v režimu Papírová kniha a mluvte do mikrofonu.');
+        await AppDialog.alert('Zatím nebyl nadiktován žádný text. Spusťte čtení a mluvte nahlas do mikrofonu.', 'Uložit do Knihovny');
         return;
     }
 
@@ -8770,7 +9901,7 @@ function saveFreeTranscriptToLibrary() {
     const timeStr = now.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
     const defaultTitle = `Moje nadiktované čtení (${dateStr} ${timeStr})`;
 
-    let titleInput = prompt('Zadej název textu do Knihovny:', defaultTitle);
+    let titleInput = await AppDialog.prompt('Zadej název textu do Knihovny:', defaultTitle, '💾 Uložit text do Knihovny');
     if (titleInput === null) return;
     titleInput = titleInput.trim() || defaultTitle;
     const finalTitle = `💾 ${titleInput.replace(/^💾\s*/, '')}`;
@@ -8785,13 +9916,14 @@ function saveFreeTranscriptToLibrary() {
         profile: currentProfile,
         savedAt: Date.now()
     };
-
+    getOrAssignBookId(newStory, 0, key);
     STORIES[key].unshift(newStory);
 
     try {
         const savedList = getStoredCustomStories();
         savedList.unshift({
             key: key,
+            bookId: newStory.bookId,
             profile: currentProfile,
             title: newStory.title,
             text: newStory.text,
@@ -8804,22 +9936,22 @@ function saveFreeTranscriptToLibrary() {
 
     populateStoryDropdown();
     const sel = document.getElementById('storySelect');
-    if (sel) sel.value = '0';
+    if (sel) sel.value = newStory.bookId;
     switchMode('read');
     loadSelectedStory(true);
     showAutoBadge('💾 Uloženo do Knihovny');
     setStatus(`✅ Nadiktovaný text byl úspěšně uložen do Knihovny jako „${finalTitle}“ a uchován pro příště!`);
 }
 
-function exportFreeTranscriptTxt() {
+async function exportFreeTranscriptTxt() {
     if (lastRecordedInterim && !recordedFreeTranscript.includes(lastRecordedInterim)) {
         recordedFreeTranscript.push(lastRecordedInterim);
         lastRecordedInterim = '';
     }
     const fullText = recordedFreeTranscript.join('\n\n').trim();
     if (!fullText) {
-        setStatus('⚠️ Žádný nadiktovaný text k exportu. Mluvte do mikrofonu v režimu Volné čtení.');
-        alert('Zatím nebyl nadiktován žádný text pro export.');
+        setStatus('⚠️ Žádný nadiktovaný text k exportu. Mluvte do mikrofonu v režimu Papírová kniha.');
+        await AppDialog.alert('Zatím nebyl nadiktován žádný text pro export.', 'Export textu');
         return;
     }
 
@@ -8845,7 +9977,7 @@ async function toggleVoiceAudioRecording() {
     }
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        alert('Váš prohlížeč nepodporuje přímé nahrávání zvuku z mikrofonu.');
+        await AppDialog.alert('Váš prohlížeč nepodporuje přímé nahrávání zvuku z mikrofonu.', 'Nahrávání hlasu');
         return;
     }
 
@@ -8917,7 +10049,7 @@ async function toggleVoiceAudioRecording() {
         showAutoBadge('🔴 Nahrávání hlasu zapnuto');
         setStatus('🎙️ Nahrávání mikrofonu běží (.webm)... Až dočteš, klepni na tlačítko znovu a soubor se stáhne!');
     } catch (err) {
-        alert('Nepodařilo se spustit nahrávání z mikrofonu. Zkontrolujte prosím oprávnění mikrofonu.');
+        await AppDialog.alert('Nepodařilo se spustit nahrávání z mikrofonu. Zkontrolujte prosím oprávnění mikrofonu.', 'Chyba mikrofonu');
         setStatus('⚠️ Přístup k mikrofonu pro audio nahrávku byl odepřen.');
     }
 }
@@ -9092,11 +10224,17 @@ function setStoryCategoryFilter(cat) {
     const wasRunning = isSessionRunning && (currentMode === 'tts' || currentMode === 'silent');
     if (wasRunning) stopActiveSession();
 
-    populateStoryDropdown();
     const sel = document.getElementById('storySelect');
+    const currentActiveBookId = sel?.value;
+    populateStoryDropdown();
     if (sel && sel.options.length > 0 && sel.options[0].value !== '-1') {
-        sel.value = sel.options[0].value;
-        loadSelectedStory(true);
+        const optionExists = [...sel.options].some(o => o.value === currentActiveBookId);
+        if (optionExists) {
+            sel.value = currentActiveBookId;
+        } else {
+            sel.value = sel.options[0].value;
+            loadSelectedStory(true);
+        }
     } else {
         unloadCurrentStory();
     }
@@ -9144,10 +10282,11 @@ function calculateStoryReadingMeta(story) {
 
     // Zjištění uložené rozčtené pozice
     const posMap = getStoredPositionsMap();
-    const posKey = story.ebookId || story.title;
+    const bookId = story.bookId || getOrAssignBookId(story, 0, getStoryKey());
+    const savedEntry = posMap[bookId] || (story.ebookId ? posMap[story.ebookId] : (story.title ? posMap[story.title] : null));
     let savedWordIdx = (isEbook && typeof story.wordIndex === 'number' && story.wordIndex > 0)
         ? story.wordIndex
-        : (posMap[posKey] || 0);
+        : (savedEntry ? ((typeof savedEntry === 'number') ? savedEntry : (savedEntry.wordIdx || 0)) : 0);
 
     if (!savedWordIdx) {
         try {
@@ -9155,7 +10294,7 @@ function calculateStoryReadingMeta(story) {
             const raw = localStorage.getItem(profKey);
             if (raw) {
                 const p = JSON.parse(raw);
-                if (p && p.storyKey === posKey && typeof p.wordIdx === 'number' && p.wordIdx > 0) {
+                if (p && (p.lastActiveBookId === bookId || p.storyKey === bookId || p.storyKey === story.title) && typeof p.wordIdx === 'number' && p.wordIdx > 0) {
                     savedWordIdx = p.wordIdx;
                 }
             }
@@ -9230,8 +10369,10 @@ function populateStoryDropdown() {
 
         const finalTitle = `${cleanTitle} ${timeBadge}`;
 
+        const bId = s.bookId || getOrAssignBookId(s, idx, getStoryKey());
         items.push({
             origIndex: idx,
+            bookId: bId,
             displayTitle: finalTitle,
             sortMins: meta.sortMinutes,
             wordCount: meta.wordCount
@@ -9244,7 +10385,7 @@ function populateStoryDropdown() {
 
     items.forEach(item => {
         const opt = document.createElement('option');
-        opt.value = String(item.origIndex);
+        opt.value = item.bookId || String(item.origIndex);
         opt.innerText = item.displayTitle;
         sel.appendChild(opt);
     });
@@ -9254,22 +10395,28 @@ function populateStoryDropdown() {
         opt.value = '-1';
         opt.innerText = '— Žádná položka v této kategorii —';
         sel.appendChild(opt);
-    } else if ([...sel.options].some(o => o.value === prevVal)) {
+    } else if (prevVal && [...sel.options].some(o => o.value === prevVal)) {
         sel.value = prevVal;
+    } else {
+        const lastActiveBookId = localStorage.getItem(`atmoread_last_book_${currentProfile}`);
+        if (lastActiveBookId && [...sel.options].some(o => o.value === lastActiveBookId)) {
+            sel.value = lastActiveBookId;
+        }
     }
 }
 
 /* ============================================================================
    LOKÁLNÍ ZÁLOHA A 1-CLICK PŘENOS MEZI TELEFONEM A TABLETEM (.JSON)
    ============================================================================ */
-function exportAtmoReadBackup() {
+async function exportAtmoReadBackup() {
     try {
+        const storedEbooks = await AtmoReadDB.getAllEbooks();
         const backupData = {
             app: 'AtmoRead',
             version: 'v9.0.0 FINAL',
             exportedAt: new Date().toISOString(),
             data: {
-                ebooks: getStoredEbooks(),
+                ebooks: (storedEbooks && storedEbooks.length) ? storedEbooks : getStoredEbooks(),
                 customStories: getStoredCustomStories(),
                 positions: getStoredPositionsMap(),
                 readingPosAdults: localStorage.getItem('atmoread_reading_pos_adults') || null,
@@ -9278,8 +10425,8 @@ function exportAtmoReadBackup() {
                 readingQueue: (typeof readingQueue !== 'undefined' && Array.isArray(readingQueue)) ? readingQueue : (JSON.parse(localStorage.getItem(READING_QUEUE_STORAGE_KEY) || '[]')),
                 childName: childName || localStorage.getItem('atmoread_child_name') || '',
                 fontSize: localStorage.getItem(READER_FONT_SIZE_KEY) || localStorage.getItem('atmoread_font_size') || '22',
-                bionicReading: localStorage.getItem('atmoread_bionic_reading') || '0',
-                geminiKey: localStorage.getItem('atmoread_gemini_key') || ''
+                bionicReading: localStorage.getItem('atmoread_bionic_reading') || '0'
+                // STRIKTNĚ VYNECHÁNO: API klíče a přístupové tokeny (atmoread_gemini_key apod.) se nesmí exportovat!
             }
         };
 
@@ -9298,7 +10445,7 @@ function exportAtmoReadBackup() {
         setStatus('📲 Záloha atmoread-zaloha.json byla stažena! Můžeš ji nahrát na svém druhém zařízení (např. na tabletu).');
     } catch (e) {
         console.error('Export error:', e);
-        alert('Chyba při exportu zálohy: ' + (e.message || e));
+        await AppDialog.alert('Chyba při exportu zálohy: ' + (e.message || e), 'Export zálohy');
     }
 }
 
@@ -9307,72 +10454,190 @@ function importAtmoReadBackup(event) {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
         try {
             const raw = e.target.result;
-            const parsed = JSON.parse(raw);
-            const data = parsed.data || parsed;
+            let parsed;
+            try {
+                parsed = JSON.parse(raw);
+            } catch (pErr) {
+                await AppDialog.alert('⚠️ Vybraný soubor není platný JSON soubor zálohy.', 'Chyba zálohy');
+                return;
+            }
 
-            // 1. E-knihy
+            // Kontrola platnosti JSON schématu
+            if (!parsed || typeof parsed !== 'object') {
+                await AppDialog.alert('⚠️ Neplatný formát zálohy: Soubor neobsahuje platná data.', 'Chyba zálohy');
+                return;
+            }
+            const data = parsed.data || parsed;
+            const hasValidKeys = data && (
+                Array.isArray(data.ebooks) ||
+                Array.isArray(data.customStories) ||
+                (data.positions && typeof data.positions === 'object') ||
+                Array.isArray(data.urlHistory) ||
+                Array.isArray(data.readingQueue) ||
+                data.childName !== undefined
+            );
+
+            if (!hasValidKeys && parsed.app !== 'AtmoRead') {
+                await AppDialog.alert('⚠️ Neplatná struktura zálohy: Soubor neodpovídá formátu aplikace AtmoRead (neobsahuje knihy, rozčtené pozice ani historii).', 'Chyba zálohy');
+                return;
+            }
+
+            // Volba uživatele: „Sloučit se stávající knihovnou“ vs „Nahradit“
+            let shouldMerge = false;
+            const mergeChoice = await AppDialog.confirm(
+                'Byl načten platný soubor se zálohou AtmoRead.\n\nPřejete si importovaná data SLOUČIT se stávající knihovnou?\n\n• Potvrdit = Sloučit (ponechá vaše stávající knihy a přidá nové)\n• Zrušit = Přejít k možnosti Nahradit',
+                'Import zálohy AtmoRead'
+            );
+
+            if (mergeChoice) {
+                shouldMerge = true;
+            } else {
+                const replaceChoice = await AppDialog.confirm(
+                    'Přejete si NAHRADIT stávající knihovnu obsahem této zálohy?\n\nUpozornění: Vaše stávající knihy, e-knihy a rozčtené pozice budou přepsány zálohou.\n\n• Potvrdit = Nahradit stávající knihovnu\n• Zrušit = Zrušit import zálohy',
+                    'Nahradit knihovnu zálohou'
+                );
+                if (!replaceChoice) {
+                    setStatus('ℹ️ Import zálohy byl zrušen.');
+                    return;
+                }
+                shouldMerge = false;
+            }
+
+            // 1. E-knihy přes AtmoReadDB
             if (data.ebooks && Array.isArray(data.ebooks)) {
-                saveStoredEbooks(data.ebooks);
+                if (shouldMerge) {
+                    const existingEbooks = await AtmoReadDB.getAllEbooks();
+                    for (const eb of data.ebooks) {
+                        if (!eb || !eb.text) continue;
+                        const exists = existingEbooks.some(item => (eb.id && item.id === eb.id) || item.title === eb.title);
+                        if (!exists) {
+                            await AtmoReadDB.putEbook(eb);
+                        }
+                    }
+                } else {
+                    await AtmoReadDB.clearEbooks();
+                    for (const eb of data.ebooks) {
+                        if (eb && eb.text) {
+                            await AtmoReadDB.putEbook(eb);
+                        }
+                    }
+                }
             }
 
             // 2. Vlastní příběhy
             if (data.customStories && Array.isArray(data.customStories)) {
-                localStorage.setItem(CUSTOM_STORIES_STORAGE_KEY, JSON.stringify(data.customStories));
+                if (shouldMerge) {
+                    const curStories = getStoredCustomStories();
+                    data.customStories.forEach(item => {
+                        if (!item || !item.text) return;
+                        const exists = curStories.some(s => (item.bookId && s.bookId === item.bookId) || (s.title === item.title && s.text === item.text));
+                        if (!exists) {
+                            curStories.push(item);
+                        }
+                    });
+                    localStorage.setItem(CUSTOM_STORIES_STORAGE_KEY, JSON.stringify(curStories));
+                } else {
+                    localStorage.setItem(CUSTOM_STORIES_STORAGE_KEY, JSON.stringify(data.customStories));
+                }
             }
 
-            // 3. Pozice čtení
+            // 3. Pozice čtení (atmoread_positions_v9)
             if (data.positions && typeof data.positions === 'object') {
-                localStorage.setItem(POSITIONS_STORAGE_KEY, JSON.stringify(data.positions));
+                if (shouldMerge) {
+                    const curPositions = getStoredPositionsMap();
+                    Object.keys(data.positions).forEach(k => {
+                        const incoming = data.positions[k];
+                        const current = curPositions[k];
+                        if (!current) {
+                            curPositions[k] = incoming;
+                        } else if (typeof incoming === 'object' && incoming.updatedAt) {
+                            if (!current.updatedAt || incoming.updatedAt > current.updatedAt) {
+                                curPositions[k] = incoming;
+                            }
+                        }
+                    });
+                    localStorage.setItem(POSITIONS_STORAGE_KEY, JSON.stringify(curPositions));
+                } else {
+                    localStorage.setItem(POSITIONS_STORAGE_KEY, JSON.stringify(data.positions));
+                }
             }
             if (data.readingPosAdults) {
-                localStorage.setItem('atmoread_reading_pos_adults', typeof data.readingPosAdults === 'string' ? data.readingPosAdults : JSON.stringify(data.readingPosAdults));
+                if (!shouldMerge || !localStorage.getItem('atmoread_reading_pos_adults')) {
+                    localStorage.setItem('atmoread_reading_pos_adults', typeof data.readingPosAdults === 'string' ? data.readingPosAdults : JSON.stringify(data.readingPosAdults));
+                }
             }
             if (data.readingPosKids) {
-                localStorage.setItem('atmoread_reading_pos_kids', typeof data.readingPosKids === 'string' ? data.readingPosKids : JSON.stringify(data.readingPosKids));
+                if (!shouldMerge || !localStorage.getItem('atmoread_reading_pos_kids')) {
+                    localStorage.setItem('atmoread_reading_pos_kids', typeof data.readingPosKids === 'string' ? data.readingPosKids : JSON.stringify(data.readingPosKids));
+                }
             }
 
             // 4. Historie URL
             if (data.urlHistory && Array.isArray(data.urlHistory)) {
-                localStorage.setItem(URL_HISTORY_STORAGE_KEY, JSON.stringify(data.urlHistory));
+                if (shouldMerge) {
+                    const curHist = getSavedUrlHistory();
+                    data.urlHistory.forEach(item => {
+                        if (item && item.url && !curHist.some(h => h.url === item.url)) {
+                            curHist.push(item);
+                        }
+                    });
+                    localStorage.setItem(URL_HISTORY_STORAGE_KEY, JSON.stringify(curHist.slice(0, 15)));
+                } else {
+                    localStorage.setItem(URL_HISTORY_STORAGE_KEY, JSON.stringify(data.urlHistory));
+                }
             }
 
             // 5. Fronta čtení
             if (data.readingQueue && Array.isArray(data.readingQueue)) {
-                readingQueue = data.readingQueue;
-                localStorage.setItem(READING_QUEUE_STORAGE_KEY, JSON.stringify(data.readingQueue));
+                if (shouldMerge) {
+                    loadReadingQueueFromStorage();
+                    data.readingQueue.forEach(item => {
+                        if (item && item.title && !readingQueue.some(q => q.title === item.title && q.text === item.text)) {
+                            readingQueue.push(item);
+                        }
+                    });
+                    saveReadingQueueToStorage();
+                } else {
+                    readingQueue = data.readingQueue;
+                    saveReadingQueueToStorage();
+                }
             }
 
             // 6. Jména dětí / sourozenci
             if (typeof data.childName === 'string') {
-                childName = data.childName;
-                localStorage.setItem('atmoread_child_name', childName);
-                const titleEl = document.getElementById('childNameBtnTitle');
-                const subEl = document.getElementById('childNameBtnSub');
-                if (titleEl) {
-                    titleEl.innerText = childName ? (childName.includes(',') ? `👶 Sourozenci: ${childName}` : `👶 Jméno: ${childName}`) : '👶 Jméno dítěte';
-                }
-                if (subEl) {
-                    subEl.innerText = childName.includes(',') ? 'Kouzelná zvonkohra pro každé dítě' : 'Kouzelná zvonkohra + zlatá záře';
+                if (!shouldMerge || !childName) {
+                    childName = data.childName;
+                    localStorage.setItem('atmoread_child_name', childName);
+                    const titleEl = document.getElementById('childNameBtnTitle');
+                    const subEl = document.getElementById('childNameBtnSub');
+                    if (titleEl) {
+                        titleEl.innerText = childName ? (childName.includes(',') ? `👶 Sourozenci: ${childName}` : `👶 Jméno: ${childName}`) : '👶 Jméno dítěte';
+                    }
+                    if (subEl) {
+                        subEl.innerText = childName.includes(',') ? 'Kouzelná zvonkohra pro každé dítě' : 'Kouzelná zvonkohra + zlatá záře';
+                    }
                 }
             }
 
-            // 7. Písmo a doplňky
+            // 7. Písmo a doplňky (nikdy neimportujeme API klíče)
             if (data.fontSize) {
-                localStorage.setItem(READER_FONT_SIZE_KEY, String(data.fontSize));
+                if (!shouldMerge || !localStorage.getItem(READER_FONT_SIZE_KEY)) {
+                    localStorage.setItem(READER_FONT_SIZE_KEY, String(data.fontSize));
+                }
             }
             if (data.bionicReading !== undefined) {
-                localStorage.setItem('atmoread_bionic_reading', String(data.bionicReading));
+                if (!shouldMerge || localStorage.getItem('atmoread_bionic_reading') === null) {
+                    localStorage.setItem('atmoread_bionic_reading', String(data.bionicReading));
+                }
             }
-            if (data.geminiKey) {
-                localStorage.setItem('atmoread_gemini_key', String(data.geminiKey));
-            }
+            // POZNÁMKA: data.geminiKey se z bezpečnostních důvodů nikdy neimportuje ani neukládá!
 
             // Okamžitá obnova celé paměti a rozhraní
             loadCustomStoriesIntoMemory();
-            loadEbooksIntoMemory();
+            await loadEbooksIntoMemory();
             loadReadingQueueFromStorage();
             renderReadingQueue();
             renderUrlHistoryList();
@@ -9381,12 +10646,13 @@ function importAtmoReadBackup(event) {
             loadSelectedStory(false);
             restoreReadingPosition();
 
-            showAutoBadge('📥 Knihovna úspěšně obnovena');
-            setStatus('✅ Celá knihovna, e-knihy i rozčtené pozice byly úspěšně obnoveny ze zálohy!');
-            alert('✅ Záloha byla úspěšně obnovena! Všechny e-knihy, historie, rozčtené pozice i jména dětí jsou připraveny.');
+            const actionLabel = shouldMerge ? 'sloučena se stávající knihovnou' : 'obnovena (stávající data nahrazena)';
+            showAutoBadge(shouldMerge ? '📥 Knihovna sloučena' : '📥 Knihovna obnovena');
+            setStatus(`✅ Záloha byla úspěšně ${actionLabel}!`);
+            await AppDialog.alert(`✅ Záloha byla úspěšně ${actionLabel}! Všechny e-knihy, historie, rozčtené pozice i nastavení jsou připraveny.`, 'Obnovení zálohy');
         } catch (err) {
             console.error('Import error:', err);
-            alert('Chyba při čtení souboru se zálohou. Ujisti se, že jde o platný .json soubor AtmoRead.');
+            await AppDialog.alert('Chyba při čtení souboru se zálohou. Ujisti se, že jde o platný .json soubor AtmoRead.', 'Chyba zálohy');
         } finally {
             event.target.value = '';
         }
@@ -9394,14 +10660,31 @@ function importAtmoReadBackup(event) {
     reader.readAsText(file, 'utf-8');
 }
 
-function initUI() {
+async function initUI() {
     document.body.classList.toggle('theme-adults', currentProfile === 'adults');
     initNormalizedLibraries();
     buildFastStemIndex();
     const totalStems = SOUND_LIBRARY.reduce((acc, c) => acc + c.stems.length, 0)
                      + DYNAMIC_AURA_PALETTE.reduce((acc, p) => acc + p.stems.length, 0);
-    const dictEl = document.getElementById('dictCounter'); if (dictEl) dictEl.innerText = 'Živá zvuková atmosféra pro čtení a spánek'; const _oldDictStr =
-        `Verze v9.0.0 FINAL • 100% Ověřené zvuky (${SOUND_LIBRARY.length} okruhů, ${totalStems}+ kořenů) • 5/15/30 min příběhy • Plynulé přechody`;
+    const dictEl = document.getElementById('dictCounter');
+    if (dictEl) {
+        dictEl.innerText = '';
+        dictEl.style.display = 'none';
+    }
+
+    // Srozumitelné české popisky pro barvy lampičky: Teplé světlo / Tlumená červená
+    if (typeof LAMP_MODES !== 'undefined' && Array.isArray(LAMP_MODES)) {
+        const candleMode = LAMP_MODES.find(m => m.id === 'candle');
+        if (candleMode) {
+            candleMode.name = '🕯️ Teplé světlo';
+            candleMode.desc = 'Příjemné teplé světlo';
+        }
+        const redMode = LAMP_MODES.find(m => m.id === 'red');
+        if (redMode) {
+            redMode.name = '🔴 Tlumená červená';
+            redMode.desc = 'Pro klid a melatonin';
+        }
+    }
 
     // Vykreslení 4 smysluplných barev lampičky
     const mainLampWrap = document.getElementById('lampModeTilesMain');
@@ -9470,6 +10753,14 @@ function initUI() {
         const bionicBtn = document.getElementById('readerBionicBtn');
         if (bionicBtn) bionicBtn.classList.toggle('active', isBionicReadingEnabled);
     } catch (e) {}
+
+    try {
+        await AtmoReadDB.migrateFromLocalStorage();
+        await loadEbooksIntoMemory();
+    } catch (e) {
+        console.warn('AtmoReadDB init error:', e);
+    }
+
     populateStoryDropdown();
     loadReadingQueueFromStorage();
     renderReadingQueue();
@@ -9498,6 +10789,7 @@ function initUI() {
     initOcrCanvasDrag();
     initCarouselDragAndTouch();
     initReaderFontSize();
+    initReaderScrollDetection();
     updateMainButtonLabel();
     updatePauseResumeButton();
     updateHandoverButtonVisibility();

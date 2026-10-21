@@ -123,8 +123,7 @@ const MOOD_SCENES = {
         id: 'sea_port',
         name: '🌊 Moře a přístav',
         urls: [
-            'https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg',
-            'https://actions.google.com/sounds/v1/water/ocean_wave_rock_beach.ogg'
+            'https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg'
         ],
         stems: ['mor','more','mori','morem','ocean','pristav','molo','kotv','majak','priboj','plaz','vlny','vlnobit','lod','korab','parnik','plachetnic','palub','namornik','kapitan','rack','racek','sea','ocean','port','harbor','waves','ship','sailor','beach']
     },
@@ -740,7 +739,7 @@ const SOUND_LIBRARY = [
         id: 'waterfall', emoji: '🌊', label: 'Vodopád a divoká řeka', priority: 2,
         stems: ['vodopad','reka','reky','rece','perej','proud','hukot','divok','padal','waterfall','river','rapids'],
         urls: [
-            'https://actions.google.com/sounds/v1/water/ocean_wave_rock_beach.ogg',
+            'https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg',
             'https://actions.google.com/sounds/v1/water/small_stream_flowing.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/water/small_stream_flowing.ogg'],
@@ -750,8 +749,7 @@ const SOUND_LIBRARY = [
         id: 'ocean_waves', emoji: '🌊', label: 'Mořský příboj a vlny', priority: 2,
         stems: ['mor','more','mori','morem','ocean','vln','vlny','priboj','breh','plaz','pisek','moreplav','sea','ocean','waves','surf','shore'],
         urls: [
-            'https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg',
-            'https://actions.google.com/sounds/v1/water/ocean_wave_rock_beach.ogg'
+            'https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg'],
         dur: 5.8
@@ -1274,7 +1272,7 @@ const SOUND_LIBRARY = [
         id: 'ship_horn', emoji: '🚢', label: 'Loď, parník a lodní siréna', priority: 2,
         stems: ['lod','lode','lodi','lodka','parnik','clun','korab','kapitan','namornik','pristav','kotva','majak','ship','boat','steamer','sail'],
         urls: [
-            'https://actions.google.com/sounds/v1/water/ocean_wave_rock_beach.ogg',
+            'https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg',
             'https://actions.google.com/sounds/v1/transportation/metal_gear_shifting.ogg'
         ],
         tailUrls: ['https://actions.google.com/sounds/v1/water/waves_crashing_on_rock_beach.ogg'],
@@ -1454,13 +1452,27 @@ function getStoryTextByDuration(story, durationMin, profile, lang) {
     if (durationMin <= 5) {
         return base;
     }
-    const extraMid = (profile === 'adults') ? EXTENDED_SLEEP_CHAPTERS.adults_cs_mid : EXTENDED_SLEEP_CHAPTERS.kids_cs_mid;
-    const extraLong = (profile === 'adults') ? EXTENDED_SLEEP_CHAPTERS.adults_cs_long : EXTENDED_SLEEP_CHAPTERS.kids_cs_long;
+    const isAdults = (profile === 'adults');
+    const extraMid = isAdults ? EXTENDED_SLEEP_CHAPTERS.adults_cs_mid : EXTENDED_SLEEP_CHAPTERS.kids_cs_mid;
+    const extraLong = isAdults ? EXTENDED_SLEEP_CHAPTERS.adults_cs_long : EXTENDED_SLEEP_CHAPTERS.kids_cs_long;
 
+    let parts = [];
     if (durationMin <= 15) {
-        return [base, mid, extraMid].filter(Boolean).join(' ');
+        // Do 15 minut: základní příběh + rozšiřující střední kapitola
+        parts = [base, mid || extraMid];
+    } else {
+        // Do 30 minut: plný příběh + střední kapitola + závěrečný klidný epilog
+        parts = [base, mid, extraLong || extraMid];
     }
-    // 30 minut: plný příběh + střední kapitola + atmosférické rozvinutí + dlouhý uspávací epilog
-    return [base, mid, extraMid, extraLong, extraMid, extraLong].filter(Boolean).join(' ');
+
+    // Čistý, nepřikrášlený text bez jakýchkoli duplicitních odstavců
+    const uniqueParts = [];
+    for (const part of parts) {
+        const trimmed = (part || '').trim();
+        if (trimmed && !uniqueParts.includes(trimmed)) {
+            uniqueParts.push(trimmed);
+        }
+    }
+    return uniqueParts.join(' ');
 }
 
