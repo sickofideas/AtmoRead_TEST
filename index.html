@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AtmoRead v7.1.0 MASTER — Živá atmosféra pro pohádky, knihy i články</title>
+    <title>AtmoRead v7.3.0 MOBILE POLISH — Živá atmosféra pro pohádky, knihy i články</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -19,7 +19,7 @@
             --aura-opacity: 0.42;
             --lamp-brightness: 1.0;
             --tile-bg: rgba(28, 19, 11, 0.88);
-            --tile-border: rgba(251, 191, 36, 0.30);
+            --tile-border: rgba(251, 191, 36, 0.16);
             --tile-hover: rgba(251, 191, 36, 0.65);
             --accent: #fbbf24;
             --accent-soft: #fde68a;
@@ -39,7 +39,7 @@
         body[data-profile="adults"] {
             --bg-dark: #090d14;
             --tile-bg: rgba(18, 24, 34, 0.90);
-            --tile-border: rgba(194, 175, 140, 0.28);
+            --tile-border: rgba(194, 175, 140, 0.16);
             --tile-hover: rgba(214, 195, 160, 0.60);
             --accent: #e2c792;
             --accent-soft: #f3e5c8;
@@ -222,11 +222,75 @@
         }
         .header-meta { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
 
-        /* ROZCESTNÍK SE 3 KARTAMI (2 hlavní režimy čtení + kompaktnější doplněk lampičky) */
+        /* SEGMENTED CONTROL BAR (3 tlačítka vedle sebe na 1 řádku i na mobilu, max výška 56px) */
         .hub-grid {
             display: grid;
-            grid-template-columns: 1.25fr 1.25fr 0.85fr;
-            gap: 14px;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 8px;
+            width: 100%;
+            max-height: 56px;
+        }
+        .hub-card {
+            background: var(--tile-bg);
+            border: 1.5px solid var(--tile-border);
+            border-radius: 16px;
+            padding: 0 10px;
+            height: 52px;
+            max-height: 52px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition:
+                background 0.36s var(--soft-ease),
+                border-color 0.36s var(--soft-ease),
+                transform 0.32s var(--plane-ease),
+                box-shadow 0.36s var(--soft-ease);
+            text-align: center;
+            color: var(--text-main);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .hub-card:hover {
+            transform: translateY(-1px);
+            border-color: var(--accent);
+        }
+        .hub-card.active {
+            background: linear-gradient(135deg, var(--accent-glow), rgba(25, 18, 12, 0.95));
+            border-color: var(--accent);
+            box-shadow: 0 4px 18px var(--accent-glow);
+        }
+        .hub-card-top {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .hub-icon {
+            font-size: 20px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .hub-title {
+            font-size: 14.5px;
+            font-weight: 800;
+            color: var(--accent-soft);
+            margin: 0;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
+        .hub-desc, .hub-tag {
+            display: none !important;
+        }
+        /* OLD_HUB_CSS_COMMENT_START
+        .hub-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 8px;
+            width: 100%;
+
         }
         @media (max-width: 860px) {
             .hub-grid { grid-template-columns: 1fr; }
@@ -274,6 +338,9 @@
             padding: 4px 10px; border-radius: 99px;
             background: rgba(255, 255, 255, 0.08); color: var(--accent);
         }
+        OLD_HUB_CSS_COMMENT_END */
+        .dummy-hub-fix {
+        }
 
         /* ====================================================================
            BENTO DLAŽDICOVÉ SCHÉMA (BEZ POSUVNÍKŮ - VŠE NA 1 ŤUKNUTÍ)
@@ -285,7 +352,7 @@
         }
         .tile {
             background: var(--tile-bg);
-            border: 1.5px solid var(--tile-border);
+            border: 1px solid var(--tile-border);
             border-radius: 24px;
             padding: 20px;
             backdrop-filter: blur(14px);
@@ -360,7 +427,7 @@
         }
         .tile-story-card {
             background: var(--tile-bg);
-            border: 1.5px solid var(--tile-border);
+            border: 1px solid var(--tile-border);
             border-radius: 24px;
             padding: 20px;
             backdrop-filter: blur(14px);
@@ -376,13 +443,13 @@
 
         .tile-amb    { grid-column: span 12; }
         .tile-audio  { grid-column: span 12; }
-        /* Kompaktní doplňková dlaždice lampičky (nadstavba) */
-        .tile-lamp   { grid-column: span 12; }
+
+
 
         /* Sjednocený blok zvuku, časovače a noční lampičky */
         .audio-lamp-grid {
             display: grid;
-            grid-template-columns: 1.35fr 0.85fr;
+            grid-template-columns: 1fr 1fr;
             gap: 18px;
             align-items: stretch;
         }
@@ -399,14 +466,18 @@
         }
 
         #hubLamp {
-            padding: 12px 14px;
+            height: 52px;
+            max-height: 52px;
+            padding: 0 10px !important;
+            gap: 8px !important;
+            /* hublamp pad */
             gap: 6px;
         }
-        #hubLamp .hub-card-top { gap: 8px; }
-        #hubLamp .hub-icon { font-size: 24px; }
-        #hubLamp .hub-title { font-size: 0.98rem; }
-        #hubLamp .hub-desc { font-size: 0.78rem; margin-top: 4px; line-height: 1.3; }
-        #hubLamp .hub-tag { font-size: 10px; padding: 2px 8px; }
+        /* old-hublamp-top */
+        /* old-hublamp-icon */
+        /* old-hublamp-title */
+        /* old-hublamp-desc */
+        /* old-hublamp-tag */
 
         .compact-lamp-grid {
             display: grid;
@@ -415,7 +486,7 @@
         }
         .compact-lamp-btn {
             background: rgba(255, 255, 255, 0.05);
-            border: 1.5px solid var(--tile-border);
+            border: 1px solid var(--tile-border);
             border-radius: 14px;
             padding: 5px 8px;
             color: var(--text-main);
@@ -474,7 +545,7 @@
         }
 
         @media (max-width: 900px) {
-            .tile-hero, .tile-modes, .tile-lamp, .tile-audio, .tile-amb { grid-column: span 12; }
+            .tile-hero, .tile-modes, .tile-audio, .tile-amb { grid-column: span 12; }
         }
 
         /* VELKÉ PŘEPÍNACÍ DLAŽDICE (MÍSTO POSUVNÍKŮ) */
@@ -487,7 +558,9 @@
             overflow-x: auto;
             scroll-snap-type: x proximity;
             gap: 12px;
-            padding-bottom: 6px;
+            padding: 4px 10px 8px;
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 3%, black 93%, transparent 100%);
+            mask-image: linear-gradient(to right, transparent 0%, black 3%, black 93%, transparent 100%);
             scrollbar-width: none;
             -ms-overflow-style: none;
             touch-action: pan-x pan-y;
@@ -522,7 +595,9 @@
             overflow-x: auto;
             scroll-snap-type: x proximity;
             gap: 12px;
-            padding-bottom: 6px;
+            padding: 4px 10px 8px;
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 3%, black 93%, transparent 100%);
+            mask-image: linear-gradient(to right, transparent 0%, black 3%, black 93%, transparent 100%);
             scrollbar-width: none;
             -ms-overflow-style: none;
             touch-action: pan-x pan-y;
@@ -568,26 +643,42 @@
         }
         @media (max-width: 680px) {
             .app-wrapper {
-                padding: 10px 10px 110px;
-                gap: 12px;
+                padding: 8px 10px 105px;
+                gap: 10px;
+            }
+            .reader-viewport {
+                padding: 18px 14px !important;
+                font-size: 19.5px !important;
+                line-height: 1.82 !important;
             }
             .tile {
-                padding: 14px;
-                border-radius: 20px;
+                padding: 14px 12px;
+                border-radius: 22px;
             }
             .tile-story-card {
-                padding: 14px;
-                border-radius: 20px;
+                padding: 14px 12px;
+                border-radius: 22px;
             }
             .hub-grid {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 5px !important;
                 gap: 8px;
             }
             #hubLamp {
-                grid-column: span 2;
+            height: 52px;
+            max-height: 52px;
+            padding: 0 10px !important;
+            gap: 8px !important;
+                grid-column: auto !important;
+                height: 48px !important;
+                max-height: 48px !important;
+                padding: 0 4px !important;
                 padding: 10px 12px;
             }
             .hub-card {
+                height: 48px !important;
+                max-height: 48px !important;
+                padding: 0 4px !important;
                 padding: 10px 12px;
                 border-radius: 16px;
                 gap: 4px;
@@ -596,10 +687,10 @@
                 gap: 8px;
             }
             .hub-icon {
-                font-size: 22px;
+                font-size: 16px;
             }
             .hub-title {
-                font-size: 13.5px;
+                font-size: 11.5px;
                 line-height: 1.2;
             }
             .hub-desc {
@@ -611,11 +702,12 @@
             }
             #lullabyGridMain > *, .carousel-strip > * {
                 flex: 0 0 148px;
-                min-height: 64px;
+                min-height: 62px;
             }
             .carousel-strip .big-tile-btn, #lullabyGridMain .big-tile-btn {
-                min-height: 64px;
-                padding: 8px 6px;
+                min-height: 62px;
+                border-radius: 16px;
+                padding: 10px 8px;
             }
             .modes-strip {
                 grid-template-columns: repeat(2, 1fr) !important;
@@ -641,7 +733,7 @@
 
         .big-tile-btn {
             background: rgba(255, 255, 255, 0.05);
-            border: 2px solid var(--tile-border);
+            border: 1px solid var(--tile-border);
             border-radius: 18px;
             padding: 12px 10px;
             color: var(--text-main);
@@ -672,12 +764,44 @@
         }
 
         /* DLAŽDICE 1: HLAVNÍ SCÉNA S KNIHOU */
+        .hero-status-row {
+            display: flex; align-items: center; gap: 14px; width: 100%;
+        }
+        @media (max-width: 480px) {
+            .hero-status-row { gap: 10px; }
+        }
         .hero-center {
             display: flex; flex-direction: column; align-items: center;
             text-align: center; padding: 4px 0;
         }
+        .scene-aura-orb {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            padding: 8px 10px;
+            flex-shrink: 0;
+            background: radial-gradient(circle, rgba(var(--aura-r), var(--aura-g), var(--aura-b), 0.18) 0%, rgba(var(--aura-r), var(--aura-g), var(--aura-b), 0.04) 65%, transparent 75%);
+            box-shadow: 0 0 20px rgba(var(--aura-r), var(--aura-g), var(--aura-b), 0.22);
+            transition: box-shadow 0.75s var(--soft-ease), background 0.75s var(--soft-ease), transform 0.6s var(--soft-ease);
+        }
+        .scene-aura-orb.pulsing {
+            animation: auraBreathing 4s ease-in-out infinite;
+            box-shadow: 0 0 34px rgba(var(--aura-r), var(--aura-g), var(--aura-b), 0.35);
+        }
+        @keyframes auraBreathing {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(var(--aura-r), var(--aura-g), var(--aura-b), 0.22);
+            }
+            50% {
+                transform: scale(1.08);
+                box-shadow: 0 0 40px rgba(var(--aura-r), var(--aura-g), var(--aura-b), 0.45);
+            }
+        }
         .book-svg {
-            width: 138px; height: 92px;
+            width: 76px; height: 52px; flex-shrink: 0;
             filter: drop-shadow(0 6px 18px var(--accent-glow));
             animation: floatBook 5s ease-in-out infinite;
         }
@@ -686,7 +810,7 @@
             50% { transform: translateY(-5px); }
         }
         .status-bubble {
-            width: 100%; margin-top: 10px; padding: 14px 18px;
+            flex: 1; width: 100%; margin-top: 0; padding: 10px 16px;
             background: rgba(0, 0, 0, 0.48);
             border: 1.5px solid var(--tile-border);
             border-radius: 18px; font-size: 16px; font-weight: 700;
@@ -694,16 +818,44 @@
             display: flex; align-items: center; justify-content: center;
             transition: opacity 0.36s var(--soft-ease), transform 0.36s var(--plane-ease), border-color 0.4s var(--soft-ease);
         }
+        .reader-mode-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--tile-border);
+            border-radius: 12px;
+            padding: 2px 4px;
+        }
+        .reader-mode-toggle .compact-lamp-btn {
+            min-height: 30px;
+            padding: 3px 10px;
+            font-size: 12px;
+            border-radius: 9px;
+            border: 1px solid transparent;
+        }
+        .reader-mode-toggle .compact-lamp-btn.active {
+            background: linear-gradient(135deg, var(--accent), #d97706);
+            color: #140d04 !important;
+            border-color: var(--accent);
+            font-weight: 800;
+        }
         #autoBadgesBox {
             min-height: 42px; margin-top: 10px;
             display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
         }
         .auto-badge {
-            font-size: 14px; font-weight: 800;
-            background: linear-gradient(135deg, var(--accent), #d97706);
-            color: #140d04; padding: 6px 15px; border-radius: 99px;
-            box-shadow: 0 4px 14px var(--accent-glow);
+            font-size: 13.5px; font-weight: 700;
+            background: rgba(22, 16, 10, 0.75);
+            color: var(--accent-soft);
+            border: 1px solid rgba(var(--aura-r), var(--aura-g), var(--aura-b), 0.45);
+            padding: 5px 14px; border-radius: 99px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45), 0 0 14px rgba(var(--aura-r), var(--aura-g), var(--aura-b), 0.25);
             animation: popBadge 0.42s var(--plane-ease);
+            display: inline-flex; align-items: center; gap: 6px;
+            letter-spacing: 0.2px;
         }
         @keyframes popBadge { from { transform: scale(0.88) translateY(5px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
 
@@ -738,21 +890,50 @@
             box-shadow: 0 2px 10px var(--accent-glow);
         }
         .story-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            width: 100%;
+        }
+        .story-controls #storySelect {
+            flex: 1;
+            min-width: 180px;
+        }
+        @media (max-width: 720px) {
+            .story-controls {
+                flex-wrap: wrap;
+            }
+            .story-controls #storySelect {
+                min-width: 100%;
+                order: 1;
+            }
+        }
+        .upload-drawer-grid {
             display: grid;
-            grid-template-columns: minmax(280px, 1.8fr) auto auto auto auto;
-            gap: 10px; margin-bottom: 12px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
         }
-        @media (max-width: 1080px) {
-            .story-controls { grid-template-columns: 1fr 1fr; }
+        @media (max-width: 768px) {
+            .upload-drawer-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
-        @media (max-width: 560px) {
-            .story-controls { grid-template-columns: 1fr; }
+        @media (max-width: 440px) {
+            .upload-drawer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .compact-lamp-row .compact-lamp-btn {
+            flex: 1 1 80px;
+            justify-content: center;
         }
         .reader-settings-panel {
-            background: rgba(255, 255, 255, 0.035);
-            border: 1.5px solid var(--tile-border);
+            padding: 12px 14px !important;
+            background: rgba(255, 255, 255, 0.03);
+            border: none;
             border-radius: 18px;
-            padding: 12px 14px;
+            /* hublamp pad */
             margin-bottom: 12px;
             display: flex;
             flex-direction: column;
@@ -761,7 +942,10 @@
         .reader-settings-row {
             display: grid;
             grid-template-columns: 1fr 1.2fr;
-            gap: 14px;
+            gap: 14px !important;
+            gap: 8px;
+            width: 100%;
+
             align-items: start;
         }
         @media (max-width: 900px) {
@@ -799,13 +983,66 @@
             border-radius: 20px; padding: 24px;
             font-size: 22px; line-height: 1.9; color: var(--reader-text);
             max-height: 52vh; overflow-y: auto;
-            transition: opacity 0.46s var(--soft-ease), transform 0.46s var(--plane-ease), background 0.55s var(--soft-ease);
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5), inset 0 0 35px rgba(0, 0, 0, 0.28);
+            transition: opacity 0.46s var(--soft-ease), transform 0.46s var(--plane-ease), background 0.55s var(--soft-ease), font-size 0.25s var(--soft-ease);
         }
-        .w-tok { padding: 2px 5px; border-radius: 6px; cursor: pointer; transition: background 0.22s var(--soft-ease), color 0.22s var(--soft-ease), box-shadow 0.22s var(--soft-ease); }
-        .w-tok.trig-sfx { border-bottom: 2px dotted var(--accent); }
+        .w-tok {
+            padding: 2px 5px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.22s var(--soft-ease), color 0.22s var(--soft-ease), box-shadow 0.22s var(--soft-ease), transform 0.22s var(--soft-ease);
+        }
+        .w-tok.trig-sfx {
+            color: var(--accent-soft);
+            background: rgba(251, 191, 36, 0.07);
+            border-radius: 6px;
+            padding: 1px 4px;
+        }
         .w-tok.active-word {
-            background: var(--accent); color: #120c04 !important;
-            font-weight: bold; box-shadow: 0 0 14px var(--accent);
+            background: var(--accent);
+            color: #120c04 !important;
+            font-weight: 700;
+            border-radius: 7px;
+            box-shadow: 0 2px 14px var(--accent-glow);
+            transform: scale(1.03);
+            display: inline-block;
+        }
+
+        /* ====================================================================
+           ZEN ČTEČKA PŘES CELÝ DISPLEJ
+           ==================================================================== */
+        body.zen-reader-active {
+            overflow: hidden !important;
+        }
+        body.zen-reader-active .top-header,
+        body.zen-reader-active .hub-grid,
+        body.zen-reader-active .tile-hero,
+        body.zen-reader-active .tile-audio {
+            display: none !important;
+        }
+        body.zen-reader-active .app-wrapper {
+            padding: 0 !important;
+            max-width: 100% !important;
+        }
+        body.zen-reader-active #storyTile {
+            position: fixed !important;
+            inset: 0 !important;
+            z-index: 180 !important;
+            padding: 12px 12px 90px !important;
+            background: var(--bg-dark) !important;
+            overflow-y: auto !important;
+            margin: 0 !important;
+            transform: none !important;
+            border-radius: 0 !important;
+            display: block !important;
+            opacity: 1 !important;
+        }
+        body.zen-reader-active #storyTile .tile-story-card {
+            border-radius: 20px;
+            min-height: calc(100vh - 105px);
+        }
+        body.zen-reader-active #readerBox {
+            max-height: calc(100vh - 230px) !important;
         }
 
         /* LIŠTA E-BOOK ČTEČKY (POSTUP %, BIONIC READING, REKAPITULACE) */
@@ -960,12 +1197,39 @@
         }
         @media (max-width: 680px) {
             .help-grid { grid-template-columns: 1fr; }
+            #ocrModal, #urlModal, #helpModal {
+                justify-content: flex-end;
+                padding: 0;
+            }
+            .ocr-modal-card {
+                border-radius: 28px 28px 0 0;
+                max-height: 88vh;
+                padding: 18px 16px 28px;
+                border-bottom: none;
+                transform: translateY(24px);
+            }
+            #ocrModal.active .ocr-modal-card,
+            #urlModal.active .ocr-modal-card,
+            #helpModal.active .ocr-modal-card {
+                transform: translateY(0);
+            }
+            .ocr-modal-card::before {
+                content: '';
+                width: 42px;
+                height: 4px;
+                background: rgba(255, 255, 255, 0.25);
+                border-radius: 99px;
+                margin: 0 auto 8px;
+                display: block;
+                flex-shrink: 0;
+            }
         }
         .help-step-card {
+            padding: 12px 14px !important;
             background: rgba(255, 255, 255, 0.045);
             border: 1.5px solid var(--tile-border);
             border-radius: 16px;
-            padding: 12px 14px;
+            /* hublamp pad */
             display: flex;
             flex-direction: column;
             gap: 6px;
@@ -1038,8 +1302,8 @@
 
         /* FRONTA DALŠÍHO ČTENÍ & DĚTSKÁ PERSONALIZACE (v7.0.0) */
         .reading-queue-container {
-            background: rgba(255, 255, 255, 0.035);
-            border: 1.5px solid var(--tile-border);
+            background: rgba(255, 255, 255, 0.03);
+            border: none;
             border-radius: 16px;
             padding: 10px 14px;
             margin-bottom: 12px;
@@ -1096,109 +1360,96 @@
             flex: 1 1 200px;
         }
 
-        /* PEVNÁ SPODNÍ LIŠTA S OBŘÍM TLAČÍTKEM SPUSTIT / ZASTAVIT + VIDITELNÝ ŠTÍTEK VERZE */
+        /* ====================================================================
+           PLOVOUCÍ SPODNÍ OSTROV (FLOATING PILL DOCK)
+           ==================================================================== */
         .bottom-dock {
-            position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
-            background: rgba(12, 9, 6, 0.96);
-            border-top: 2px solid var(--tile-border);
-            backdrop-filter: blur(18px); padding: 12px 16px;
-            box-shadow: 0 -12px 32px rgba(0, 0, 0, 0.8);
+            position: fixed;
+            bottom: max(12px, env(safe-area-inset-bottom));
+            left: 12px;
+            right: 12px;
+            max-width: 640px;
+            margin: 0 auto;
+            z-index: 200;
+            border-radius: 999px;
+            padding: 8px 10px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(15, 11, 7, 0.85);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
+            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.75);
         }
         .dock-inner {
-            max-width: 1120px; margin: 0 auto;
-            display: flex; gap: 12px; align-items: center;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            gap: 8px;
+            align-items: center;
         }
         .dock-ver-pill {
-            font-size: 11.5px; font-weight: 800;
+            font-size: 11px;
+            font-weight: 800;
             color: var(--accent-soft);
             background: rgba(255, 255, 255, 0.06);
             border: 1px solid var(--tile-border);
-            padding: 8px 12px;
-            border-radius: 14px;
+            padding: 6px 10px;
+            border-radius: 999px;
             white-space: nowrap;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            line-height: 1.2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.15;
+            min-height: 52px;
         }
         @media (max-width: 680px) {
             .dock-ver-pill { display: none; }
         }
-        .stray-fix {
-            line-height: 1.2;
-        }
-        @media (max-width: 680px) {
-            .bottom-dock {
-                padding: 8px 10px;
-            }
-            .dock-inner {
-                gap: 6px;
-                flex-wrap: nowrap;
-            }
-            .btn-primary-run {
-                min-height: 50px;
-                font-size: 13px;
-                padding: 0 8px;
-                gap: 5px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-            .btn-pause-resume {
-                min-height: 50px;
-                padding: 0 8px;
-                font-size: 11.5px;
-                white-space: nowrap;
-            }
-            .btn-blackout-dock {
-                min-height: 50px;
-                padding: 0 8px;
-                font-size: 11.5px;
-                white-space: nowrap;
-            }
-            .btn-panic {
-                min-height: 50px;
-                padding: 0 10px;
-                font-size: 12px;
-                white-space: nowrap;
-            }
-        }
-        @media (max-width: 420px) {
-            .dock-inner { gap: 4px; }
-            .btn-primary-run { font-size: 11.5px; padding: 0 5px; }
-            .btn-pause-resume { font-size: 11px; padding: 0 5px; }
-            .btn-blackout-dock { font-size: 11px; padding: 0 5px; }
-            .btn-panic { font-size: 11px; padding: 0 6px; }
-        }
-        @media (max-width: 0px) {
-            .dock-ver-pill { display: none; }
-        }
+
         .btn-primary-run {
-            flex: 1; min-height: 68px; border: none; border-radius: 20px;
-            font-size: 20px; font-weight: 900; color: #fff;
+            flex: 1;
+            min-height: 52px;
+            border: none;
+            border-radius: 999px;
+            font-size: 17px;
+            font-weight: 900;
+            color: #fff;
             background: linear-gradient(135deg, #16a34a, #15803d);
-            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px;
-            box-shadow: 0 8px 26px rgba(22, 163, 74, 0.45);
-            letter-spacing: 0.3px; transition: transform 0.32s var(--plane-ease), background 0.42s var(--soft-ease), box-shadow 0.42s var(--soft-ease);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 6px 20px rgba(22, 163, 74, 0.45);
+            letter-spacing: 0.3px;
+            transition: transform 0.32s var(--plane-ease), background 0.42s var(--soft-ease), box-shadow 0.42s var(--soft-ease);
         }
         .btn-primary-run:active { transform: scale(0.99); }
         .btn-primary-run.running {
             background: linear-gradient(135deg, #dc2626, #991b1b);
-            box-shadow: 0 8px 26px rgba(220, 38, 38, 0.55);
+            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.55);
         }
         .btn-panic {
-            min-height: 68px; padding: 0 24px; border-radius: 20px;
-            font-size: 16px; font-weight: 900; cursor: pointer;
-            background: #451a1a; border: 2px solid #f87171; color: #fecaca;
+            min-height: 52px;
+            padding: 0 18px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 900;
+            cursor: pointer;
+            background: #451a1a;
+            border: 1.5px solid #f87171;
+            color: #fecaca;
             transition: transform 0.32s var(--plane-ease), background 0.36s var(--soft-ease);
         }
         .btn-blackout-dock {
-            min-height: 68px;
-            padding: 0 16px;
-            border-radius: 20px;
-            font-size: 14px;
+            min-height: 52px;
+            padding: 0 14px;
+            border-radius: 999px;
+            font-size: 13.5px;
             font-weight: 800;
             cursor: pointer;
             background: rgba(255, 255, 255, 0.06);
-            border: 2px solid var(--tile-border);
+            border: 1px solid rgba(255, 255, 255, 0.16);
             color: var(--text-muted);
             display: flex;
             align-items: center;
@@ -1216,19 +1467,19 @@
             transform: scale(0.97);
         }
         .btn-pause-resume {
-            min-height: 68px;
-            padding: 0 20px;
-            border-radius: 20px;
-            font-size: 15px;
+            min-height: 52px;
+            padding: 0 16px;
+            border-radius: 999px;
+            font-size: 13.5px;
             font-weight: 900;
             cursor: pointer;
             background: rgba(251, 191, 36, 0.12);
-            border: 2px solid var(--accent);
+            border: 1.5px solid var(--accent);
             color: var(--accent-soft);
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 6px;
             white-space: nowrap;
             transition: transform 0.32s var(--plane-ease), background 0.36s var(--soft-ease), border-color 0.36s var(--soft-ease), box-shadow 0.36s var(--soft-ease);
         }
@@ -1247,15 +1498,13 @@
         }
 
         @media (max-width: 680px) {
-            .bottom-dock {
-                padding: 8px 10px;
-            }
             .dock-inner {
                 gap: 6px;
                 flex-wrap: nowrap;
             }
             .btn-primary-run {
-                min-height: 50px;
+                min-height: 52px;
+                border-radius: 999px;
                 font-size: 13px;
                 padding: 0 8px;
                 gap: 5px;
@@ -1264,19 +1513,22 @@
                 text-overflow: ellipsis;
             }
             .btn-pause-resume {
-                min-height: 50px;
+                min-height: 52px;
+                border-radius: 999px;
                 padding: 0 8px;
                 font-size: 11.5px;
                 white-space: nowrap;
             }
             .btn-blackout-dock {
-                min-height: 50px;
+                min-height: 52px;
+                border-radius: 999px;
                 padding: 0 8px;
                 font-size: 11.5px;
                 white-space: nowrap;
             }
             .btn-panic {
-                min-height: 50px;
+                min-height: 52px;
+                border-radius: 999px;
                 padding: 0 10px;
                 font-size: 12px;
                 white-space: nowrap;
@@ -1284,17 +1536,10 @@
         }
         @media (max-width: 420px) {
             .dock-inner { gap: 4px; }
-            .btn-primary-run { font-size: 11.5px; padding: 0 5px; }
-            .btn-pause-resume { font-size: 11px; padding: 0 5px; }
-            .btn-blackout-dock { font-size: 11px; padding: 0 5px; }
-            .btn-panic { font-size: 11px; padding: 0 6px; }
-        }
-        @media (max-width: 0px) {
-            .dock-inner { gap: 8px; }
-            .btn-primary-run { min-height: 54px; font-size: 15px; padding: 0 10px; gap: 6px; }
-            .btn-pause-resume { min-height: 54px; padding: 0 10px; font-size: 12px; }
-            .btn-blackout-dock { min-height: 54px; padding: 0 10px; font-size: 12px; }
-            .btn-panic { min-height: 54px; padding: 0 12px; font-size: 13px; }
+            .btn-primary-run { font-size: 11.5px; padding: 0 5px; min-height: 52px; border-radius: 999px; }
+            .btn-pause-resume { font-size: 11px; padding: 0 5px; min-height: 52px; border-radius: 999px; }
+            .btn-blackout-dock { font-size: 11px; padding: 0 5px; min-height: 52px; border-radius: 999px; }
+            .btn-panic { font-size: 11px; padding: 0 6px; min-height: 52px; border-radius: 999px; }
         }
 
         /* 100% ČERNÝ AMOLED DISPLEJ (ŠETŘIT BATERII) */
@@ -1351,7 +1596,7 @@
      ======================================================================== -->
 <div id="pureLampScreen">
     <div class="lamp-top-badge" id="lampScreenHeader">
-        🕯️ Chytrá čtecí a uspávací lampička (v7.1.0) • <span id="lampScreenTitle">Teplá svíčka (1800K)</span>
+        🕯️ Chytrá čtecí a uspávací lampička (v7.3.0 MOBILE POLISH) • <span id="lampScreenTitle">Teplá svíčka (1800K)</span>
     </div>
 
     <div class="lamp-center-Zone" onclick="document.getElementById('pureLampScreen').classList.toggle('zen-hide')">
@@ -1542,10 +1787,10 @@
     <div class="ocr-modal-card">
         <div class="tile-header" style="margin-bottom:2px;">
             <div class="tile-title">❓ Jak AtmoRead funguje (Stručný průvodce)</div>
-            <span class="tile-badge">📦 Verze v7.1.0 • Přehled za 30 s</span>
+            <span class="tile-badge">📦 Verze v7.3.0 MOBILE POLISH • Přehled za 30 s</span>
         </div>
         <p style="font-size:13.5px; color:var(--text-muted); line-height:1.45;">
-            AtmoRead (<b>v7.1.0</b>) promění čtení pohádek, knih i webových článků v živý zvukový a světelný zážitek. Vše ovládáš <b>jedním ťuknutím na velké dlaždice</b>.
+            AtmoRead (<b>v7.3.0 MOBILE POLISH</b>) promění čtení pohádek, knih i webových článků v živý zvukový a světelný zážitek. Vše ovládáš <b>jedním ťuknutím na velké dlaždice</b>.
         </p>
 
         <div class="help-grid">
@@ -1603,17 +1848,17 @@
             <div>
                 <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                     <h1 class="brand-name">AtmoRead</h1>
-                    <span class="ver-badge" title="Aktuální verze aplikace AtmoRead">📦 Verze v7.1.0 — REAL AUDIO & LIGHT</span>
+                    <span class="ver-badge" title="Aktuální verze aplikace AtmoRead">📦 Verze v7.3.0 MOBILE POLISH</span>
                 </div>
-                <div class="header-meta" id="dictCounter">Verze v7.1.0 • 110 ověřených zvukových okruhů ze všech oborů + plynulý Fade-Out • Rozšířené podkresy & dynamické scény</div>
+                <div class="header-meta" id="dictCounter">Živá zvuková atmosféra pro čtení a spánek</div>
             </div>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button class="big-tile-btn" style="min-height:48px; padding:8px 14px; flex-direction:row; gap:6px; border-color:var(--accent);" onclick="openHelpModal()">
-                <span>❓</span><span class="bt-title">Jak to funguje</span>
+                <span>❓</span><span class="bt-title">Nápověda</span>
             </button>
             <button class="big-tile-btn" style="min-height:48px; padding:8px 14px; flex-direction:row; gap:6px;" onclick="togglePureLamp(true)">
-                <span>🕯️</span><span class="bt-title">100% Lampička</span>
+                <span>🕯️</span><span class="bt-title">Lampička</span>
             </button>
             <button class="big-tile-btn" style="min-height:48px; padding:8px 14px; flex-direction:row; gap:6px;" onclick="toggleLanguage()" id="langBtn">
                 <span>🌐</span><span class="bt-title">CZ</span>
@@ -1629,7 +1874,7 @@
             <div>
                 <div class="hub-card-top">
                     <span class="hub-icon">🌙</span>
-                    <h2 class="hub-title">Dětské pohádky na spaní</h2>
+                    <h2 class="hub-title">Dětský svět</h2>
                 </div>
                 <p class="hub-desc" style="margin-top:8px;">
                     Teplý medovo-zlatý vzhled, dlouhé pohádky na dobrou noc, zvířátka, kouzla a jemné ukolébavky.
@@ -1642,7 +1887,7 @@
             <div>
                 <div class="hub-card-top">
                     <span class="hub-icon">🍷</span>
-                    <h2 class="hub-title">Knihy pro dospělé</h2>
+                    <h2 class="hub-title">Pro dospělé</h2>
                 </div>
                 <p class="hub-desc" style="margin-top:8px;">
                     Fantasy, Detektivky, Romány a Články. Břidlice & pergamen, atmosféra kavárny, klavíru, krbu, vlaku a bouře.
@@ -1654,8 +1899,8 @@
         <button class="hub-card" id="hubLamp" onclick="selectProfileHub('lamp')">
             <div>
                 <div class="hub-card-top">
-                    <span class="hub-icon" style="font-size:28px;">🕯️</span>
-                    <h2 class="hub-title" style="font-size:1.08rem;">Noční lampička</h2>
+                    <span class="hub-icon">🕯️</span>
+                    <h2 class="hub-title">Lampička</h2>
                 </div>
                 <p class="hub-desc" style="margin-top:6px; font-size:0.84rem;">
                     Doplňková 100% lampička pro osvícení pokoje nebo papírové knihy.
@@ -1665,7 +1910,7 @@
         </button>
     </section>
 
-    <!-- RYCHLÁ ROZBALOVACÍ LIŠTA NÁPOVĚDY (PLYNULÁ ROVNINA) -->
+    <!-- ODSTRANĚNO Z DOMU: RYCHLÁ ROZBALOVACÍ LIŠTA NÁPOVĚDY
     <div style="margin-bottom:14px;">
         <button class="big-tile-btn" style="width:100%; min-height:46px; flex-direction:row; justify-content:space-between; padding:8px 16px;" onclick="toggleInlineQuickHelp()">
             <span style="display:flex; align-items:center; gap:8px;">
@@ -1706,25 +1951,46 @@
                 <span class="tile-badge" id="activeSceneBadge">Scéna: Klidná louka</span>
             </div>
             <div class="hero-center">
-                <svg class="book-svg" viewBox="0 0 220 145" fill="none">
-                    <ellipse cx="110" cy="85" rx="85" ry="42" fill="rgba(251, 191, 36, 0.16)"/>
-                    <path d="M22 108 C55 98, 92 104, 110 116 C128 104, 165 98, 198 108 L204 44 C168 34, 130 42, 110 54 C90 42, 52 34, 16 44 Z" fill="#451a03" stroke="#fbbf24" stroke-width="2.5"/>
-                    <path d="M28 102 C58 92, 92 98, 110 110 C128 98, 162 92, 192 102 L196 48 C164 38, 128 44, 110 56 C92 44, 56 38, 24 48 Z" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
-                    <line x1="110" y1="55" x2="110" y2="110" stroke="#b45309" stroke-width="2.5"/>
-                    <path d="M42 64 Q70 59 96 66 M40 76 Q70 71 95 78 M44 88 Q70 83 92 89" stroke="#92400e" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M124 66 Q150 59 178 64 M125 78 Q150 71 176 76 M128 89 Q150 83 172 88" stroke="#92400e" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M112 76 C128 45, 162 20, 190 12 C182 36, 162 56, 136 68 L112 76 Z" fill="#fbbf24" stroke="#fef08a" stroke-width="1.8"/>
-                    <path d="M108 82 L190 12" stroke="#78350f" stroke-width="2.2" stroke-linecap="round"/>
-                </svg>
+                <div class="hero-status-row">
+                <div class="scene-aura-orb" id="sceneAuraOrb">
+                    <svg class="book-svg" viewBox="0 0 220 145" fill="none">
+                        <ellipse cx="110" cy="85" rx="85" ry="42" fill="rgba(251, 191, 36, 0.16)"/>
+                        <path d="M22 108 C55 98, 92 104, 110 116 C128 104, 165 98, 198 108 L204 44 C168 34, 130 42, 110 54 C90 42, 52 34, 16 44 Z" fill="#451a03" stroke="#fbbf24" stroke-width="2.5"/>
+                        <path d="M28 102 C58 92, 92 98, 110 110 C128 98, 162 92, 192 102 L196 48 C164 38, 128 44, 110 56 C92 44, 56 38, 24 48 Z" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+                        <line x1="110" y1="55" x2="110" y2="110" stroke="#b45309" stroke-width="2.5"/>
+                        <path d="M42 64 Q70 59 96 66 M40 76 Q70 71 95 78 M44 88 Q70 83 92 89" stroke="#92400e" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M124 66 Q150 59 178 64 M125 78 Q150 71 176 76 M128 89 Q150 83 172 88" stroke="#92400e" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M112 76 C128 45, 162 20, 190 12 C182 36, 162 56, 136 68 L112 76 Z" fill="#fbbf24" stroke="#fef08a" stroke-width="1.8"/>
+                        <path d="M108 82 L190 12" stroke="#78350f" stroke-width="2.2" stroke-linecap="round"/>
+                    </svg>
+                </div>
                 <div class="status-bubble" id="liveStatusText">
-                    ✨ Vyber si nahoře Dětské pohádky nebo Knihy pro dospělé a dole klepni na obří zelené tlačítko SPUSTIT!
+                    ✨ Vyber si nahoře Dětský svět nebo Pro dospělé a dole klepni na zelené tlačítko SPUSTIT!
+                </div>
+            </div>
+            <div style="display:none;">
                 </div>
                 <!-- 4 HLAVNÍ REŽIMY ČTENÍ V ČISTÉM PŘEHLEDNÉM PÁSU PŘÍMO U MONITORU ŽIVÉ ATMOSFÉRY -->
-                <div class="modes-strip choice-grid-4 tile-modes" style="margin-top:14px; width:100%;">
+                <div class="choice-grid-3 tile-modes" style="margin-top:14px; width:100%;">
                     <button class="big-tile-btn active" data-mode="free" onclick="switchMode('free')">
-                        <span class="bt-icon">✨</span>
-                        <span class="bt-title">Volné čtení</span>
-                        <span class="bt-sub">Z papírové knihy či z hlavy</span>
+
+                        <span class="bt-icon">🎙️</span>
+                        <span class="bt-title">Papírová kniha</span>
+                        <span class="bt-sub">Odposlech hlasu bez displeje</span>
+                    </button>
+                    <button class="big-tile-btn" data-mode="tts" onclick="switchMode('tts')">
+                        <span class="bt-icon">🎧</span>
+                        <span class="bt-title">AI Vypravěč</span>
+                        <span class="bt-sub">Předčítá sám + zvuky</span>
+                    </button>
+                    <button class="big-tile-btn" data-mode="read" onclick="switchMode('read')">
+                        <span class="bt-icon">📖</span>
+                        <span class="bt-title">Čtu z displeje</span>
+                        <span class="bt-sub">Kniha na obrazovce</span>
+                    </button>
+                </div>
+                <!-- OLD_MODES_COMMENT_START
+
                     </button>
                     <button class="big-tile-btn" data-mode="read" onclick="switchMode('read')">
                         <span class="bt-icon">📖</span>
@@ -1743,6 +2009,7 @@
                     </button>
                 </div>
 
+                <!-- OLD_MODES_COMMENT_END -->
                 <div class="free-record-bar" id="freeRecordBar">
                     <button class="compact-lamp-btn" id="saveFreeTranscriptBtn" onclick="saveFreeTranscriptToLibrary()" title="Uložit nadiktovaný text jako novou pohádku do Knihovny">
                         <span class="bt-icon">💾</span>
@@ -1814,180 +2081,177 @@
                         <button type="button" class="story-filter-pill" data-storyfilter="url" onclick="setStoryCategoryFilter('url')">🔗 URL & YouTube</button>
                     </div>
                     <div class="story-controls">
-                        <div style="display:flex; gap:6px; align-items:center; width:100%;">
-                            <select id="storySelect" onchange="loadSelectedStory()" style="flex:1;"></select>
-                            <button type="button" class="compact-lamp-btn" id="unloadStoryBtn" onclick="unloadCurrentStory()" title="Zavřít text (klidový stav čtečky)" style="min-height:48px; padding:6px 12px; font-size:12.5px; white-space:nowrap;">
-                                🧹 Zavřít text
-                            </button>
-                            <button type="button" class="compact-lamp-btn" id="deleteStoryBtn" onclick="deleteCurrentCustomStory()" title="Smazat tuto položku z knihovny" style="min-height:48px; padding:6px 12px; font-size:12.5px; white-space:nowrap; display:none; border-color:rgba(239,68,68,0.5); color:#fca5a5;">
-                                🗑️ Smazat z knihovny
-                            </button>
+                        <select id="storySelect" onchange="loadSelectedStory()"></select>
+                        <button type="button" class="big-tile-btn" id="toggleUploadDrawerBtn" onclick="toggleUploadDrawerPlane()" title="Nahrát e-knihu, vložit odkaz nebo vlastní text" style="min-height:48px; flex-direction:row; padding:8px 14px; gap:6px; white-space:nowrap;">
+                            <span class="bt-icon" style="font-size:16px;">➕</span>
+                            <span class="bt-title" style="font-size:13px;">Přidat / Nahrát</span>
+                        </button>
+                        <button type="button" class="big-tile-btn" id="toggleReaderSettingsBtn" onclick="toggleReaderSettingsPlane()" title="Nastavení hlasu, tempa a délky čtení" style="min-height:48px; flex-direction:row; padding:8px 14px; gap:6px; white-space:nowrap;">
+                            <span class="bt-icon" style="font-size:16px;">🎛️</span>
+                            <span class="bt-title" style="font-size:13px;">Hlas a délka</span>
+                        </button>
+                        <button type="button" class="compact-lamp-btn" id="unloadStoryBtn" onclick="unloadCurrentStory()" title="Zavřít text (klidový stav čtečky)" style="min-height:48px; padding:0 12px; font-size:16px; white-space:nowrap;">
+                            🧹
+                        </button>
+                        <button type="button" class="compact-lamp-btn" id="deleteStoryBtn" onclick="deleteCurrentCustomStory()" title="Smazat tuto položku z knihovny" style="min-height:48px; padding:0 12px; font-size:16px; white-space:nowrap; display:none; border-color:rgba(239,68,68,0.5); color:#fca5a5;">
+                            🗑️
+                        </button>
+                    </div>
+
+                    <!-- KOMPAKTNÍ ZÁSUVKA PRO NAHRÁVÁNÍ A PŘIDÁVÁNÍ -->
+                    <div class="collapsible-plane" id="uploadDrawerPlane">
+                        <div class="collapsible-plane-inner" style="padding-bottom:12px;">
+                            <div class="upload-drawer-grid">
+                                <button type="button" class="big-tile-btn" style="min-height:50px; flex-direction:row; padding:8px 14px; gap:8px;" onclick="document.getElementById('ebookFileInput').click()" title="Nahrát e-knihu ve formátu PDF, EPUB nebo TXT">
+                                    <span class="bt-icon">📂</span>
+                                    <span class="bt-title">E-kniha PDF/EPUB/TXT</span>
+                                </button>
+                                <input type="file" id="ebookFileInput" accept=".pdf,.epub,.txt" style="display:none" onchange="handleEbookFileSelect(event)">
+                                <button type="button" class="big-tile-btn" style="min-height:50px; flex-direction:row; padding:8px 14px; gap:8px;" onclick="openUrlModal()">
+                                    <span class="bt-icon">🔗</span>
+                                    <span class="bt-title">Článek nebo YouTube z URL</span>
+                                </button>
+                                <button type="button" class="big-tile-btn" style="min-height:50px; flex-direction:row; padding:8px 14px; gap:8px;" onclick="document.getElementById('ocrInput').click()">
+                                    <span class="bt-icon">📷</span>
+                                    <span class="bt-title">Vyfotit stránku</span>
+                                </button>
+                                <input type="file" id="ocrInput" accept="image/*" style="display:none" onchange="handleOcrFileSelect(event)">
+                                <button type="button" class="big-tile-btn" style="min-height:50px; flex-direction:row; padding:8px 14px; gap:8px;" onclick="promptCustomText()">
+                                    <span class="bt-icon">✍️</span>
+                                    <span class="bt-title">Vložit vlastní text</span>
+                                </button>
+                            </div>
+                            <!-- DĚTSKÁ PERSONALIZACE (POHÁDKA ZE 3 SLOV + JMÉNO DÍTĚTE) — POUZE V DĚTSKÉM REŽIMU -->
+                            <div class="kids-special-row" id="kidsSpecialActionsRow" style="margin-top:8px; margin-bottom:0;">
+                                <button type="button" class="big-tile-btn" id="threeWordsStoryBtn" style="min-height:48px; flex-direction:row; padding:8px 14px; gap:8px; border-color:var(--accent);" onclick="promptThreeWordsStory()" title="Zadej 3 slova a aplikace okamžitě složí novou pohádku na dobrou noc se zvuky">
+                                    <span style="font-size:18px;">🎲</span>
+                                    <div style="text-align:left;">
+                                        <div class="bt-title">🎲 Pohádka ze 3 slov</div>
+                                        <div class="bt-sub">Pohádka na přání s reálnými zvuky</div>
+                                    </div>
+                                </button>
+                                <button type="button" class="big-tile-btn" id="childNameBtn" style="min-height:48px; flex-direction:row; padding:8px 14px; gap:8px;" onclick="promptChildName()" title="Zadej jméno dítěte – aplikace spustí kouzelnou zvonkohru a zlatou záři, kdykoliv zazní v příběhu či mikrofonu!">
+                                    <span style="font-size:18px;">👶</span>
+                                    <div style="text-align:left;">
+                                        <div class="bt-title" id="childNameBtnTitle">👶 Jméno dítěte</div>
+                                        <div class="bt-sub" id="childNameBtnSub">Kouzelná zvonkohra + zlatá záře</div>
+                                    </div>
+                                </button>
+                            </div>
                         </div>
-                        <button class="big-tile-btn" style="min-height:54px; flex-direction:row; padding:10px 16px; gap:8px;" onclick="document.getElementById('ebookFileInput').click()" title="Nahrát e-knihu ve formátu PDF, EPUB nebo TXT">
-                            <span class="bt-icon">📂</span>
-                            <span class="bt-title">E-kniha (PDF / EPUB / TXT)</span>
-                        </button>
-                        <input type="file" id="ebookFileInput" accept=".pdf,.epub,.txt" style="display:none" onchange="handleEbookFileSelect(event)">
-                        <button class="big-tile-btn" style="min-height:54px; flex-direction:row; padding:10px 16px; gap:8px;" onclick="openUrlModal()">
-                            <span class="bt-icon">🔗</span>
-                            <span class="bt-title">Článek z URL</span>
-                        </button>
-                        <button class="big-tile-btn" style="min-height:54px; flex-direction:row; padding:10px 16px; gap:8px;" onclick="document.getElementById('ocrInput').click()">
-                            <span class="bt-icon">📷</span>
-                            <span class="bt-title">Vyfotit stránku</span>
-                        </button>
-                        <input type="file" id="ocrInput" accept="image/*" style="display:none" onchange="handleOcrFileSelect(event)">
-                        <button class="big-tile-btn" style="min-height:54px; flex-direction:row; padding:10px 16px; gap:8px;" onclick="promptCustomText()">
-                            <span class="bt-icon">✍️</span>
-                            <span class="bt-title">Vložit text</span>
-                        </button>
                     </div>
 
-                    <!-- PŘEHLEDNÁ ROZBALOVACÍ ROVNINA NASTAVENÍ ČTENÍ A PERSONALIZACE -->
-                    <button type="button" class="big-tile-btn" id="toggleStorySettingsBtn" style="width:100%; min-height:46px; flex-direction:row; justify-content:space-between; padding:8px 16px; margin-bottom:12px; border-color:var(--tile-border);" onclick="toggleStorySettingsPlane()">
-                        <span style="display:flex; align-items:center; gap:8px;">
-                            <span style="font-size:18px;">🎛️</span>
-                            <span class="bt-title">Nastavení hlasu, tempa, délky (5/15/30 min) a fronty čtení</span>
-                        </span>
-                        <span class="tile-badge" id="storySettingsArrow">Rozbalit ▼</span>
-                    </button>
+                    <!-- PANEL NASTAVENÍ: HLAS, TEMPO, DÉLKA (VE VÝCHOZÍM STAVU SBALENÝ) -->
+                    <div class="collapsible-plane" id="readerSettingsPlane">
+                        <div class="collapsible-plane-inner" style="padding-bottom:12px;">
+                            <div class="reader-settings-panel" style="margin-bottom:0;">
+                                <!-- Plynulá rovnina pro volbu délky pohádky (5 / 15 / 30 min) -->
+                                <div class="collapsible-plane open" id="storyDurationPlane">
+                                    <div class="collapsible-plane-inner">
+                                        <div class="section-label" style="margin-top:0;">⏱️ Délka pohádky / příběhu pro AI čtení i vlastní předčítání</div>
+                                        <div class="choice-grid-3" style="margin-bottom:6px;">
+                                            <button type="button" class="big-tile-btn" data-dur="5" style="min-height:54px; flex-direction:row; gap:10px; padding:8px 12px;" onclick="setStoryDuration(5)">
+                                                <span class="bt-icon">⚡</span>
+                                                <div style="text-align:left;">
+                                                    <div class="bt-title">Do 5 minut</div>
+                                                    <div class="bt-sub">Krátká verze na dobrou noc</div>
+                                                </div>
+                                            </button>
+                                            <button type="button" class="big-tile-btn active" data-dur="15" style="min-height:54px; flex-direction:row; gap:10px; padding:8px 12px;" onclick="setStoryDuration(15)">
+                                                <span class="bt-icon">🌙</span>
+                                                <div style="text-align:left;">
+                                                    <div class="bt-title">Do 15 minut</div>
+                                                    <div class="bt-sub">Střední výpravná kapitola</div>
+                                                </div>
+                                            </button>
+                                            <button type="button" class="big-tile-btn" data-dur="30" style="min-height:54px; flex-direction:row; gap:10px; padding:8px 12px;" onclick="setStoryDuration(30)">
+                                                <span class="bt-icon">🌌</span>
+                                                <div style="text-align:left;">
+                                                    <div class="bt-title">Do 30 minut</div>
+                                                    <div class="bt-sub">Plné uspávací čtení do noci</div>
+                                                </div>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
 
-                    <div class="collapsible-plane" id="storySettingsPlane">
-                        <div class="collapsible-plane-inner">
-                            <!-- DĚTSKÁ PERSONALIZACE (JMÉNO DÍTĚTE + POHÁDKA ZE 3 SLOV) — POUZE V DĚTSKÉM PROFILU -->
-                    <div class="kids-special-row" id="kidsSpecialActionsRow">
-                        <button class="big-tile-btn" id="childNameBtn" style="min-height:52px; flex-direction:row; padding:8px 14px; gap:8px;" onclick="promptChildName()" title="Zadej jméno dítěte – aplikace spustí kouzelnou zvonkohru a zlatou záři, kdykoliv zazní v příběhu či mikrofonu!">
-                            <span style="font-size:20px;">👶</span>
-                            <div style="text-align:left;">
-                                <div class="bt-title" id="childNameBtnTitle">👶 Jméno dítěte</div>
-                                <div class="bt-sub" id="childNameBtnSub">Kouzelná zvonkohra + zlatá záře</div>
+                                <!-- Nastavení tempa čtení a barvy hlasu AI Vypravěče -->
+                                <div class="reader-settings-row">
+                                    <div>
+                                        <div class="section-label" style="margin-top:2px;">🐢 Tempo čtení AI Vypravěče</div>
+                                        <div class="choice-grid-4">
+                                            <button type="button" class="big-tile-btn" data-tempo="0.76" style="min-height:52px; padding:7px 6px;" onclick="setTtsTempo(0.76)">
+                                                <span class="bt-title">🐢 Uspávací</span>
+                                                <span class="bt-sub">Velmi pomalé</span>
+                                            </button>
+                                            <button type="button" class="big-tile-btn active" data-tempo="0.86" style="min-height:52px; padding:7px 6px;" onclick="setTtsTempo(0.86)">
+                                                <span class="bt-title">🌙 Klidné</span>
+                                                <span class="bt-sub">Pohádkové</span>
+                                            </button>
+                                            <button type="button" class="big-tile-btn" data-tempo="0.96" style="min-height:52px; padding:7px 6px;" onclick="setTtsTempo(0.96)">
+                                                <span class="bt-title">📖 Běžné</span>
+                                                <span class="bt-sub">Přirozené</span>
+                                            </button>
+                                            <button type="button" class="big-tile-btn" data-tempo="1.10" style="min-height:52px; padding:7px 6px;" onclick="setTtsTempo(1.10)">
+                                                <span class="bt-title">⚡ Svižné</span>
+                                                <span class="bt-sub">Pro články</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="section-label" style="margin-top:2px;">🎙️ Barva a výběr hlasu AI Vypravěče</div>
+                                        <div class="choice-grid-4">
+                                            <button type="button" class="big-tile-btn active" data-vstyle="kind" style="min-height:52px; padding:7px 6px;" onclick="setTtsVoiceStyle('kind')">
+                                                <span class="bt-title">🧸 Pohádkový</span>
+                                                <span class="bt-sub">Měkký a vřelý</span>
+                                            </button>
+                                            <button type="button" class="big-tile-btn" data-vstyle="deep" style="min-height:52px; padding:7px 6px;" onclick="setTtsVoiceStyle('deep')">
+                                                <span class="bt-title">🍷 Hluboký</span>
+                                                <span class="bt-sub">Sametový hlas</span>
+                                            </button>
+                                            <button type="button" class="big-tile-btn" data-vstyle="clear" style="min-height:52px; padding:7px 6px;" onclick="setTtsVoiceStyle('clear')">
+                                                <span class="bt-title">✨ Jasný</span>
+                                                <span class="bt-sub">Čistý přednes</span>
+                                            </button>
+                                            <button type="button" class="big-tile-btn" data-vstyle="whisper" style="min-height:52px; padding:7px 6px;" onclick="setTtsVoiceStyle('whisper')">
+                                                <span class="bt-title">🤫 Šeptavý</span>
+                                                <span class="bt-sub">Hluboké usínání</span>
+                                            </button>
+                                        </div>
+                                        <div class="voice-picker-row">
+                                            <select id="ttsVoiceSelect" onchange="onSystemVoiceChange()" style="padding:8px 12px; font-size:13.5px;">
+                                                <option value="auto">🎙️ Automatický nejlepší hlas v zařízení</option>
+                                            </select>
+                                            <button type="button" class="big-tile-btn" style="min-height:42px; flex-direction:row; padding:6px 14px; gap:6px;" onclick="previewTtsVoice()">
+                                                <span>🔊</span>
+                                                <span class="bt-title">Zkusit hlas</span>
+                                            </button>
+                                        </div>
+                                        <button type="button" id="toggleForeignVoicesBtn" class="big-tile-btn" style="min-height:38px; width:100%; margin-top:8px; flex-direction:row; justify-content:center; padding:6px 12px; gap:8px;" onclick="toggleForeignVoices()">
+                                            <span class="bt-icon" style="font-size:16px;">🌍</span>
+                                            <span class="bt-title" style="font-size:12.5px;">Zobrazit i cizojazyčné hlasy v zařízení</span>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                        </button>
-                        <button class="big-tile-btn" id="threeWordsStoryBtn" style="min-height:52px; flex-direction:row; padding:8px 14px; gap:8px; border-color:var(--accent);" onclick="promptThreeWordsStory()" title="Zadej 3 slova a aplikace okamžitě složí novou pohádku na dobrou noc se zvuky">
-                            <span style="font-size:20px;">🎲</span>
-                            <div style="text-align:left;">
-                                <div class="bt-title">🎲 Pohádka ze 3 slov</div>
-                                <div class="bt-sub">Pohádka na přání s reálnými zvuky</div>
-                            </div>
-                        </button>
+                        </div>
                     </div>
 
-                    <!-- VODOROVNÝ PÁS: FRONTA DALŠÍHO ČTENÍ (AUTOMATICKÝ PLAYLIST) -->
-                    <div class="reading-queue-container" id="readingQueueContainer">
+                    <!-- VODOROVNÝ PÁS: FRONTA DALŠÍHO ČTENÍ (zobrazí se pouze, pokud má >= 1 položku) -->
+                    <div class="reading-queue-container" id="readingQueueContainer" style="display:none;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; flex-wrap:wrap; gap:6px;">
                             <div class="section-label" style="margin:0; display:flex; align-items:center; gap:6px;">
                                 <span>🎶</span> <b>Fronta dalšího čtení</b>
                                 <span class="tile-badge" id="queueCountBadge" style="padding:2px 8px; font-size:11px;">0 položek</span>
                             </div>
                             <div style="display:flex; gap:6px; align-items:center;">
-                                <button type="button" class="compact-lamp-btn" id="addCurToQueueBtn" onclick="addCurrentStoryToQueue()" title="Přidat aktuálně vybraný příběh/článek do fronty dalšího čtení">
-                                    ➕ Přidat aktuální do fronty
-                                </button>
                                 <button type="button" class="compact-lamp-btn" id="clearQueueBtn" style="display:none; font-size:11px; padding:4px 8px;" onclick="clearReadingQueue()" title="Vyprázdnit celou frontu">
                                     🗑️ Smazat frontu
                                 </button>
                             </div>
                         </div>
-                        <div class="reading-queue-list" id="readingQueueList">
-                            <span style="font-size:12px; color:var(--text-muted); font-style:italic;">Fronta je prázdná. Přidej aktuální příběh nebo článek z URL tlačítkem ➕ Přidat do fronty.</span>
-                        </div>
-                    </div>
-
-                    <!-- VOLBA DÉLKY POHÁDKY / PŘÍBĚHU (DO 5 MIN / DO 15 MIN / DO 30 MIN) + NASTAVENÍ TEMPA A HLASU AI VYPRAVĚČE -->
-                    <div class="reader-settings-panel">
-                        <!-- Plynulá rovnina pro volbu délky pohádky (5 / 15 / 30 min) -->
-                        <div class="collapsible-plane open" id="storyDurationPlane">
-                            <div class="collapsible-plane-inner">
-                                <div class="section-label" style="margin-top:0;">⏱️ Délka pohádky / příběhu pro AI čtení i vlastní předčítání</div>
-                                <div class="choice-grid-3" style="margin-bottom:6px;">
-                                    <button class="big-tile-btn" data-dur="5" style="min-height:58px; flex-direction:row; gap:10px; padding:8px 12px;" onclick="setStoryDuration(5)">
-                                        <span class="bt-icon">⚡</span>
-                                        <div style="text-align:left;">
-                                            <div class="bt-title">Do 5 minut</div>
-                                            <div class="bt-sub">Krátká verze na dobrou noc</div>
-                                        </div>
-                                </button>
-                                    <button class="big-tile-btn active" data-dur="15" style="min-height:58px; flex-direction:row; gap:10px; padding:8px 12px;" onclick="setStoryDuration(15)">
-                                        <span class="bt-icon">🌙</span>
-                                        <div style="text-align:left;">
-                                            <div class="bt-title">Do 15 minut</div>
-                                            <div class="bt-sub">Střední výpravná kapitola</div>
-                                        </div>
-                                </button>
-                                    <button class="big-tile-btn" data-dur="30" style="min-height:58px; flex-direction:row; gap:10px; padding:8px 12px;" onclick="setStoryDuration(30)">
-                                        <span class="bt-icon">🌌</span>
-                                        <div style="text-align:left;">
-                                            <div class="bt-title">Do 30 minut</div>
-                                            <div class="bt-sub">Plné uspávací čtení do hluboké noci</div>
-                                        </div>
-                                </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Nastavení tempa čtení a barvy hlasu AI Vypravěče -->
-                        <div class="reader-settings-row">
-                            <div>
-                                <div class="section-label" style="margin-top:2px;">🐢 Tempo čtení AI Vypravěče</div>
-                                <div class="choice-grid-4">
-                                    <button class="big-tile-btn" data-tempo="0.76" style="min-height:54px; padding:7px 6px;" onclick="setTtsTempo(0.76)">
-                                        <span class="bt-title">🐢 Uspávací</span>
-                                        <span class="bt-sub">Velmi pomalé</span>
-                                </button>
-                                    <button class="big-tile-btn active" data-tempo="0.86" style="min-height:54px; padding:7px 6px;" onclick="setTtsTempo(0.86)">
-                                        <span class="bt-title">🌙 Klidné</span>
-                                        <span class="bt-sub">Pohádkové</span>
-                                </button>
-                                    <button class="big-tile-btn" data-tempo="0.96" style="min-height:54px; padding:7px 6px;" onclick="setTtsTempo(0.96)">
-                                        <span class="bt-title">📖 Běžné</span>
-                                        <span class="bt-sub">Přirozené</span>
-                                </button>
-                                    <button class="big-tile-btn" data-tempo="1.10" style="min-height:54px; padding:7px 6px;" onclick="setTtsTempo(1.10)">
-                                        <span class="bt-title">⚡ Svižné</span>
-                                        <span class="bt-sub">Pro články</span>
-                                </button>
-                                </div>
-                            </div>
-
-                            <div>
-                                <div class="section-label" style="margin-top:2px;">🎙️ Barva a výběr hlasu AI Vypravěče</div>
-                                <div class="choice-grid-4">
-                                    <button class="big-tile-btn active" data-vstyle="kind" style="min-height:54px; padding:7px 6px;" onclick="setTtsVoiceStyle('kind')">
-                                        <span class="bt-title">🧸 Pohádkový</span>
-                                        <span class="bt-sub">Měkký a vřelý</span>
-                                </button>
-                                    <button class="big-tile-btn" data-vstyle="deep" style="min-height:54px; padding:7px 6px;" onclick="setTtsVoiceStyle('deep')">
-                                        <span class="bt-title">🍷 Hluboký</span>
-                                        <span class="bt-sub">Sametový hlas</span>
-                                </button>
-                                    <button class="big-tile-btn" data-vstyle="clear" style="min-height:54px; padding:7px 6px;" onclick="setTtsVoiceStyle('clear')">
-                                        <span class="bt-title">✨ Jasný</span>
-                                        <span class="bt-sub">Čistý přednes</span>
-                                </button>
-                                    <button class="big-tile-btn" data-vstyle="whisper" style="min-height:54px; padding:7px 6px;" onclick="setTtsVoiceStyle('whisper')">
-                                        <span class="bt-title">🤫 Šeptavý</span>
-                                        <span class="bt-sub">Hluboké usínání</span>
-                                </button>
-                                </div>
-                                <div class="voice-picker-row">
-                                    <select id="ttsVoiceSelect" onchange="onSystemVoiceChange()" style="padding:8px 12px; font-size:13.5px;">
-                                        <option value="auto">🎙️ Automatický nejlepší hlas v zařízení</option>
-                                    </select>
-                                    <button class="big-tile-btn" style="min-height:42px; flex-direction:row; padding:6px 14px; gap:6px;" onclick="previewTtsVoice()">
-                                        <span>🔊</span>
-                                        <span class="bt-title">Zkusit hlas</span>
-                                </button>
-                                </div>
-                                <button type="button" id="toggleForeignVoicesBtn" class="big-tile-btn" style="min-height:38px; width:100%; margin-top:8px; flex-direction:row; justify-content:center; padding:6px 12px; gap:8px;" onclick="toggleForeignVoices()">
-                                    <span class="bt-icon" style="font-size:16px;">🌍</span>
-                                    <span class="bt-title" style="font-size:12.5px;">Zobrazit i cizojazyčné hlasy v zařízení</span>
-                                </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                        </div>
+                        <div class="reading-queue-list" id="readingQueueList"></div>
                     </div>
 
                     <!-- Plynulá rovnina pro přepínání Výtahu / Celého článku u načtených URL článků -->
@@ -2010,6 +2274,10 @@
                     <div class="reader-status-bar" id="readerStatusBar">
                         <div class="reader-progress-wrap">
                             <span class="reader-progress-label" id="readerProgressText">📖 Přečteno 0 % (Slovo 1 z 1)</span>
+                            <div class="reader-mode-toggle" id="displayReadModeToggle" style="display:none;">
+                                <button type="button" class="compact-lamp-btn active" id="subModeReadBtn" onclick="switchMode('read')" title="Číst nahlas s odposlechem mikrofonu">🎤 Čtu nahlas</button>
+                                <button type="button" class="compact-lamp-btn" id="subModeSilentBtn" onclick="switchMode('silent')" title="Tiché čtení očima bez mikrofonu">🤫 Čtu očima</button>
+                            </div>
                             <div class="reader-page-nav" id="readerPageNav">
                                 <button type="button" class="compact-lamp-btn" id="readerPrevPageBtn" onclick="goToReaderPage(currentReaderPage - 1)" title="Předchozí stránka">‹ Předchozí</button>
                                 <span class="reader-page-indicator" id="readerPageIndicator">Strana 1 / 1</span>
@@ -2020,6 +2288,13 @@
                             </button>
                         </div>
                         <div class="reader-smart-actions">
+                            <div style="display:inline-flex; align-items:center; gap:3px;">
+                                <button type="button" class="compact-lamp-btn" onclick="changeReaderFontSize(-2)" title="Zmenšit písmo (A-)" style="min-width:32px; padding:4px 8px; font-weight:800; min-height:36px;">A−</button>
+                                <button type="button" class="compact-lamp-btn" onclick="changeReaderFontSize(2)" title="Zvětšit písmo (A+)" style="min-width:32px; padding:4px 8px; font-weight:800; min-height:36px;">A+</button>
+                            </div>
+                            <button type="button" class="compact-lamp-btn" id="zenReaderToggleBtn" onclick="toggleZenReaderMode()" title="Zen čtečka přes celou obrazovku">
+                                ⛶ Celá obrazovka
+                            </button>
                             <button type="button" class="compact-lamp-btn" id="readerAddToQueueStatusBtn" onclick="addCurrentStoryToQueue()" title="Přidat aktuální příběh nebo článek do fronty dalšího čtení">
                                 ➕ Do fronty
                             </button>
@@ -2042,161 +2317,81 @@
             <div class="tile-header">
                 <div class="tile-title">🔊 Zvuk, Časovač & 🕯️ Noční lampička</div>
                 <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                    <span class="tile-badge" id="audioVolBadge">Střední hlasitost</span>
+                    <span class="tile-badge" id="audioVolBadge">🔊 Vyvážená</span>
                     <span class="tile-badge" id="auraNameLabel">🕯️ Svíčka (1800K)</span>
                 </div>
             </div>
             <div class="audio-lamp-grid">
+                <!-- VLEVO: Hlasitost zvuků + kompaktní Auto-šepot v záhlaví -->
                 <div class="audio-col">
-                    <div class="section-label" style="margin-top:0;">Hlasitost reálných zvuků a podkresu (nebo úplné vypnutí)</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <div class="section-label" style="margin:0;">🔊 Hlasitost zvuků</div>
+                        <button type="button" class="compact-lamp-btn" id="whisperDetectorBtn" onclick="toggleWhisperDetector()" title="Při tichém mluvení zjemní zvuky o 35 %" style="padding:4px 10px; font-size:11.5px; border-radius:10px;">
+                            <span class="bt-icon" style="font-size:13px;">🤫</span>
+                            <span class="bt-title" id="whisperDetectorLabel" style="font-size:11.5px;">Auto-šepot: VYP</span>
+                        </button>
+                    </div>
                     <div class="choice-grid-4">
-                        <button class="big-tile-btn" data-vol="off" onclick="setVolumePreset('off')">
+                        <button class="big-tile-btn" data-vol="off" onclick="setVolumePreset('off')" style="min-height:64px;">
                             <span class="bt-icon">🔇</span>
                             <span class="bt-title">Vypnuto</span>
                             <span class="bt-sub">Bez zvuků</span>
                         </button>
-                        <button class="big-tile-btn" data-vol="soft" onclick="setVolumePreset('soft')">
+                        <button class="big-tile-btn" data-vol="soft" onclick="setVolumePreset('soft')" style="min-height:64px;">
                             <span class="bt-icon">🔉</span>
                             <span class="bt-title">Jemná</span>
-                            <span class="bt-sub">Tiché usínání</span>
+                            <span class="bt-sub">Jemná kulisa</span>
                         </button>
-                        <button class="big-tile-btn active" data-vol="medium" onclick="setVolumePreset('medium')">
+                        <button class="big-tile-btn active" data-vol="medium" onclick="setVolumePreset('medium')" style="min-height:64px;">
                             <span class="bt-icon">🔊</span>
-                            <span class="bt-title">Střední</span>
-                            <span class="bt-sub">Vyvážená</span>
+                            <span class="bt-title">Vyvážená</span>
+                            <span class="bt-sub">Jemný podkres</span>
                         </button>
-                        <button class="big-tile-btn" data-vol="strong" onclick="setVolumePreset('strong')">
+                        <button class="big-tile-btn" data-vol="strong" onclick="setVolumePreset('strong')" style="min-height:64px;">
                             <span class="bt-icon">📢</span>
                             <span class="bt-title">Výrazná</span>
-                            <span class="bt-sub">Plná atmosféra</span>
+                            <span class="bt-sub">Hlubší kulisa</span>
                         </button>
                     </div>
+                </div>
 
-                    <div class="section-label" style="margin-top:12px;">Časovač automatického vypnutí (Uspávač)</div>
-                    <div class="choice-grid-5">
-                        <button class="big-tile-btn active" data-sleep="0" onclick="setSleepTimerPreset(0)">
-                            <span class="bt-title">⏲️ Vypnuto</span>
+                <!-- VPRAVO: Časovač vypnutí + Barva světla v pozadí -->
+                <div class="lamp-col">
+                    <div class="section-label" style="margin-top:0; margin-bottom:8px;">⏲️ Časovač vypnutí</div>
+                    <div class="choice-grid-5" style="margin-bottom:12px;">
+                        <button class="big-tile-btn active" data-sleep="0" onclick="setSleepTimerPreset(0)" style="min-height:56px;">
+                            <span class="bt-title">Vypnuto</span>
                             <span class="bt-sub">Bez limitu</span>
                         </button>
-                        <button class="big-tile-btn" data-sleep="15" onclick="setSleepTimerPreset(15)">
-                            <span class="bt-title">15 min</span>
+                        <button class="big-tile-btn" data-sleep="15" onclick="setSleepTimerPreset(15)" style="min-height:56px;">
+                            <span class="bt-title">15m</span>
                             <span class="bt-sub">Krátký</span>
                         </button>
-                        <button class="big-tile-btn" data-sleep="30" onclick="setSleepTimerPreset(30)">
-                            <span class="bt-title">30 min</span>
+                        <button class="big-tile-btn" data-sleep="30" onclick="setSleepTimerPreset(30)" style="min-height:56px;">
+                            <span class="bt-title">30m</span>
                             <span class="bt-sub">Ideální</span>
                         </button>
-                        <button class="big-tile-btn" data-sleep="45" onclick="setSleepTimerPreset(45)">
-                            <span class="bt-title">45 min</span>
+                        <button class="big-tile-btn" data-sleep="45" onclick="setSleepTimerPreset(45)" style="min-height:56px;">
+                            <span class="bt-title">45m</span>
                             <span class="bt-sub">Dlouhý</span>
                         </button>
-                        <button class="big-tile-btn" id="customSleepBtn" data-sleep="custom" onclick="promptCustomSleepTimer()">
+                        <button class="big-tile-btn" id="customSleepBtn" data-sleep="custom" onclick="promptCustomSleepTimer()" style="min-height:56px;">
                             <span class="bt-title">⚙️ Vlastní</span>
                             <span class="bt-sub">Minuty</span>
                         </button>
                     </div>
 
-                    <button class="big-tile-btn" id="whisperDetectorBtn" style="min-height:44px; flex-direction:row; justify-content:center; gap:8px; margin-top:12px;" onclick="toggleWhisperDetector()">
-                        <span class="bt-icon">🤫</span>
-                        <span class="bt-title" id="whisperDetectorLabel">Detektor šepotu: VYP</span>
-                        <span class="bt-sub" style="margin-left:6px;">(při tichém mluvení zjemní zvuky o 35 %)</span>
-                    </button>
-                </div>
-
-                <div class="lamp-col">
-                    <div class="section-label" style="margin-top:0;">🕯️ Kompaktní noční lampička (Světlo do pokoje)</div>
-                    <div class="compact-lamp-grid" id="lampModeTilesMain"></div>
-                    <button class="big-tile-btn" style="min-height:50px; margin-top:10px; padding:8px 14px; flex-direction:row; gap:10px; width:100%; border-color:var(--accent);" onclick="togglePureLamp(true)">
-                        <span style="font-size:22px;">☀️</span>
-                        <div style="text-align:left;">
-                            <div class="bt-title" style="font-size:0.92rem;">Rozsvítit 100% displej</div>
-                            <div class="bt-sub">Plná lampička pro osvícení knihy</div>
-                        </div>
-                    </button>
+                    <div class="section-label" style="margin-top:0; margin-bottom:8px;">🎨 Barva světla v pozadí</div>
+                    <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                        <div class="compact-lamp-row" id="lampModeTilesMain" style="display:flex; gap:6px; flex:1; flex-wrap:wrap;"></div>
+                        <button type="button" class="compact-lamp-btn" style="min-height:36px; padding:6px 12px; border-color:var(--accent); white-space:nowrap;" onclick="togglePureLamp(true)" title="Rozsvítit 100% displej">
+                            <span>☀️</span>
+                            <span class="bt-title">100% Lampička</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
-
-        <!-- STARÉ ODDĚLENÉ DLAŽDICE 4 A 5 SJEDNOCENY VÝŠE:
-        <section class="tile tile-audio">
-            <div>
-                <div class="tile-header">
-                    <div class="tile-title">🔊 Nastavení zvuků jedním ťuknutím</div>
-                    <span class="tile-badge" id="audioVolBadge">Střední hlasitost</span>
-                </div>
-                <div class="section-label" style="margin-top:0;">Hlasitost reálných zvuků a podkresu (nebo úplné vypnutí)</div>
-                <div class="choice-grid-4">
-                    <button class="big-tile-btn" data-vol="off" onclick="setVolumePreset('off')">
-                        <span class="bt-icon">🔇</span>
-                        <span class="bt-title">Vypnuto</span>
-                        <span class="bt-sub">Bez zvuků</span>
-                    </button>
-                    <button class="big-tile-btn" data-vol="soft" onclick="setVolumePreset('soft')">
-                        <span class="bt-icon">🔉</span>
-                        <span class="bt-title">Jemná</span>
-                        <span class="bt-sub">Tiché usínání</span>
-                    </button>
-                    <button class="big-tile-btn active" data-vol="medium" onclick="setVolumePreset('medium')">
-                        <span class="bt-icon">🔊</span>
-                        <span class="bt-title">Střední</span>
-                        <span class="bt-sub">Vyvážená</span>
-                    </button>
-                    <button class="big-tile-btn" data-vol="strong" onclick="setVolumePreset('strong')">
-                        <span class="bt-icon">📢</span>
-                        <span class="bt-title">Výrazná</span>
-                        <span class="bt-sub">Plná atmosféra</span>
-                    </button>
-                </div>
-
-                <div class="section-label">Detektor šepotu pro usínání (Auto-whisper)</div>
-                <button class="big-tile-btn" id="whisperDetectorBtn" style="min-height:50px; flex-direction:row; justify-content:center; gap:8px; margin-bottom:12px;" onclick="toggleWhisperDetector()">
-                    <span class="bt-icon">🤫</span>
-                    <span class="bt-title" id="whisperDetectorLabel">Detektor šepotu: VYP</span>
-                    <span class="bt-sub" style="margin-left:6px;">(při tichém mluvení zjemní zvuky o 35 %)</span>
-                </button>
-
-                <div class="section-label">Časovač automatického vypnutí (Uspávač)</div>
-                <div class="choice-grid-4">
-                    <button class="big-tile-btn active" data-sleep="0" onclick="setSleepTimerPreset(0)">
-                        <span class="bt-title">⏲️ Vypnuto</span>
-                        <span class="bt-sub">Bez limitu</span>
-                    </button>
-                    <button class="big-tile-btn" data-sleep="15" onclick="setSleepTimerPreset(15)">
-                        <span class="bt-title">15 min</span>
-                        <span class="bt-sub">Krátký</span>
-                    </button>
-                    <button class="big-tile-btn" data-sleep="30" onclick="setSleepTimerPreset(30)">
-                        <span class="bt-title">30 min</span>
-                        <span class="bt-sub">Ideální</span>
-                    </button>
-                    <button class="big-tile-btn" data-sleep="45" onclick="setSleepTimerPreset(45)">
-                        <span class="bt-title">45 min</span>
-                        <span class="bt-sub">Dlouhý</span>
-                    </button>
-                    <button class="big-tile-btn" id="customSleepBtn" data-sleep="custom" onclick="promptCustomSleepTimer()">
-                        <span class="bt-title">⚙️ Vlastní čas</span>
-                        <span class="bt-sub">Nastavit minuty</span>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        (DLAŽDICE 5: KOMPAKTNÍ NOČNÍ LAMPIČKA SJEDNOCENA DO BLOKU VÝŠE)
-        <section class="tile tile-lamp">
-            <div>
-                <div class="tile-header" style="margin-bottom:8px;">
-                    <div class="tile-title" style="font-size:1.0rem;">🕯️ Lampička (Nadstavba)</div>
-                    <span class="tile-badge" id="auraNameLabel">🕯️ Svíčka (1800K)</span>
-                </div>
-                <div class="compact-lamp-grid" id="lampModeTilesMain"></div>
-            </div>
-            <button class="big-tile-btn" style="min-height:36px; margin-top:6px; padding:6px 10px; flex-direction:row; gap:6px;" onclick="togglePureLamp(true)">
-                <span style="font-size:18px;">☀️</span>
-                <span class="bt-title" style="font-size:0.86rem;">Rozsvítit 100% displej</span>
-            </button>
-        </section>
-
--->
         <!-- DLAŽDICE 6: DYNAMICKÝ PODKRES & UKOLÉBAVKY (DĚTI) / ATMOSFÉRA PRO ČTENÍ (DOSPĚLÍ) -->
         <section class="tile tile-amb">
             <div class="tile-header">
@@ -2221,26 +2416,26 @@
     <div class="dock-inner">
         <div class="dock-ver-pill" title="Aktuální verze aplikace AtmoRead">
             <span>AtmoRead</span>
-            <span style="color:var(--accent); font-size:12.5px;">v7.1.0</span>
+            <span style="color:var(--accent); font-size:12.5px;">v7.2.0 CLEAN UI</span>
         </div>
         <button id="mainActionBtn" class="btn-primary-run" onclick="handleMainAction()">
-            🎙️ SPUSTIT ODPOSLECH
+            ▶️ SPUSTIT ODPOSLECH
         </button>
-        <button id="pauseResumeBtn" class="btn-pause-resume" onclick="togglePauseResume()" title="Pozastavit nebo navázat čtení">
+        <button id="pauseResumeBtn" class="btn-pause-resume" onclick="togglePauseResume()" title="Pozastavit nebo navázat čtení" style="display:none;">
             ⏸️ PAUZA
         </button>
         <button class="btn-blackout-dock" onclick="toggleScreenBlackout(true)" title="Zhasnout displej pro úsporu baterie (AMOLED)">
-            🌑 Displej
+            🌑 Zhasnout
         </button>
-        <button class="btn-panic" onclick="SoundEngine.stopAllEverything()">
-            🛑 STOP
+        <button class="btn-panic" onclick="SoundEngine.stopAllEverything()" style="display:none;">
+            🛑 STOP VŠE
         </button>
     </div>
 </div>
 
 <script>
 /* ============================================================================
-   ATMOREAD v7.1.0 — HLAVNÍ LOGIKA A DVOUVRSTVÝ REÁLNÝ AUDIO ENGINE
+   ATMOREAD v7.2.0 CLEAN UI — HLAVNÍ LOGIKA A DVOUVRSTVÝ REÁLNÝ AUDIO ENGINE
    (Databáze zvuků, barev, nálad a příběhů 5/15/30 min se načítá z data.js)
    ============================================================================ */
 
@@ -2265,14 +2460,14 @@ const SoundEngine = {
     pinkNoiseNode: null,
 
     isMuted: false,
-    sfxVolumeLevel: 0.92,
-    baseSfxVolumeLevel: 0.92,
-    sfxGainMultiplier: 1.85, // Zesílení efektů v kompresoru (až 2.5× na Výrazná)
-    ttsNarratorVolume: 0.58, // Vyvážení hlasitosti AI čtečky vůči zvukům z knihovny (Střední 0.58, Výrazná 0.45)
+    sfxVolumeLevel: 0.32,
+    baseSfxVolumeLevel: 0.32,
+    sfxGainMultiplier: 1.15, // Zesílení efektů v kompresoru
+    ttsNarratorVolume: 1.0, // 100% slyšitelnost AI Vypravěče pro všechny režimy (hlas vždy hlavní)
     bgVariationIndex: 1,    // Variace podkresu (1 až 3) s plynulým 1.8s crossfadem
     recentWordsHistory: [], // Sledování posledních slov pro 3D prostorový efekt vzdálenosti
-    bgVolumeLevel: 0.50,
-    tailDurationSec: 17.5,  // 15–20s doznívající smyčka prostředí (Tail)
+    bgVolumeLevel: 0.16,
+    tailDurationSec: 0,     // Tail loop trvale vypnut
 
     activeAudioEls: new Set(),
     activeOneShots: new Set(),
@@ -2284,6 +2479,7 @@ const SoundEngine = {
     currentOneShot: null,
     currentTailObj: null,
     lastTriggerTime: 0,
+    lastAnySfxTime: 0, // Čas posledního spuštěného zvukového efektu (globální rozestup)
     duckRestoreTimer: null,
     idleWatcherInt: null,
     idleSoundIdx: 0,
@@ -2371,18 +2567,19 @@ const SoundEngine = {
         }
     },
 
-    // Dočasné ztišení podkresu (Sidechain Ducking), aby spuštěný zvuk z knihovny jasně vynikl
+    // Dočasné ztišení podkresu (Sidechain Ducking) na 20 % jeho hlasitosti po dobu trvání efektu
     duckAmbienceForSfx(holdMs = 2500) {
         if (this.isMuted) return;
+        const duckedVol = this.bgVolumeLevel * 0.20;
         if (this.bgGain && this.ctx) {
-            this.bgGain.gain.setTargetAtTime(Math.max(0.04, this.bgVolumeLevel * 0.28), this.ctx.currentTime, 0.06);
+            this.bgGain.gain.setTargetAtTime(Math.max(0.001, duckedVol), this.ctx.currentTime, 0.06);
         }
         this.bgLoopAudios.forEach(a => {
-            try { a.volume = Math.min(1.0, this.bgVolumeLevel * 0.16); } catch (e) {}
+            try { a.volume = Math.max(0.001, duckedVol); } catch (e) {}
         });
         this.moodCrossfadeAudios.forEach(ctrl => {
             if (ctrl && ctrl.audio) {
-     try { ctrl.audio.volume = Math.min(1.0, this.bgVolumeLevel * 0.18); } catch (e) {}
+                try { ctrl.audio.volume = Math.max(0.001, duckedVol); } catch (e) {}
             }
         });
 
@@ -2393,53 +2590,32 @@ const SoundEngine = {
                 this.bgGain.gain.setTargetAtTime(this.bgVolumeLevel, this.ctx.currentTime, 0.45);
             }
             this.bgLoopAudios.forEach(a => {
-     try { a.volume = Math.min(0.85, this.bgVolumeLevel * 0.42); } catch (e) {}
+                try { a.volume = Math.min(0.85, this.bgVolumeLevel * 0.45); } catch (e) {}
             });
             this.moodCrossfadeAudios.forEach((ctrl, idx) => {
                 if (ctrl && ctrl.audio) {
                     const targetVol = Math.min(0.65, this.bgVolumeLevel * 0.48);
-         try { ctrl.audio.volume = idx === 0 ? targetVol : targetVol * 0.65; } catch (e) {}
+                    try { ctrl.audio.volume = idx === 0 ? targetVol : targetVol * 0.65; } catch (e) {}
                 }
             });
         }, holdMs);
         this.activeTimers.add(this.duckRestoreTimer);
     },
 
-    // Výpočet přirozené délky zvuku a dlouhého plynulého Fade-Outu podle atmosféry + jemné náhody
+    // Výpočet přirozené délky zvuku (1,5 až 2,6 s) a plynulého Fade-Outu
     computeOrganicSoundEnvelope(cluster) {
         const prio = cluster.priority || 2;
-        const baseDur = cluster.dur || 5.0;
-
-        // Základní délka podle zvolené hlasitosti / atmosféry (Jemná / Střední / Výrazná)
-        let minSec = 4.2, maxSec = 6.2;
-        if (this.sfxVolumeLevel <= 0.65) {
-            minSec = 3.8; maxSec = 5.4; // Jemná atmosféra
-        } else if (this.sfxVolumeLevel >= 0.96) {
-            minSec = 5.0; maxSec = 7.5; // Výrazná atmosféra
-        }
-
-        // U klidných uspávacích scén a ukolébavek prodloužíme plynulé doznívání
-        if (/brahms|twinkle|clair|harp|chimes|pinknoise|moonlight_sonata|forest_creek|mother_heartbeat|winter_fireplace|celestial_choir/.test(this.bgMode) || /home|winter_snow|mystery_cave/.test(this.currentMoodId)) {
-            minSec += 0.4;
-            maxSec += 0.7;
-        }
-
-        // Prioritní dramatické zvuky (hrom, vlak, zvon, meč) mají o trochu delší dozvuk
         if (prio === 1) {
-            minSec += 0.5;
-            maxSec += 0.8;
+            // Významné zvuky (priority 1): celková délka 2000 ms až 2600 ms, Fade-Out 1100 ms
+            const totalDurationMs = Math.round(2000 + Math.random() * 600);
+            const fadeOutMs = 1100;
+            return { totalDurationMs, fadeOutMs };
+        } else {
+            // Běžné zvuky (priority 2 a 3): celková délka 1500 ms až 2200 ms, Fade-Out 850 ms
+            const totalDurationMs = Math.round(1500 + Math.random() * 700);
+            const fadeOutMs = 850;
+            return { totalDurationMs, fadeOutMs };
         }
-
-        // Náhodná organická variace v rozmezí minSec..maxSec (nikdy moc krátká ani nekonečně dlouhá)
-        const randomSpan = minSec + Math.random() * (maxSec - minSec);
-        const totalSec = Math.max(3.8, Math.min(7.8, (baseDur * 0.35) + (randomSpan * 0.65)));
-        const totalDurationMs = Math.round(totalSec * 1000);
-
-        // Fade-Out zabírá celých 62 % doby trvání zvuku (cca 2,5 až 4,6 sekundy plynulého slábnutí do ticha!),
-        // takže žádný zvuk nikdy neskončí useknutím po 1,5 sekundě!
-        const fadeOutMs = Math.round(totalDurationMs * 0.62);
-
-        return { totalDurationMs, fadeOutMs };
     },
 
     checkSpatialDistance() {
@@ -2468,24 +2644,29 @@ const SoundEngine = {
         });
     },
 
-    triggerCluster(cluster, spokenWord = '') {
+    triggerCluster(cluster, spokenWord = '', isManualClick = false) {
         const now = Date.now();
         const prio = cluster.priority || 2;
 
-        // Krátký cooldown (750 ms) na ten samý zvuk brání dvojímu spuštění z jednoho slova,
-        // ale různé zvuky ve stejné větě nechá přehrát současně (polyfonně)!
-        if (this.cooldownMap[cluster.id] && (now - this.cooldownMap[cluster.id] < 750)) {
-            return;
+        if (!isManualClick) {
+            // Globální rozestup mezi jakýmikoliv zvuky při automatickém čtení: max 1× za 5,5 sekundy
+            if (this.lastAnySfxTime && (now - this.lastAnySfxTime < 5500)) {
+                return;
+            }
+            // Dlouhý cooldown na stejný zvuk: 45 000 ms (45 sekund)
+            if (this.cooldownMap[cluster.id] && (now - this.cooldownMap[cluster.id] < 45000)) {
+                return;
+            }
         }
 
-        // Pouze pokud právě burácí prioritní zvuk 1 (bouře/souboj/výbuch) spuštěný před méně než 550 ms,
-        // vynecháme drobný šelest priority 3. Jinak necháme všechny zvuky přirozeně doznít bez useknutí!
+        // Pouze pokud právě burácí prioritní zvuk 1 spuštěný před méně než 550 ms, vynecháme drobný šelest priority 3
         if (prio === 3 && this.currentOneShot && this.currentOneShot.priority === 1 && (now - this.currentOneShot.startTime < 550)) {
             return;
         }
 
         this.cooldownMap[cluster.id] = now;
         this.lastTriggerTime = now;
+        this.lastAnySfxTime = now;
 
         const isDistant = this.checkSpatialDistance();
         const distTag = isDistant ? ' 🏔️' : '';
@@ -2509,8 +2690,8 @@ const SoundEngine = {
             time: now
         });
 
-        // Dočasně ztišíme podkres, aby zvuk z knihovny vystoupil čistě do popředí
-        this.duckAmbienceForSfx(Math.min(3400, Math.round(totalDurationMs * 0.58)));
+        // Dočasně ztišíme podkres na 20 % po dobu trvání efektu
+        this.duckAmbienceForSfx(totalDurationMs);
 
         const varIdx = (this.variationMap[cluster.id] || 0);
         this.variationMap[cluster.id] = varIdx + 1;
@@ -2521,10 +2702,10 @@ const SoundEngine = {
             this.playInstrumentChord(cluster.instrumentChord);
         }
 
-        // Okamžitá 0ms akustická prezence v prostoru
+        // Okamžitá 0ms akustická prezence v prostoru (ztlumena na třetinu)
         this.playAcousticPresence(cluster, prio, isDistant);
 
-        // VRSTVA 1: 100% Reálný zvuk (.ogg/.oga) s organickou délkou a dlouhým logaritmickým Fade-Outem
+        // VRSTVA 1: Reálný zvuk (.ogg/.oga) s organickou délkou a plynulým Fade-Outem
         if (cluster.urls && cluster.urls.length > 0) {
             const total = cluster.urls.length;
             const orderedUrls = [];
@@ -2535,20 +2716,25 @@ const SoundEngine = {
             const prioFactor = prio === 1 ? 1.0 : (prio === 2 ? 0.96 : 0.88);
             let targetVol = Math.min(1.0, this.sfxVolumeLevel * prioFactor);
 
-            // Úkol 1: Špičkový limit hlasitosti (0.52) pro prioritní a hlasité zvuky
+            // Špičkový limit hlasitosti (0.52) pro prioritní a hlasité zvuky
             const isLoudSound = prio === 1 || /^(thunder|storm|gunfire|explosion|dog|train|siren|dragon|bell)$/.test(cluster.id);
             if (isLoudSound) {
                 targetVol = Math.min(targetVol, 0.52);
             }
 
-            // Úkol 2: 3D PROSTOROVÝ EFEKT VZDÁLENOSTI (55 % běžné hlasitosti)
+            // 3D PROSTOROVÝ EFEKT VZDÁLENOSTI (55 % běžné hlasitosti)
             if (isDistant) {
                 targetVol = targetVol * 0.55;
             }
 
-            const fadeInMs = isDistant ? 650 : 380;
-            const finalFadeOutMs = isDistant ? Math.round(fadeOutMs * 1.45) : fadeOutMs;
-            const finalTotalDurMs = isDistant ? Math.round(totalDurationMs * 1.30) : totalDurationMs;
+            // Pokud právě čte AI Vypravěč, automaticky zjemníme One-Shot efekt faktorem * 0.72
+            if (isSessionRunning && currentMode === 'tts') {
+                targetVol = targetVol * 0.72;
+            }
+
+            const fadeInMs = isDistant ? 450 : 250;
+            const finalFadeOutMs = fadeOutMs;
+            const finalTotalDurMs = totalDurationMs;
 
             const oneShotCtrl = this.playRealAudioWithEnvelope(orderedUrls, {
                 targetVolume: targetVol,
@@ -2570,14 +2756,7 @@ const SoundEngine = {
             this.activeOneShots.add(shotEntry);
         }
 
-        // VRSTVA 2: 15–20s tichá doznívající smyčka prostředí (Tail) s jemným Fade-In a dlouhým Fade-Out
-        if (cluster.tailUrls && cluster.tailUrls.length > 0) {
-            const tailUrl = cluster.tailUrls[varIdx % cluster.tailUrls.length];
-            const tailDelay = setTimeout(() => {
-                if (!this.isMuted) this.startAmbientTailLoop(tailUrl);
-            }, 650);
-            this.activeTimers.add(tailDelay);
-        }
+        // VRSTVA 2: startAmbientTailLoop VYPNUTO (druhá vrstva se nepere s hlavním podkresem)
     },
 
     // Okamžitý akustický tranzient (0 ms latence) posilující vnímání spuštěného zvuku přes řeč
@@ -2585,7 +2764,7 @@ const SoundEngine = {
         if (this.isMuted || !this.ctx || !this.sfxBoostGain) return;
         const now = this.ctx.currentTime;
         const id = cluster.id || '';
-        const baseV = Math.min(0.45, this.sfxVolumeLevel * (prio === 1 ? 0.34 : 0.24) * (isDistant ? 0.40 : 1.0));
+        const baseV = Math.min(0.45, this.sfxVolumeLevel * (prio === 1 ? 0.34 : 0.24) * (isDistant ? 0.40 : 1.0)) * 0.25;
 
         const osc = this.ctx.createOscillator();
         const g = this.ctx.createGain();
@@ -2796,10 +2975,8 @@ const SoundEngine = {
             }
             const audio = new Audio(urls[idx]);
             currentAudio = audio;
-            // Pokud má zvuk přirozeně doznít v čase podle atmosféry (softExtendShortFiles),
-            // zapneme loop=true, aby se krátký 1,5s soubor neusekl, ale plynule během svého druhého
-            // průchodu zeslábl do ticha!
-            audio.loop = !!opts.loop;
+            // U One-Shot efektů (!opts.loop) VŽDY nastav audio.loop = false (nikdy krátké zvuky neopakuj ve smyčce)
+            audio.loop = isOneShot ? false : !!opts.loop;
             if (opts.playbackRate) audio.playbackRate = opts.playbackRate;
 
             const initialVol = isOneShot ? 0.02 : 0.01;
@@ -2821,32 +2998,18 @@ const SoundEngine = {
             audio.onerror = fallbackNext;
 
             // Jakmile prohlížeč zjistí skutečnou délku nahrávky (.ogg), přizpůsobíme obálku tak,
-            // aby u ultra-krátkých impulsů (pod 1,3 s) nebo středních nahrávek vždy proběhl sametový Fade-Out!
+            // aby proběhl sametový Fade-Out
             audio.addEventListener('loadedmetadata', () => {
                 if (stopped || !isOneShot || !isFinite(audio.duration) || audio.duration <= 0) return;
 
                 const fileMs = audio.duration * 1000;
-                // Vždy plynulý logaritmický Fade-Out min. 450 ms před fyzickým koncem souboru:
-                const fileFadeOutMs = Math.max(450, Math.min(opts.fadeOutMs || 1500, Math.round(fileMs * 0.55)));
-                const fadeStart = Math.max(250, (audio.duration * 1000) - fileFadeOutMs);
+                const fileFadeOutMs = Math.max(300, Math.min(opts.fadeOutMs || 850, Math.round(fileMs * 0.45)));
+                const fadeStart = Math.max(100, Math.min(fileMs - fileFadeOutMs, (opts.totalDurationMs || 2000) - fileFadeOutMs));
                 if (fadeOutTimer) { clearTimeout(fadeOutTimer); fadeOutTimer = null; }
                 fadeOutTimer = setTimeout(() => {
                     fadeOutAndStop(fileFadeOutMs);
                 }, fadeStart);
                 this.activeTimers.add(fadeOutTimer);
-                this.activeTimers.add(fadeOutTimer);
-                if (false) {
-
-
-
-
-
-
-
-
-
-
-                }
             }, { once: true });
 
             audio.play().then(() => {
@@ -2854,7 +3017,7 @@ const SoundEngine = {
                     cleanup();
                     return;
                 }
-                const fadeMs = isOneShot ? (opts.fadeInMs || 380) : (opts.fadeInMs || 2000);
+                const fadeMs = isOneShot ? (opts.fadeInMs || 250) : (opts.fadeInMs || 2000);
                 const inSteps = Math.max(2, Math.floor(fadeMs / 30));
                 let curStep = 0;
                 fadeInInt = setInterval(() => {
@@ -2873,16 +3036,16 @@ const SoundEngine = {
                 }, 30);
                 this.activeTimers.add(fadeInInt);
 
-                const totalMs = opts.totalDurationMs || 5200;
-                const fOutMs = opts.fadeOutMs || Math.round(totalMs * 0.60);
-                const fadeStart = Math.max(550, totalMs - fOutMs);
+                const totalMs = opts.totalDurationMs || 2000;
+                const fOutMs = opts.fadeOutMs || 850;
+                const fadeStart = Math.max(250, totalMs - fOutMs);
 
-                if (!isFinite(audio.duration) || audio.duration <= 0)
-                fadeOutTimer = setTimeout(() => {
-                    fadeOutAndStop(fOutMs);
-                }, fadeStart);
-                this.activeTimers.add(fadeOutTimer);
-                this.activeTimers.add(fadeOutTimer);
+                if (!isFinite(audio.duration) || audio.duration <= 0) {
+                    fadeOutTimer = setTimeout(() => {
+                        fadeOutAndStop(fOutMs);
+                    }, fadeStart);
+                    this.activeTimers.add(fadeOutTimer);
+                }
             }).catch(() => {
                 fallbackNext();
             });
@@ -2901,13 +3064,16 @@ const SoundEngine = {
         };
     },
 
-    // Hluchá místa: pokud 8 sekund během čtení nepadne klíčové slovo, jemně přehraje neutrální zvuk scény
+    // Hluchá místa: pokud 25 sekund bez podkresu nepadne klíčové slovo, jemně přehraje neutrální zvuk scény
     startIdleWatcher() {
         this.stopIdleWatcher();
+        // Pokud už na pozadí hraje jakýkoliv podkres nebo ukolébavka (this.bgMode !== 'off'), IdleWatcher vůbec nespouštěj
+        if (this.bgMode !== 'off') return;
         this.lastTriggerTime = Date.now();
         this.idleWatcherInt = setInterval(() => {
-            if (!isSessionRunning || this.isMuted) return;
-            if (Date.now() - this.lastTriggerTime >= 8000) {
+            if (!isSessionRunning || this.isMuted || this.bgMode !== 'off') return;
+            // Pokud je bgMode === 'off', interval 25 sekund s velmi jemnou hlasitostí 0.18
+            if (Date.now() - this.lastTriggerTime >= 25000) {
                 this.lastTriggerTime = Date.now();
                 const pool = IDLE_FILLER_SOUNDS[currentProfile] || IDLE_FILLER_SOUNDS.kids;
                 const item = pool[this.idleSoundIdx % pool.length];
@@ -2915,10 +3081,10 @@ const SoundEngine = {
 
                 showAutoBadge(`${item.emoji} ${item.label}`);
                 this.playRealAudioWithEnvelope(item.url, {
-                    targetVolume: Math.min(0.55, this.sfxVolumeLevel * 0.36),
-                    fadeInMs: 900,
-                    totalDurationMs: 5200,
-                    fadeOutMs: 2200,
+                    targetVolume: 0.18,
+                    fadeInMs: 600,
+                    totalDurationMs: 2200,
+                    fadeOutMs: 850,
                     playbackRate: 1.0,
                     loop: false
                 });
@@ -3686,6 +3852,7 @@ const SoundEngine = {
     stopAllEverything() {
         stopActiveSession();
         this.stopIdleWatcher();
+        this.lastAnySfxTime = 0;
         if (this.currentTailObj) {
             this.currentTailObj.stopSmoothly(300);
             this.currentTailObj = null;
@@ -3707,6 +3874,7 @@ const SoundEngine = {
         setSleepTimerPreset(0);
         isPaused = false;
         updatePauseResumeButton();
+        updateMainButtonLabel();
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
 
         document.getElementById('autoBadgesBox').innerHTML = '';
@@ -3861,7 +4029,7 @@ function doesWordMatchStem(cleanWord, rawStem) {
     return cleanWord.startsWith(nSt);
 }
 
-function checkWordTriggers(rawWord) {
+function checkWordTriggers(rawWord, isManualClick = false) {
     const clean = normWord(rawWord);
     if (!clean || clean.length < 3) return false;
 
@@ -3912,7 +4080,7 @@ function checkWordTriggers(rawWord) {
     }
 
     if (bestCluster) {
-        SoundEngine.triggerCluster(bestCluster, rawWord);
+        SoundEngine.triggerCluster(bestCluster, rawWord, isManualClick);
         SoundEngine.recentWordsHistory.push(clean);
         if (SoundEngine.recentWordsHistory.length > 15) SoundEngine.recentWordsHistory.shift();
         return true;
@@ -4236,18 +4404,17 @@ function setVolumePreset(level) {
     const wasMuted = SoundEngine.isMuted;
     SoundEngine.isMuted = false;
 
-    // Vyvážený poměr mezi zvukovými efekty (sfx + boost) a hlasitostí AI Vypravěče (ttsVol),
-    // aby zvuky z knihovny nikdy nezanikly za syntezátorem řeči!
+    // Poměry nastavené tak, aby zvuky a podkres tvořily jemnou kulisu POD hlasem a nikdy ho nepřehlušily
     const map = {
-        soft:   { sfx: 0.62, boost: 1.15, ttsVol: 0.82, bg: 0.28, tail: 15.0, label: '🔉 Jemná hlasitost' },
-        medium: { sfx: 0.92, boost: 1.85, ttsVol: 0.58, bg: 0.48, tail: 17.5, label: '🔊 Střední hlasitost' },
-        strong: { sfx: 1.00, boost: 2.50, ttsVol: 0.45, bg: 0.72, tail: 20.0, label: '📢 Výrazná (Kino dynamika)' }
+        soft:   { sfx: 0.18, boost: 0.90, ttsVol: 1.0, bg: 0.09, tail: 0, label: '🔉 Jemná kulisa' },
+        medium: { sfx: 0.32, boost: 1.15, ttsVol: 1.0, bg: 0.16, tail: 0, label: '🔊 Vyvážená' },
+        strong: { sfx: 0.48, boost: 1.40, ttsVol: 1.0, bg: 0.25, tail: 0, label: '📢 Výrazná' }
     };
     const cfg = map[level] || map.medium;
     SoundEngine.baseSfxVolumeLevel = cfg.sfx;
     SoundEngine.sfxVolumeLevel = (isWhisperDetectorEnabled && isWhispering) ? (cfg.sfx * 0.65) : cfg.sfx;
     SoundEngine.sfxGainMultiplier = cfg.boost;
-    SoundEngine.ttsNarratorVolume = cfg.ttsVol;
+    SoundEngine.ttsNarratorVolume = 1.0; // Všechny režimy drží 100 % hlasitost AI Vypravěče
     SoundEngine.bgVolumeLevel = cfg.bg;
     SoundEngine.tailDurationSec = cfg.tail;
     if (badge) badge.innerText = cfg.label;
@@ -4268,11 +4435,11 @@ function setVolumePreset(level) {
 }
 
 const defaultSleepBtnLabels = {
-    '0': { title: '⏲️ Vypnuto', sub: 'Bez limitu' },
-    '15': { title: '15 min', sub: 'Krátký' },
-    '30': { title: '30 min', sub: 'Ideální' },
-    '45': { title: '45 min', sub: 'Dlouhý' },
-    'custom': { title: '⚙️ Vlastní čas', sub: 'Nastavit minuty' }
+    '0': { title: 'Vypnuto', sub: 'Bez limitu' },
+    '15': { title: '15m', sub: 'Krátký' },
+    '30': { title: '30m', sub: 'Ideální' },
+    '45': { title: '45m', sub: 'Dlouhý' },
+    'custom': { title: '⚙️ Vlastní', sub: 'Minuty' }
 };
 
 function resetSleepTimerLabels() {
@@ -4294,11 +4461,11 @@ function getActiveVolumeBadgeLabel() {
     const level = activeVolBtn ? activeVolBtn.dataset.vol : 'medium';
     const map = {
         off: '🔇 Zvuky vypnuty',
-        soft: '🔉 Jemná hlasitost',
-        medium: '🔊 Střední hlasitost',
-        strong: '📢 Výrazná (Kino dynamika)'
+        soft: '🔉 Jemná kulisa',
+        medium: '🔊 Vyvážená',
+        strong: '📢 Výrazná'
     };
-    return map[level] || '🔊 Střední hlasitost';
+    return map[level] || '🔊 Vyvážená';
 }
 
 function promptCustomSleepTimer() {
@@ -4362,7 +4529,7 @@ function setSleepTimerPreset(minutes) {
         updateCountdownUI();
         if (remSec <= 60 && remSec > 0 && !SoundEngine.isMuted) {
             const ratio = remSec / 60;
-            SoundEngine.sfxVolumeLevel = Math.max(0.05, 0.85 * ratio);
+            SoundEngine.sfxVolumeLevel = Math.max(0.02, SoundEngine.baseSfxVolumeLevel * ratio);
             if (SoundEngine.bgGain && SoundEngine.ctx) {
                 SoundEngine.bgGain.gain.setTargetAtTime(SoundEngine.bgVolumeLevel * ratio, SoundEngine.ctx.currentTime, 0.5);
             }
@@ -4384,7 +4551,11 @@ function switchMode(mode) {
     currentMode = mode;
 
     document.querySelectorAll('[data-mode]').forEach(b => {
-        b.classList.toggle('active', b.dataset.mode === mode);
+        if (mode === 'silent') {
+            b.classList.toggle('active', b.dataset.mode === 'read');
+        } else {
+            b.classList.toggle('active', b.dataset.mode === mode);
+        }
     });
 
     // Plynulá animace rozbalení / sbalení rovniny (žádné blikání display:none)
@@ -4396,16 +4567,41 @@ function switchMode(mode) {
     if (storyTile) {
         storyTile.classList.toggle('visible', mode !== 'free');
     }
+
+    const dispToggle = document.getElementById('displayReadModeToggle');
+    if (dispToggle) {
+        const isDisplayMode = (mode === 'read' || mode === 'silent');
+        dispToggle.style.display = isDisplayMode ? 'inline-flex' : 'none';
+        const readBtn = document.getElementById('subModeReadBtn');
+        const silentBtn = document.getElementById('subModeSilentBtn');
+        if (readBtn) readBtn.classList.toggle('active', mode === 'read');
+        if (silentBtn) silentBtn.classList.toggle('active', mode === 'silent');
+    }
+    updateMainButtonLabel();
+}
+/* LEGACY_SWITCH_CLEANUP
+    }
+    }
     updateMainButtonLabel();
 }
 
-function toggleStorySettingsPlane() {
-    const plane = document.getElementById('storySettingsPlane');
-    const badge = document.getElementById('storySettingsArrow');
+LEGACY_SWITCH_CLEANUP */
+function toggleUploadDrawerPlane() {
+    const plane = document.getElementById('uploadDrawerPlane');
+    const btn = document.getElementById('toggleUploadDrawerBtn');
     if (!plane) return;
     const isOpen = plane.classList.toggle('open');
-    if (badge) badge.innerText = isOpen ? 'Sbalit ▲' : 'Rozbalit ▼';
+    if (btn) btn.classList.toggle('active', isOpen);
 }
+
+function toggleReaderSettingsPlane() {
+    const plane = document.getElementById('readerSettingsPlane');
+    const btn = document.getElementById('toggleReaderSettingsBtn');
+    if (!plane) return;
+    const isOpen = plane.classList.toggle('open');
+    if (btn) btn.classList.toggle('active', isOpen);
+}
+const toggleStorySettingsPlane = toggleReaderSettingsPlane;
 
 function setStoryDuration(mins) {
     currentStoryDuration = mins;
@@ -4582,9 +4778,8 @@ function applyVoiceStyleAndTempo(utterance, progressRatio = 0) {
         utterance.pitch = 0.96;
     }
 
-    // Klíčové: vyvážená hlasitost vypravěče, aby zvukové efekty z knihovny měly prostor a byly jasně slyšet!
-    const baseVol = SoundEngine.isMuted ? 1.0 : SoundEngine.ttsNarratorVolume;
-    utterance.volume = (ttsVoiceStyle === 'whisper') ? Math.max(0.24, baseVol * 0.72) : baseVol;
+    // Klíčové: 100% slyšitelnost AI Vypravěče (hlas vždy hlavní na 100 %, u šepotu 0.85)
+    utterance.volume = (ttsVoiceStyle === 'whisper') ? 0.85 : 1.0;
     return utterance.rate;
 }
 
@@ -4604,7 +4799,45 @@ function previewTtsVoice() {
     setStatus('🔊 Ukázka zvoleného hlasu a tempa AI Vypravěče...');
 }
 
+function updateSceneAuraOrb() {
+    const orb = document.getElementById('sceneAuraOrb');
+    if (orb) {
+        orb.classList.toggle('pulsing', !!(isSessionRunning && !isPaused));
+    }
+}
+
+function updateBottomDockVisibility() {
+    const isRunningOrPaused = !!(isSessionRunning || isPaused);
+    const pauseBtn = document.getElementById('pauseResumeBtn');
+    const panicBtn = document.querySelector('.btn-panic');
+    if (pauseBtn) {
+        pauseBtn.style.display = isRunningOrPaused ? 'inline-flex' : 'none';
+    }
+    if (panicBtn) {
+        panicBtn.style.display = isRunningOrPaused ? 'inline-flex' : 'none';
+    }
+}
+
 function updateMainButtonLabel() {
+    const btn = document.getElementById('mainActionBtn');
+    updateSceneAuraOrb();
+    if (!btn) return;
+    const isRunningOrPaused = !!(isSessionRunning || isPaused);
+    if (isRunningOrPaused) {
+        btn.classList.add('running');
+        btn.innerText = '⏹️ ZASTAVIT';
+        updateBottomDockVisibility();
+        return;
+    }
+    btn.classList.remove('running');
+    if (currentMode === 'free') btn.innerText = '▶️ SPUSTIT ODPOSLECH';
+    else if (currentMode === 'read') btn.innerText = '▶️ ČÍST NAHLAS';
+    else if (currentMode === 'tts') btn.innerText = '▶️ AI VYPRAVĚČ';
+    else if (currentMode === 'silent') btn.innerText = '▶️ TICHÉ ČTENÍ';
+    else btn.innerText = '▶️ SPUSTIT ČTENÍ';
+    updateBottomDockVisibility();
+    return;
+    /* DUMMY_UPDATE_LABEL
     const btn = document.getElementById('mainActionBtn');
     if (!btn) return;
     if (isSessionRunning) {
@@ -4616,7 +4849,7 @@ function updateMainButtonLabel() {
     if (currentMode === 'free') btn.innerText = '🎙️ SPUSTIT ODPOSLECH';
     else if (currentMode === 'read') btn.innerText = '🎙️ ČÍST NAHLAS';
     else if (currentMode === 'tts') btn.innerText = '🎧 AI VYPRAVĚČ';
-    else if (currentMode === 'silent') btn.innerText = '🤫 TICHÉ ČTENÍ'; } /*
+    DUMMY_UPDATE_LABEL */ } /*
 }
 if (false) {
     const btn = document.getElementById('mainActionBtn');
@@ -4715,16 +4948,19 @@ function restoreReadingPosition() {
 
 
 function updatePauseResumeButton() {
+    updateSceneAuraOrb();
     const btn = document.getElementById('pauseResumeBtn');
     if (!btn) return;
     if (isPaused) {
         btn.innerHTML = '▶️ POKRAČOVAT';
         btn.classList.add('paused');
         btn.title = 'Pokračovat ve čtení od aktuálního slova';
+        updateBottomDockVisibility();
     } else {
         btn.innerHTML = '⏸️ PAUZA';
         btn.classList.remove('paused');
         btn.title = 'Pozastavit čtení na aktuálním slově';
+        updateBottomDockVisibility();
     }
 }
 
@@ -4748,6 +4984,7 @@ function togglePauseResume() {
         // PAUZA: pozastaví čtení přesně na aktuálním currentWordIndex (bez vymazání pozice)
         isPaused = true;
         updatePauseResumeButton();
+        updateMainButtonLabel();
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
         if (ttsWordTimer) { clearTimeout(ttsWordTimer); ttsWordTimer = null; }
         if (ttsSentenceTimer) { clearTimeout(ttsSentenceTimer); ttsSentenceTimer = null; }
@@ -4916,20 +5153,23 @@ function toggleInlineQuickHelp() {
    FRONTA DALŠÍHO ČTENÍ (AUTOMATICKÝ PLAYLIST) & DĚTSKÁ PERSONALIZACE (v7.0.0)
    ============================================================================ */
 function renderReadingQueue() {
+    const container = document.getElementById('readingQueueContainer');
     const listEl = document.getElementById('readingQueueList');
     const badge = document.getElementById('queueCountBadge');
     const clearBtn = document.getElementById('clearQueueBtn');
-    if (!listEl) return;
 
     if (!readingQueue || !readingQueue.length) {
+        if (container) container.style.display = 'none';
         if (badge) badge.innerText = '0 položek';
         if (clearBtn) clearBtn.style.display = 'none';
-        listEl.innerHTML = '<span style="font-size:12px; color:var(--text-muted); font-style:italic;">Fronta je prázdná. Přidej aktuální příběh nebo článek z URL tlačítkem ➕ Přidat do fronty.</span>';
+        if (listEl) listEl.innerHTML = '<span style="font-size:12px; color:var(--text-muted); font-style:italic;">Fronta je prázdná. Přidej aktuální příběh nebo článek z URL tlačítkem ➕ Do fronty.</span>';
         return;
     }
 
+    if (container) container.style.display = 'flex';
     if (badge) badge.innerText = `${readingQueue.length} položek`;
     if (clearBtn) clearBtn.style.display = 'inline-flex';
+    if (!listEl) return;
     listEl.innerHTML = '';
 
     readingQueue.forEach((item, idx) => {
@@ -5370,9 +5610,8 @@ function startAiStoryReading() {
             }
         };
 
-        // Určíme, zda má tato věta na konci počkat kvůli více zvukům (dramatická tečka),
-        // nebo zda má na ni další věta (Slot B) plynule navázat z přednačteného zásobníku bez prodlevy!
-        const needsDramaticPauseAfter = (!SoundEngine.isMuted && sent.isFullSentenceEnd && sent.sfxCountEstimate >= 2);
+        // Zrušena umělá 820ms pauza za větou (needsDramaticPauseAfter = false), aby AI Vypravěč četl naprosto plynule bez zastavování
+        const needsDramaticPauseAfter = false;
 
         utterance.onstart = () => {
             if (!isSessionRunning || currentMode !== 'tts') return;
@@ -5382,9 +5621,9 @@ function startAiStoryReading() {
             stepWordSync();
 
             // KLÍČOVÝ PRINCIP DVOJITÉHO ČTENÍ NA POZADÍ:
-            // Pokud za touto větou není vícezvuková dramatická pauza, okamžitě už během čtení této věty
-            // vložíme do syntezátoru následující větu (Slot B), aby se na pozadí připravila a navázala bez mezery!
-            if (!needsDramaticPauseAfter && (sIdx + 1 < sentences.length)) {
+            // Okamžitě už během čtení této věty vložíme do syntezátoru následující větu (Slot B),
+            // aby se na pozadí připravila a navázala naprosto plynule bez mezery!
+            if (sIdx + 1 < sentences.length) {
                 enqueueSentenceSlot(sIdx + 1);
             }
         };
@@ -5435,17 +5674,9 @@ function startAiStoryReading() {
                 return;
             }
 
-            // Pokud nebyl další slot předřazen (protože ve větě zaznělo více zvuků a je za ní tečka),
-            // necháme krátký prostor (820 ms) pro dozvuk scény a hned spustíme další dvojici vět A/B
+            // Pokud nebyl další slot předřazen, okamžitě plynule navážeme bez umělé 820ms pauzy
             if (!sentences[sIdx + 1].queued) {
-                const events = SoundEngine.sentenceSfxEvents || [];
-                const uniqueNames = [...new Set(events.map(e => `${e.emoji} ${e.label}`))].slice(0, 3).join(', ');
-                if (uniqueNames) {
-                    setStatus(`🎭 Zvuková scéna (${uniqueNames}) – plynule navazuji...`);
-                }
-                ttsSentenceTimer = setTimeout(() => {
-                    enqueueSentenceSlot(sIdx + 1);
-                }, 820);
+                enqueueSentenceSlot(sIdx + 1);
             }
         };
 
@@ -5634,7 +5865,7 @@ function renderReaderCurrentPage(animatePlane = false) {
             span.onclick = () => {
                 currentWordIndex = idx;
                 highlightWordAt(idx);
-                checkWordTriggers(word);
+                checkWordTriggers(word, true);
                 saveReadingPosition(true);
             };
 
@@ -5643,6 +5874,7 @@ function renderReaderCurrentPage(animatePlane = false) {
         }
 
         box.appendChild(frag);
+        applyReaderFontSize();
         updateReaderProgressBar();
         updatePageNavUI();
         SoundEngine.preloadStorySounds(storyWordsData.slice(startIdx, Math.min(totalWords, startIdx + 200)));
@@ -5831,7 +6063,7 @@ if (false) {
             span.onclick = () => {
                 currentWordIndex = idx;
                 highlightWordAt(idx);
-                checkWordTriggers(word);
+                checkWordTriggers(word, true);
                 saveReadingPosition(true);
             };
 
@@ -7320,6 +7552,54 @@ function showAutoBadge(text) {
 const EBOOKS_STORAGE_KEY = 'atmoread_ebooks_v7';
 let isBionicReadingEnabled = false;
 
+/* VOLBA VELIKOSTI PÍSMA (A- / A+) S UKLÁDÁNÍM DO LOCALSTORAGE */
+let readerFontSize = 22;
+const READER_FONT_SIZE_KEY = 'atmoread_font_size_v73';
+
+function initReaderFontSize() {
+    try {
+        const saved = localStorage.getItem(READER_FONT_SIZE_KEY) || localStorage.getItem('atmoread_font_size');
+        if (saved) {
+            const parsed = parseInt(saved, 10);
+            if (!isNaN(parsed) && parsed >= 16 && parsed <= 28) {
+                readerFontSize = parsed;
+            }
+        }
+    } catch (e) {}
+    applyReaderFontSize();
+}
+
+function applyReaderFontSize() {
+    const box = document.getElementById('readerBox');
+    if (box) {
+        box.style.fontSize = readerFontSize + 'px';
+    }
+}
+
+function changeReaderFontSize(delta) {
+    readerFontSize = Math.max(16, Math.min(28, readerFontSize + delta));
+    applyReaderFontSize();
+    try {
+        localStorage.setItem(READER_FONT_SIZE_KEY, String(readerFontSize));
+    } catch (e) {}
+    showAutoBadge(`🔤 Písmo: ${readerFontSize}px`);
+    setStatus(`🔤 Velikost písma v knize nastavena na: ${readerFontSize}px.`);
+}
+
+/* ZEN ČTEČKA PŘES CELÝ DISPLEJ */
+function toggleZenReaderMode() {
+    const isZen = document.body.classList.toggle('zen-reader-active');
+    const zenBtn = document.getElementById('zenReaderToggleBtn');
+    if (zenBtn) {
+        zenBtn.classList.toggle('active', isZen);
+        zenBtn.innerHTML = isZen ? '✕ Ukončit Zen' : '⛶ Celá obrazovka';
+    }
+    showAutoBadge(isZen ? '⛶ Zen režim aktivován' : '⛶ Konec Zen režimu');
+    setStatus(isZen
+        ? '⛶ Zen režim aktivován: Nerušené čtení přes celý displej.'
+        : '⛶ Zen režim ukončen.');
+}
+
 function escapeHtml(str) {
     return (str || '')
         .replace(/&/g, '&amp;')
@@ -8028,20 +8308,20 @@ function toggleWhisperDetector() {
     const lbl = document.getElementById('whisperDetectorLabel');
     if (btn) btn.classList.toggle('active', isWhisperDetectorEnabled);
     if (lbl) {
-        lbl.innerText = isWhisperDetectorEnabled ? 'Detektor šepotu: ZAP' : 'Detektor šepotu: VYP';
+        lbl.innerText = isWhisperDetectorEnabled ? 'Auto-šepot: ZAP' : 'Auto-šepot: VYP';
     }
 
     if (isWhisperDetectorEnabled) {
         if (isSessionRunning && (currentMode === 'free' || currentMode === 'read')) {
             startWhisperMicMonitor();
         }
-        showAutoBadge('🤫 Detektor šepotu: ZAP');
-        setStatus('🤫 Detektor šepotu aktivován: Při tichém mluvení automaticky zjemní zvuky o 35 %, aby nerušily usínající dítě.');
+        showAutoBadge('🤫 Auto-šepot: ZAP');
+        setStatus('🤫 Auto-šepot aktivován: Při tichém mluvení automaticky zjemní zvuky o 35 %, aby nerušily usínající dítě.');
     } else {
         stopWhisperMicMonitor();
         applyWhisperState(false);
-        showAutoBadge('Detektor šepotu: VYP');
-        setStatus('Detektor šepotu vypnut.');
+        showAutoBadge('Auto-šepot: VYP');
+        setStatus('Auto-šepot vypnut.');
     }
 }
 
@@ -8129,8 +8409,8 @@ if (false) {
     buildFastStemIndex();
     const totalStems = SOUND_LIBRARY.reduce((acc, c) => acc + c.stems.length, 0)
                      + DYNAMIC_AURA_PALETTE.reduce((acc, p) => acc + p.stems.length, 0);
-    document.getElementById('dictCounter').innerText =
-        `Verze v7.1.0 • 100% Ověřené zvuky (${SOUND_LIBRARY.length} okruhů, ${totalStems}+ kořenů) • 5/15/30 min příběhy • Plynulé přechody`;
+    const dictEl = document.getElementById('dictCounter'); if (dictEl) dictEl.innerText = 'Živá zvuková atmosféra pro čtení a spánek'; const _oldDictStr =
+        `Verze v7.3.0 MOBILE POLISH • 100% Ověřené zvuky (${SOUND_LIBRARY.length} okruhů, ${totalStems}+ kořenů) • 5/15/30 min příběhy • Plynulé přechody`;
 
     // Vykreslení 4 smysluplných barev lampičky
     const mainLampWrap = document.getElementById('lampModeTilesMain');
@@ -8220,6 +8500,14 @@ if (false) {
     if (freeBarInit) freeBarInit.classList.toggle('hidden', currentMode !== 'free');
     initOcrCanvasDrag();
     initCarouselDragAndTouch();
+    initReaderFontSize();
+    updateMainButtonLabel();
+    updatePauseResumeButton();
+    updateSceneAuraOrb();
+    const dispToggle = document.getElementById('displayReadModeToggle');
+    if (dispToggle) {
+        dispToggle.style.display = (currentMode === 'read' || currentMode === 'silent') ? 'inline-flex' : 'none';
+    }
 }
 
 const canvas = document.getElementById('ambientCanvas');
