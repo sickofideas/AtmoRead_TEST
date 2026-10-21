@@ -3,58 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AtmoRead v8.0.0 MASTER — Živá atmosféra pro pohádky, knihy i články</title>
+    <title>AtmoRead v9.0.0 FINAL — Živá atmosféra pro pohádky, knihy i články</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="data.js"></script>
     <style>
         :root {
-            /* Výchozí: Dětské pohádky (teplý medovo-zlatý vzhled) */
-            --bg-dark: #0c0804;
-            --aura-r: 255;
-            --aura-g: 155;
-            --aura-b: 35;
-            --aura-opacity: 0.42;
+            /* Dětský režim (Noční obloha / Calm Indigo) */
+            --bg-dark: #090D16;
+            --aura-r: 129;
+            --aura-g: 140;
+            --aura-b: 248;
+            --aura-opacity: 0.32;
             --lamp-brightness: 1.0;
-            --tile-bg: rgba(28, 19, 11, 0.88);
-            --tile-border: rgba(251, 191, 36, 0.16);
-            --tile-hover: rgba(251, 191, 36, 0.65);
-            --accent: #fbbf24;
-            --accent-soft: #fde68a;
-            --accent-glow: rgba(245, 158, 11, 0.35);
-            --text-main: #fef3c7;
-            --text-muted: #d6c3ae;
-            --reader-bg: rgba(14, 9, 5, 0.86);
-            --reader-text: #fef3c7;
-            --green: #16a34a;
-            --red: #dc2626;
-            /* Jemné, sametové a klidné křivky přechodů (bez trhavého 3D zkosení a bez blikání) */
+            --tile-bg: rgba(17, 24, 39, 0.72);
+            --tile-border: rgba(255, 255, 255, 0.08);
+            --tile-hover: rgba(255, 255, 255, 0.16);
+            --accent: #818CF8;
+            --accent-soft: #C7D2FE;
+            --accent-glow: rgba(129, 140, 248, 0.28);
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --reader-bg: rgba(255, 255, 255, 0.025);
+            --reader-text: #F8FAFC;
+            --green: #10B981;
+            --red: #EF4444;
             --plane-ease: cubic-bezier(0.16, 1, 0.3, 1);
             --soft-ease: cubic-bezier(0.25, 0.9, 0.35, 1);
         }
 
-        /* Téma pro dospělé: Břidlicovo-pergamenový vzhled */
-        body[data-profile="adults"] {
-            --bg-dark: #090d14;
-            --tile-bg: rgba(18, 24, 34, 0.90);
-            --tile-border: rgba(194, 175, 140, 0.16);
-            --tile-hover: rgba(214, 195, 160, 0.60);
-            --accent: #e2c792;
-            --accent-soft: #f3e5c8;
-            --accent-glow: rgba(226, 199, 146, 0.25);
-            --text-main: #f5efe6;
-            --text-muted: #9ca8b8;
-            --reader-bg: rgba(12, 16, 23, 0.90);
-            --reader-text: #f3ead8;
+        /* Dospělý režim (Obsidian Studio / Spotify Dark) */
+        body[data-profile="adults"],
+        body.theme-adults {
+            --bg-dark: #07090E;
+            --aura-r: 16;
+            --aura-g: 185;
+            --aura-b: 129;
+            --aura-opacity: 0.25;
+            --tile-bg: rgba(15, 18, 26, 0.78);
+            --tile-border: rgba(255, 255, 255, 0.07);
+            --tile-hover: rgba(255, 255, 255, 0.15);
+            --accent: #10B981;
+            --accent-soft: #A7F3D0;
+            --accent-glow: rgba(16, 185, 129, 0.25);
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --reader-bg: rgba(255, 255, 255, 0.025);
+            --reader-text: #F8FAFC;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         html, body {
             margin: 0; padding: 0; width: 100%; min-height: 100%;
             background: var(--bg-dark); color: var(--text-main);
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
             overflow-x: hidden;
             transition: background 0.75s var(--soft-ease), color 0.55s var(--soft-ease);
         }
@@ -149,11 +156,12 @@
         }
 
         .lamp-top-badge {
-            background: rgba(12, 8, 4, 0.72);
+            background: rgba(17, 24, 39, 0.75);
             color: #fff; padding: 12px 22px; border-radius: 99px;
-            font-size: 15px; font-weight: 800; text-align: center;
-            border: 1.5px solid rgba(255, 255, 255, 0.35);
-            backdrop-filter: blur(10px);
+            font-size: 14.5px; font-weight: 800; text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
             transition: opacity 0.66s cubic-bezier(0.22, 1, 0.36, 1), transform 0.66s cubic-bezier(0.22, 1, 0.36, 1);
         }
@@ -168,12 +176,13 @@
             transition: opacity 0.45s var(--soft-ease);
         }
         .lamp-controls-card {
-            background: rgba(14, 10, 7, 0.86);
-            color: #fef3c7; padding: 20px; border-radius: 26px;
-            border: 1.5px solid rgba(255, 255, 255, 0.3);
+            background: rgba(15, 20, 30, 0.88);
+            color: var(--text-main); padding: 20px; border-radius: 26px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
             width: 100%; max-width: 680px;
-            backdrop-filter: blur(16px);
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
             display: flex; flex-direction: column; gap: 14px;
             transition: opacity 0.66s cubic-bezier(0.22, 1, 0.36, 1), transform 0.66s cubic-bezier(0.22, 1, 0.36, 1);
         }
@@ -200,43 +209,50 @@
         .top-header {
             display: flex; justify-content: space-between; align-items: center;
             flex-wrap: wrap; gap: 12px;
-            background: var(--tile-bg); border: 1.5px solid var(--tile-border);
+            background: var(--tile-bg); border: 1px solid var(--tile-border);
             padding: 14px 20px; border-radius: 24px;
-            backdrop-filter: blur(14px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 12px 32px rgba(0, 0, 0, 0.4);
             transition: background 0.6s var(--soft-ease), border-color 0.5s var(--soft-ease);
         }
         .brand-box { display: flex; align-items: center; gap: 12px; }
         .brand-name {
-            font-family: 'Georgia', serif; font-size: 25px; font-weight: bold;
-            color: var(--accent); margin: 0;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif; font-size: 24px; font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--text-main); margin: 0;
         }
         .ver-badge {
-            font-size: 12.5px; font-weight: 900;
-            background: linear-gradient(135deg, var(--accent-glow), rgba(255, 255, 255, 0.10));
+            font-size: 11.5px; font-weight: 800;
+            background: rgba(255, 255, 255, 0.05);
             color: var(--accent-soft);
-            padding: 5px 12px; border-radius: 99px;
-            border: 1.5px solid var(--accent);
-            box-shadow: 0 2px 12px var(--accent-glow);
-            letter-spacing: 0.4px;
+            padding: 4px 10px; border-radius: 99px;
+            border: 1px solid var(--tile-border);
+            letter-spacing: 0.3px;
             display: inline-flex; align-items: center; gap: 5px;
         }
-        .header-meta { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+        .header-meta { font-size: 13px; color: var(--text-muted); margin-top: 3px; font-weight: 500; }
 
-        /* SEGMENTED CONTROL BAR (3 tlačítka vedle sebe na 1 řádku i na mobilu, max výška 56px) */
+        /* SEGMENTED CONTROL BAR (iOS / macOS segmented pill control) */
         .hub-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr) !important;
-            gap: 8px;
+            gap: 4px;
             width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 5px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.07);
             max-height: 56px;
+            box-sizing: border-box;
         }
         .hub-card {
-            background: var(--tile-bg);
-            border: 1.5px solid var(--tile-border);
-            border-radius: 16px;
+            background: transparent;
+            border: 1px solid transparent;
+            border-radius: 12px;
             padding: 0 10px;
-            height: 52px;
-            max-height: 52px;
+            height: 44px;
+            max-height: 44px;
             cursor: pointer;
             display: flex;
             flex-direction: row;
@@ -244,101 +260,57 @@
             justify-content: center;
             gap: 8px;
             transition:
-                background 0.36s var(--soft-ease),
-                border-color 0.36s var(--soft-ease),
-                transform 0.32s var(--plane-ease),
-                box-shadow 0.36s var(--soft-ease);
+                background 0.25s var(--soft-ease),
+                color 0.25s var(--soft-ease),
+                box-shadow 0.25s var(--soft-ease),
+                transform 0.2s var(--plane-ease);
             text-align: center;
-            color: var(--text-main);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+            color: var(--text-muted);
+            box-shadow: none;
             white-space: nowrap;
             overflow: hidden;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
         }
         .hub-card:hover {
-            transform: translateY(-1px);
-            border-color: var(--accent);
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.06);
+            transform: none;
         }
         .hub-card.active {
-            background: linear-gradient(135deg, var(--accent-glow), rgba(25, 18, 12, 0.95));
-            border-color: var(--accent);
-            box-shadow: 0 4px 18px var(--accent-glow);
+            background: linear-gradient(135deg, var(--accent), #6366F1);
+            color: #FFFFFF !important;
+            border: 1px solid transparent;
+            box-shadow: 0 4px 16px var(--accent-glow);
+        }
+        body[data-profile="adults"] .hub-card.active,
+        body.theme-adults .hub-card.active {
+            background: linear-gradient(135deg, var(--accent), #059669);
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
         }
         .hub-card-top {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 7px;
         }
         .hub-icon {
-            font-size: 20px;
+            font-size: 18px;
             line-height: 1;
             flex-shrink: 0;
         }
         .hub-title {
-            font-size: 14.5px;
-            font-weight: 800;
-            color: var(--accent-soft);
+            font-size: 13.5px;
+            font-weight: 700;
+            color: inherit;
             margin: 0;
             line-height: 1.2;
             white-space: nowrap;
         }
+        .hub-card.active .hub-title {
+            color: #FFFFFF !important;
+        }
         .hub-desc, .hub-tag {
             display: none !important;
         }
-        /* OLD_HUB_CSS_COMMENT_START
-        .hub-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr) !important;
-            gap: 8px;
-            width: 100%;
-
-        }
-        @media (max-width: 860px) {
-            .hub-grid { grid-template-columns: 1fr; }
-        }
-        .hub-card {
-            background: var(--tile-bg);
-            border: 2px solid var(--tile-border);
-            border-radius: 24px;
-            padding: 20px 18px;
-            cursor: pointer;
-            display: flex; flex-direction: column; justify-content: space-between; gap: 10px;
-            transition:
-                background 0.48s var(--soft-ease),
-                border-color 0.42s var(--soft-ease),
-                transform 0.45s var(--plane-ease),
-                box-shadow 0.48s var(--soft-ease);
-            text-align: left;
-            color: var(--text-main);
-            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
-        }
-        .hub-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--accent);
-        }
-        .hub-card.active {
-            background: linear-gradient(135deg, var(--accent-glow), rgba(20, 15, 10, 0.92));
-            border-color: var(--accent);
-            box-shadow: 0 10px 30px var(--accent-glow);
-        }
-        .hub-card-top {
-            display: flex; align-items: center; gap: 12px;
-        }
-        .hub-icon {
-            font-size: 36px; line-height: 1;
-        }
-        .hub-title {
-            font-size: 18px; font-weight: 800; color: var(--accent-soft); margin: 0;
-        }
-        .hub-desc {
-            font-size: 13px; line-height: 1.45; color: var(--text-muted); margin: 0;
-        }
-        .hub-tag {
-            align-self: flex-start;
-            font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px;
-            padding: 4px 10px; border-radius: 99px;
-            background: rgba(255, 255, 255, 0.08); color: var(--accent);
-        }
-        OLD_HUB_CSS_COMMENT_END */
         .dummy-hub-fix {
         }
 
@@ -352,33 +324,37 @@
         }
         .tile {
             background: var(--tile-bg);
-            border: 1px solid var(--tile-border);
+            border: 1px solid rgba(255, 255, 255, 0.07);
             border-radius: 24px;
             padding: 20px;
-            backdrop-filter: blur(14px);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 12px 32px rgba(0, 0, 0, 0.4);
             display: flex; flex-direction: column; justify-content: space-between;
             transition:
-                border-color 0.42s var(--soft-ease),
-                background 0.55s var(--soft-ease),
-                transform 0.52s var(--plane-ease),
+                border-color 0.35s var(--soft-ease),
+                background 0.45s var(--soft-ease),
+                transform 0.35s var(--plane-ease),
                 opacity 0.66s cubic-bezier(0.22, 1, 0.36, 1),
-                box-shadow 0.48s var(--soft-ease);
+                box-shadow 0.35s var(--soft-ease);
         }
-        .tile:hover { border-color: var(--tile-hover); }
+        .tile:hover {
+            border-color: rgba(255, 255, 255, 0.14);
+        }
         .tile-header {
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 14px; gap: 8px; flex-wrap: wrap;
         }
         .tile-title {
-            font-size: 15px; font-weight: 800; color: var(--accent-soft);
+            font-size: 14px; font-weight: 800; color: var(--text-main);
             display: flex; align-items: center; gap: 8px; text-transform: uppercase;
             letter-spacing: 0.6px;
         }
         .tile-badge {
-            font-size: 12px; font-weight: 700; color: var(--accent);
-            background: rgba(255, 255, 255, 0.06); padding: 4px 10px; border-radius: 99px;
-            transition: all 0.38s var(--soft-ease);
+            font-size: 11.5px; font-weight: 700; color: var(--accent-soft);
+            background: rgba(255, 255, 255, 0.05); border: 1px solid var(--tile-border);
+            padding: 4px 10px; border-radius: 99px;
+            transition: all 0.28s var(--soft-ease);
         }
 
         .tile-hero   { grid-column: span 12; }
@@ -395,7 +371,7 @@
         /* Jemné, plynulé rozbalování a sbalování okna čtečky pomocí CSS Grid 0fr -> 1fr (nulové blikání, žádný skok!) */
         .tile-story {
             grid-column: span 12;
-            display: grid;
+            display: none;
             grid-template-rows: 0fr;
             opacity: 0;
             padding: 0;
@@ -415,6 +391,7 @@
                 margin-top 0.66s cubic-bezier(0.22, 1, 0.36, 1);
         }
         .tile-story.visible {
+            display: grid;
             grid-template-rows: 1fr;
             opacity: 1;
             margin-top: 0;
@@ -427,18 +404,55 @@
         }
         .tile-story-card {
             background: var(--tile-bg);
-            border: 1px solid var(--tile-border);
+            border: 1px solid rgba(255, 255, 255, 0.07);
             border-radius: 24px;
             padding: 20px;
-            backdrop-filter: blur(14px);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 12px 32px rgba(0, 0, 0, 0.4);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            transition: border-color 0.42s var(--soft-ease), background 0.55s var(--soft-ease);
+            transition: border-color 0.35s var(--soft-ease), background 0.45s var(--soft-ease);
         }
         .tile-story-card:hover {
-            border-color: var(--tile-hover);
+            border-color: rgba(255, 255, 255, 0.14);
+        }
+
+        /* ====================================================================
+           NOČNÍ ÚTLUM DISPLEJE PŘI BĚHU (CIRKADIÁNNÍ KLID)
+           ==================================================================== */
+        .top-header, .hub-grid, .tile {
+            transition: opacity 1.2s ease, background 0.6s var(--soft-ease), border-color 0.5s var(--soft-ease);
+        }
+        body.session-active-calm .top-header,
+        body.session-active-calm .hub-grid,
+        body.session-active-calm .tile-audio,
+        body.session-active-calm .tile-amb {
+            opacity: 0.45;
+            transition: opacity 1.2s ease;
+        }
+        body.session-active-calm:has(#storyTile.visible) .tile-hero {
+            opacity: 0.45;
+            transition: opacity 1.2s ease;
+        }
+        body.session-active-calm .top-header:hover,
+        body.session-active-calm .top-header:focus-within,
+        body.session-active-calm .top-header:active,
+        body.session-active-calm .hub-grid:hover,
+        body.session-active-calm .hub-grid:focus-within,
+        body.session-active-calm .hub-grid:active,
+        body.session-active-calm .tile-audio:hover,
+        body.session-active-calm .tile-audio:focus-within,
+        body.session-active-calm .tile-audio:active,
+        body.session-active-calm .tile-amb:hover,
+        body.session-active-calm .tile-amb:focus-within,
+        body.session-active-calm .tile-amb:active,
+        body.session-active-calm:has(#storyTile.visible) .tile-hero:hover,
+        body.session-active-calm:has(#storyTile.visible) .tile-hero:focus-within,
+        body.session-active-calm:has(#storyTile.visible) .tile-hero:active {
+            opacity: 1;
+            transition: opacity 0.2s ease;
         }
 
         .tile-amb    { grid-column: span 12; }
@@ -485,9 +499,9 @@
             gap: 6px;
         }
         .compact-lamp-btn {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--tile-border);
-            border-radius: 14px;
+            border-radius: 12px;
             padding: 5px 8px;
             color: var(--text-main);
             cursor: pointer;
@@ -497,19 +511,25 @@
             text-align: left;
             min-height: 36px;
             font-size: 12px;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
             transition:
-                background 0.36s var(--soft-ease),
-                border-color 0.36s var(--soft-ease),
-                box-shadow 0.36s var(--soft-ease),
-                transform 0.36s var(--plane-ease);
+                background 0.25s var(--soft-ease),
+                border-color 0.25s var(--soft-ease),
+                box-shadow 0.25s var(--soft-ease),
+                transform 0.2s var(--plane-ease);
         }
-        .compact-lamp-btn:hover { border-color: var(--accent); background: rgba(255, 255, 255, 0.09); }
+        .compact-lamp-btn:hover { border-color: rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.08); }
         .compact-lamp-btn.active {
-            background: linear-gradient(135deg, var(--accent-glow), rgba(255, 255, 255, 0.12));
+            background: rgba(129, 140, 248, 0.18);
             border-color: var(--accent);
-            box-shadow: 0 4px 14px var(--accent-glow);
+            color: #FFFFFF;
+            box-shadow: 0 2px 12px var(--accent-glow);
         }
-        .compact-lamp-btn .bt-title { font-size: 12.5px; font-weight: 800; line-height: 1.2; }
+        body[data-profile="adults"] .compact-lamp-btn.active,
+        body.theme-adults .compact-lamp-btn.active {
+            background: rgba(16, 185, 129, 0.18);
+        }
+        .compact-lamp-btn .bt-title { font-size: 12.5px; font-weight: 700; line-height: 1.2; }
         .compact-lamp-btn .bt-sub { font-size: 10.5px; color: var(--text-muted); line-height: 1.15; }
 
         .free-record-bar {
@@ -609,7 +629,7 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--tile-border);
             border-radius: 99px;
             padding: 2px 8px;
@@ -648,57 +668,48 @@
             }
             .reader-viewport {
                 padding: 18px 14px !important;
-                font-size: 19.5px !important;
+                font-size: 19px !important;
                 line-height: 1.82 !important;
             }
             .tile {
                 padding: 14px 12px;
-                border-radius: 22px;
+                border-radius: 20px;
             }
             .tile-story-card {
                 padding: 14px 12px;
-                border-radius: 22px;
+                border-radius: 20px;
             }
             .hub-grid {
-                grid-template-columns: repeat(3, 1fr) !important;
-                gap: 5px !important;
-                gap: 8px;
+                max-height: 52px;
+                padding: 4px;
             }
             #hubLamp {
-            height: 52px;
-            max-height: 52px;
-            padding: 0 10px !important;
-            gap: 8px !important;
-                grid-column: auto !important;
-                height: 48px !important;
-                max-height: 48px !important;
-                padding: 0 4px !important;
-                padding: 10px 12px;
+                height: 42px !important;
+                max-height: 42px !important;
+                padding: 0 6px !important;
             }
             .hub-card {
-                height: 48px !important;
-                max-height: 48px !important;
-                padding: 0 4px !important;
-                padding: 10px 12px;
-                border-radius: 16px;
-                gap: 4px;
+                height: 42px !important;
+                max-height: 42px !important;
+                padding: 0 6px !important;
+                border-radius: 10px;
+                gap: 5px;
             }
             .hub-card-top {
-                gap: 8px;
+                gap: 6px;
             }
             .hub-icon {
-                font-size: 16px;
+                font-size: 15px;
             }
             .hub-title {
-                font-size: 11.5px;
+                font-size: 12px;
                 line-height: 1.2;
             }
             .hub-desc {
                 display: none;
             }
             .hub-tag {
-                font-size: 9.5px;
-                padding: 2px 7px;
+                display: none;
             }
             #lullabyGridMain > *, .carousel-strip > * {
                 flex: 0 0 148px;
@@ -732,7 +743,8 @@
         }
 
         .big-tile-btn {
-            background: rgba(255, 255, 255, 0.05);
+            position: relative;
+            background: rgba(255, 255, 255, 0.035);
             border: 1px solid var(--tile-border);
             border-radius: 18px;
             padding: 12px 10px;
@@ -741,20 +753,52 @@
             display: flex; flex-direction: column; align-items: center;
             justify-content: center; gap: 4px; text-align: center;
             min-height: 72px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
             transition:
-                background 0.36s var(--soft-ease),
-                border-color 0.36s var(--soft-ease),
-                box-shadow 0.38s var(--soft-ease),
-                transform 0.38s var(--plane-ease);
+                background 0.28s var(--soft-ease),
+                border-color 0.28s var(--soft-ease),
+                box-shadow 0.28s var(--soft-ease),
+                transform 0.28s var(--plane-ease),
+                color 0.25s var(--soft-ease);
         }
-        .big-tile-btn:hover { border-color: var(--accent); background: rgba(255, 255, 255, 0.09); transform: translateY(-1px); }
+        .big-tile-btn:hover {
+            border-color: rgba(255, 255, 255, 0.18);
+            background: rgba(255, 255, 255, 0.07);
+            transform: translateY(-1px);
+        }
         .big-tile-btn .bt-icon { font-size: 22px; line-height: 1.1; }
-        .big-tile-btn .bt-title { font-size: 13.5px; font-weight: 800; color: var(--text-main); }
+        .big-tile-btn .bt-title { font-size: 13.5px; font-weight: 700; color: var(--text-main); }
         .big-tile-btn .bt-sub { font-size: 11px; color: var(--text-muted); }
         .big-tile-btn.active {
-            background: linear-gradient(135deg, var(--accent-glow), rgba(255, 255, 255, 0.12));
+            background: rgba(129, 140, 248, 0.16);
             border-color: var(--accent);
-            box-shadow: 0 6px 20px var(--accent-glow);
+            color: #FFFFFF;
+            box-shadow: 0 0 0 1px var(--accent), 0 6px 20px var(--accent-glow);
+        }
+        body[data-profile="adults"] .big-tile-btn.active,
+        body.theme-adults .big-tile-btn.active {
+            background: rgba(16, 185, 129, 0.16);
+            border-color: var(--accent);
+            color: #FFFFFF;
+            box-shadow: 0 0 0 1px var(--accent), 0 6px 20px var(--accent-glow);
+        }
+        .big-tile-btn.active::after {
+            content: '';
+            position: absolute;
+            top: 7px;
+            right: 7px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+        }
+        .big-tile-btn.active .bt-title {
+            color: #FFFFFF;
+        }
+        .big-tile-btn.active .bt-sub {
+            color: var(--accent-soft);
         }
 
         .section-label {
@@ -763,7 +807,7 @@
             margin: 12px 0 8px;
         }
 
-        /* DLAŽDICE 1: HLAVNÍ SCÉNA S KNIHOU */
+        /* DLAŽDICE 1: HLAVNÍ SCÉNA S ŽIVÝM AUDIO EQUALIZER ORBEM */
         .hero-status-row {
             display: flex; align-items: center; gap: 14px; width: 100%;
         }
@@ -779,43 +823,79 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            width: 72px;
+            height: 72px;
             border-radius: 50%;
-            padding: 8px 10px;
             flex-shrink: 0;
-            background: radial-gradient(circle, rgba(var(--aura-r), var(--aura-g), var(--aura-b), 0.18) 0%, rgba(var(--aura-r), var(--aura-g), var(--aura-b), 0.04) 65%, transparent 75%);
-            box-shadow: 0 0 20px rgba(var(--aura-r), var(--aura-g), var(--aura-b), 0.22);
-            transition: box-shadow 0.75s var(--soft-ease), background 0.75s var(--soft-ease), transform 0.6s var(--soft-ease);
+            background: radial-gradient(circle, var(--accent-glow) 0%, rgba(255, 255, 255, 0.01) 70%, transparent 100%);
+            box-shadow: 0 0 24px var(--accent-glow);
+            transition: box-shadow 0.6s var(--soft-ease), background 0.6s var(--soft-ease), transform 0.4s var(--soft-ease);
         }
         .scene-aura-orb.pulsing {
-            animation: auraBreathing 4s ease-in-out infinite;
-            box-shadow: 0 0 34px rgba(var(--aura-r), var(--aura-g), var(--aura-b), 0.35);
+            animation: orbBreathe 3s ease-in-out infinite alternate;
+            box-shadow: 0 0 36px var(--accent-glow);
         }
-        @keyframes auraBreathing {
-            0%, 100% {
-                transform: scale(1);
-                box-shadow: 0 0 20px rgba(var(--aura-r), var(--aura-g), var(--aura-b), 0.22);
-            }
-            50% {
-                transform: scale(1.08);
-                box-shadow: 0 0 40px rgba(var(--aura-r), var(--aura-g), var(--aura-b), 0.45);
-            }
+        @keyframes orbBreathe {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.05); }
         }
-        .book-svg {
-            width: 76px; height: 52px; flex-shrink: 0;
-            filter: drop-shadow(0 6px 18px var(--accent-glow));
-            animation: floatBook 5s ease-in-out infinite;
+        .eq-orb-glass {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2), 0 6px 18px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.4s var(--soft-ease), box-shadow 0.4s var(--soft-ease);
         }
-        @keyframes floatBook {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+        .scene-aura-orb.pulsing .eq-orb-glass {
+            border-color: var(--accent);
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3), 0 0 20px var(--accent-glow);
         }
+        .eq-bars {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3.5px;
+            height: 28px;
+        }
+        .eq-bar {
+            width: 3.5px;
+            border-radius: 99px;
+            background: var(--accent-soft);
+            height: 5px;
+            opacity: 0.7;
+            transition: height 0.25s ease, opacity 0.3s ease;
+        }
+        .scene-aura-orb.pulsing .eq-bar {
+            opacity: 1;
+            background: linear-gradient(to top, var(--accent), var(--accent-soft));
+        }
+        .scene-aura-orb.pulsing .bar-1 { animation: eqWave1 0.85s ease-in-out infinite alternate; }
+        .scene-aura-orb.pulsing .bar-2 { animation: eqWave2 0.65s ease-in-out infinite alternate 0.12s; }
+        .scene-aura-orb.pulsing .bar-3 { animation: eqWave3 1.05s ease-in-out infinite alternate 0.04s; }
+        .scene-aura-orb.pulsing .bar-4 { animation: eqWave4 0.75s ease-in-out infinite alternate 0.18s; }
+        .scene-aura-orb.pulsing .bar-5 { animation: eqWave5 0.95s ease-in-out infinite alternate 0.08s; }
+
+        @keyframes eqWave1 { 0% { height: 5px; } 100% { height: 18px; } }
+        @keyframes eqWave2 { 0% { height: 8px; } 100% { height: 26px; } }
+        @keyframes eqWave3 { 0% { height: 6px; } 100% { height: 28px; } }
+        @keyframes eqWave4 { 0% { height: 9px; } 100% { height: 22px; } }
+        @keyframes eqWave5 { 0% { height: 5px; } 100% { height: 15px; } }
+
         .status-bubble {
-            flex: 1; width: 100%; margin-top: 0; padding: 10px 16px;
-            background: rgba(0, 0, 0, 0.48);
-            border: 1.5px solid var(--tile-border);
-            border-radius: 18px; font-size: 16px; font-weight: 700;
-            color: var(--accent-soft); min-height: 54px;
+            flex: 1; width: 100%; margin-top: 0; padding: 12px 18px;
+            background: rgba(255, 255, 255, 0.035);
+            border: 1px solid var(--tile-border);
+            border-radius: 16px; font-size: 14.5px; font-weight: 600;
+            color: var(--text-main); min-height: 54px;
             display: flex; align-items: center; justify-content: center;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
             transition: opacity 0.36s var(--soft-ease), transform 0.36s var(--plane-ease), border-color 0.4s var(--soft-ease);
         }
         .reader-mode-toggle {
@@ -835,24 +915,24 @@
             border: 1px solid transparent;
         }
         .reader-mode-toggle .compact-lamp-btn.active {
-            background: linear-gradient(135deg, var(--accent), #d97706);
-            color: #140d04 !important;
-            border-color: var(--accent);
-            font-weight: 800;
+            background: var(--accent);
+            color: #FFFFFF !important;
+            border-color: transparent;
+            font-weight: 700;
         }
         #autoBadgesBox {
             min-height: 42px; margin-top: 10px;
             display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;
         }
         .auto-badge {
-            font-size: 13.5px; font-weight: 700;
-            background: rgba(22, 16, 10, 0.75);
+            font-size: 13px; font-weight: 700;
+            background: rgba(17, 24, 39, 0.85);
             color: var(--accent-soft);
-            border: 1px solid rgba(var(--aura-r), var(--aura-g), var(--aura-b), 0.45);
+            border: 1px solid var(--accent-glow);
             padding: 5px 14px; border-radius: 99px;
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45), 0 0 14px rgba(var(--aura-r), var(--aura-g), var(--aura-b), 0.25);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 14px var(--accent-glow);
             animation: popBadge 0.42s var(--plane-ease);
             display: inline-flex; align-items: center; gap: 6px;
             letter-spacing: 0.2px;
@@ -868,25 +948,25 @@
             margin-bottom: 10px;
         }
         .story-filter-pill {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1.5px solid var(--tile-border);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--tile-border);
             border-radius: 99px;
             padding: 6px 14px;
-            font-size: 13px;
-            font-weight: 800;
+            font-size: 12.5px;
+            font-weight: 700;
             color: var(--text-muted);
             cursor: pointer;
-            transition: background 0.28s var(--soft-ease), border-color 0.28s var(--soft-ease), color 0.28s var(--soft-ease), transform 0.28s var(--plane-ease);
+            transition: background 0.25s var(--soft-ease), border-color 0.25s var(--soft-ease), color 0.25s var(--soft-ease), transform 0.25s var(--plane-ease);
         }
         .story-filter-pill:hover {
-            border-color: var(--accent);
+            border-color: rgba(255, 255, 255, 0.2);
             color: var(--text-main);
             transform: translateY(-1px);
         }
         .story-filter-pill.active {
-            background: linear-gradient(135deg, var(--accent), #d97706);
-            color: #140d04 !important;
-            border-color: var(--accent);
+            background: var(--accent);
+            color: #FFFFFF !important;
+            border-color: transparent;
             box-shadow: 0 2px 10px var(--accent-glow);
         }
         .story-controls {
@@ -970,41 +1050,44 @@
             border: 1.5px dashed var(--accent);
         }
         select {
-            font-size: 15px; font-weight: 800; padding: 12px 14px;
-            border-radius: 16px; background: #14100c; color: var(--text-main);
-            border: 2px solid var(--tile-border); width: 100%; cursor: pointer;
-            transition: border-color 0.35s var(--soft-ease);
+            font-size: 14.5px; font-weight: 600; padding: 12px 14px;
+            border-radius: 14px; background: rgba(17, 24, 39, 0.9); color: var(--text-main);
+            border: 1px solid var(--tile-border); width: 100%; cursor: pointer;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            transition: border-color 0.25s var(--soft-ease);
         }
         select:hover, select:focus { border-color: var(--accent); outline: none; }
+        #readerBox,
         .reader-viewport {
-            font-family: 'Georgia', serif;
-            background: var(--reader-bg);
-            border: 1.5px solid var(--tile-border);
+            font-family: 'Literata', Georgia, serif;
+            background: rgba(255, 255, 255, 0.025);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 20px; padding: 24px;
-            font-size: 22px; line-height: 1.9; color: var(--reader-text);
+            font-size: 21px; line-height: 1.88; color: var(--reader-text);
             max-height: 52vh; overflow-y: auto;
-            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5), inset 0 0 35px rgba(0, 0, 0, 0.28);
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.4);
             transition: opacity 0.46s var(--soft-ease), transform 0.46s var(--plane-ease), background 0.55s var(--soft-ease), font-size 0.25s var(--soft-ease);
         }
         .w-tok {
             padding: 2px 5px;
             border-radius: 6px;
             cursor: pointer;
-            transition: background 0.22s var(--soft-ease), color 0.22s var(--soft-ease), box-shadow 0.22s var(--soft-ease), transform 0.22s var(--soft-ease);
+            transition: background 0.2s var(--soft-ease), color 0.2s var(--soft-ease), box-shadow 0.2s var(--soft-ease), transform 0.2s var(--soft-ease);
         }
         .w-tok.trig-sfx {
             color: var(--accent-soft);
-            background: rgba(251, 191, 36, 0.07);
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 6px;
             padding: 1px 4px;
         }
         .w-tok.active-word {
             background: var(--accent);
-            color: #120c04 !important;
+            color: #FFFFFF !important;
             font-weight: 700;
-            border-radius: 7px;
+            border-radius: 8px;
+            padding: 2px 7px;
             box-shadow: 0 2px 14px var(--accent-glow);
-            transform: scale(1.03);
+            transform: scale(1.04);
             display: inline-block;
         }
 
@@ -1085,9 +1168,9 @@
             font-size: 12px;
         }
         .reader-status-bar .compact-lamp-btn.active {
-            background: linear-gradient(135deg, var(--accent), #d97706);
-            color: #140d04 !important;
-            border-color: var(--accent);
+            background: var(--accent);
+            color: #FFFFFF !important;
+            border-color: transparent;
             box-shadow: 0 2px 10px var(--accent-glow);
         }
         .reader-page-nav {
@@ -1257,11 +1340,12 @@
             .url-input-row { flex-direction: column; }
         }
         .url-input-field {
-            flex: 1; font-size: 16px; font-weight: 600;
-            padding: 14px 16px; border-radius: 16px;
-            background: #14100c; color: var(--text-main);
-            border: 2px solid var(--tile-border); outline: none;
-            transition: border-color 0.35s var(--soft-ease), box-shadow 0.35s var(--soft-ease);
+            flex: 1; font-size: 15px; font-weight: 600;
+            padding: 12px 16px; border-radius: 14px;
+            background: rgba(17, 24, 39, 0.85); color: var(--text-main);
+            border: 1px solid var(--tile-border); outline: none;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            transition: border-color 0.25s var(--soft-ease), box-shadow 0.25s var(--soft-ease);
         }
         .url-input-field:focus {
             border-color: var(--accent);
@@ -1361,23 +1445,28 @@
         }
 
         /* ====================================================================
-           PLOVOUCÍ SPODNÍ OSTROV (FLOATING PILL DOCK)
+           PLOVOUCÍ SPODNÍ OSTROV (FLOATING MEDIA BAR - SPOTIFY / APPLE PODCASTS)
            ==================================================================== */
         .bottom-dock {
             position: fixed;
-            bottom: max(12px, env(safe-area-inset-bottom));
-            left: 12px;
-            right: 12px;
-            max-width: 640px;
+            bottom: max(14px, env(safe-area-inset-bottom));
+            left: 14px;
+            right: 14px;
+            max-width: 660px;
             margin: 0 auto;
             z-index: 200;
             border-radius: 999px;
             padding: 8px 10px;
-            border: 1px solid rgba(255, 255, 255, 0.16);
-            background: rgba(15, 11, 7, 0.85);
-            backdrop-filter: blur(22px);
-            -webkit-backdrop-filter: blur(22px);
-            box-shadow: 0 14px 36px rgba(0, 0, 0, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(15, 20, 32, 0.82);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+            transition: background 0.4s var(--soft-ease), border-color 0.4s var(--soft-ease);
+        }
+        body[data-profile="adults"] .bottom-dock,
+        body.theme-adults .bottom-dock {
+            background: rgba(10, 14, 22, 0.86);
         }
         .dock-inner {
             width: 100%;
@@ -1390,9 +1479,9 @@
             font-size: 11px;
             font-weight: 800;
             color: var(--accent-soft);
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--tile-border);
-            padding: 6px 10px;
+            padding: 6px 12px;
             border-radius: 999px;
             white-space: nowrap;
             display: flex;
@@ -1411,56 +1500,64 @@
             min-height: 52px;
             border: none;
             border-radius: 999px;
-            font-size: 17px;
-            font-weight: 900;
-            color: #fff;
-            background: linear-gradient(135deg, #16a34a, #15803d);
+            font-size: 16px;
+            font-weight: 800;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+            color: #FFFFFF;
+            background: linear-gradient(135deg, #6366F1, #8B5CF6);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            box-shadow: 0 6px 20px rgba(22, 163, 74, 0.45);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
             letter-spacing: 0.3px;
-            transition: transform 0.32s var(--plane-ease), background 0.42s var(--soft-ease), box-shadow 0.42s var(--soft-ease);
+            transition: transform 0.25s var(--plane-ease), background 0.35s var(--soft-ease), box-shadow 0.35s var(--soft-ease);
         }
-        .btn-primary-run:active { transform: scale(0.99); }
+        body[data-profile="adults"] .btn-primary-run,
+        body.theme-adults .btn-primary-run {
+            background: linear-gradient(135deg, #10B981, #059669);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+        }
+        .btn-primary-run:active { transform: scale(0.98); }
         .btn-primary-run.running {
-            background: linear-gradient(135deg, #dc2626, #991b1b);
-            box-shadow: 0 6px 20px rgba(220, 38, 38, 0.55);
+            background: linear-gradient(135deg, #EF4444, #DC2626) !important;
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.45) !important;
         }
         .btn-panic {
             min-height: 52px;
             padding: 0 18px;
             border-radius: 999px;
-            font-size: 14px;
-            font-weight: 900;
+            font-size: 13.5px;
+            font-weight: 800;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
             cursor: pointer;
-            background: #451a1a;
-            border: 1.5px solid #f87171;
-            color: #fecaca;
-            transition: transform 0.32s var(--plane-ease), background 0.36s var(--soft-ease);
+            background: rgba(239, 68, 68, 0.16);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #FECACA;
+            transition: transform 0.25s var(--plane-ease), background 0.3s var(--soft-ease);
         }
         .btn-blackout-dock {
             min-height: 52px;
-            padding: 0 14px;
+            padding: 0 16px;
             border-radius: 999px;
-            font-size: 13.5px;
-            font-weight: 800;
+            font-size: 13px;
+            font-weight: 700;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
             cursor: pointer;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.16);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             color: var(--text-muted);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
             white-space: nowrap;
-            transition: transform 0.32s var(--plane-ease), background 0.36s var(--soft-ease), border-color 0.36s var(--soft-ease), color 0.36s var(--soft-ease);
+            transition: transform 0.25s var(--plane-ease), background 0.3s var(--soft-ease), border-color 0.3s var(--soft-ease), color 0.3s var(--soft-ease);
         }
         .btn-blackout-dock:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.10);
+            border-color: rgba(255, 255, 255, 0.2);
             color: var(--text-main);
         }
         .btn-blackout-dock:active {
@@ -1470,31 +1567,52 @@
             min-height: 52px;
             padding: 0 16px;
             border-radius: 999px;
-            font-size: 13.5px;
-            font-weight: 900;
+            font-size: 13px;
+            font-weight: 800;
+            font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
             cursor: pointer;
-            background: rgba(251, 191, 36, 0.12);
-            border: 1.5px solid var(--accent);
+            background: rgba(129, 140, 248, 0.14);
+            border: 1px solid var(--accent);
             color: var(--accent-soft);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
             white-space: nowrap;
-            transition: transform 0.32s var(--plane-ease), background 0.36s var(--soft-ease), border-color 0.36s var(--soft-ease), box-shadow 0.36s var(--soft-ease);
+            transition: transform 0.25s var(--plane-ease), background 0.3s var(--soft-ease), border-color 0.3s var(--soft-ease), box-shadow 0.3s var(--soft-ease);
+        }
+        body[data-profile="adults"] .btn-pause-resume,
+        body.theme-adults .btn-pause-resume {
+            background: rgba(16, 185, 129, 0.14);
         }
         .btn-pause-resume:hover {
-            background: rgba(251, 191, 36, 0.24);
-            border-color: #fde68a;
+            background: rgba(129, 140, 248, 0.25);
         }
         .btn-pause-resume:active {
             transform: scale(0.97);
         }
         .btn-pause-resume.paused {
-            background: linear-gradient(135deg, #d97706, #b45309);
-            color: #ffffff;
-            border-color: #fef3c7;
-            box-shadow: 0 6px 20px rgba(217, 119, 6, 0.5);
+            background: linear-gradient(135deg, #F59E0B, #D97706);
+            color: #FFFFFF;
+            border-color: #FDE68A;
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+        }
+        .btn-handover-ai {
+            background: linear-gradient(135deg, rgba(129, 140, 248, 0.28), rgba(99, 102, 241, 0.42)) !important;
+            border: 1.5px solid var(--accent) !important;
+            color: #FFFFFF !important;
+            box-shadow: 0 4px 16px var(--accent-glow) !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.2px;
+        }
+        .btn-handover-ai:hover {
+            background: linear-gradient(135deg, rgba(129, 140, 248, 0.45), rgba(99, 102, 241, 0.65)) !important;
+            box-shadow: 0 6px 22px var(--accent-glow) !important;
+        }
+        body[data-profile="adults"] .btn-handover-ai,
+        body.theme-adults .btn-handover-ai {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.28), rgba(5, 150, 105, 0.42)) !important;
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3) !important;
         }
 
         @media (max-width: 680px) {
@@ -1596,7 +1714,7 @@
      ======================================================================== -->
 <div id="pureLampScreen">
     <div class="lamp-top-badge" id="lampScreenHeader">
-        🕯️ Chytrá čtecí a uspávací lampička (v8.0.0 MASTER) • <span id="lampScreenTitle">Teplá svíčka (1800K)</span>
+        🕯️ Chytrá čtecí a uspávací lampička (v8.1.0 MODERN) • <span id="lampScreenTitle">Teplá svíčka (1800K)</span>
     </div>
 
     <div class="lamp-center-Zone" onclick="document.getElementById('pureLampScreen').classList.toggle('zen-hide')">
@@ -1661,7 +1779,7 @@
         </div>
 
         </div>
-        <button class="big-tile-btn" id="okayToWakeBtn" style="min-height:48px; margin-top:6px; flex-direction:row; gap:8px; border-color:var(--accent); background:rgba(251,191,36,0.12);" onclick="setOkayToWakeAlarm()">
+        <button class="big-tile-btn" id="okayToWakeBtn" style="min-height:48px; margin-top:6px; flex-direction:row; gap:8px; border-color:var(--accent); background:rgba(129,140,248,0.12);" onclick="setOkayToWakeAlarm()">
             <span class="bt-icon" style="font-size:18px;">🌅</span>
             <span class="bt-title" id="okayToWakeBtnTitle">🌅 Ranní semafor (Okay-to-Wake)</span>
         </button>
@@ -1794,10 +1912,10 @@
     <div class="ocr-modal-card">
         <div class="tile-header" style="margin-bottom:2px;">
             <div class="tile-title">❓ Jak AtmoRead funguje (Stručný průvodce)</div>
-            <span class="tile-badge">📦 Verze v8.0.0 MASTER • Přehled za 30 s</span>
+            <span class="tile-badge">📦 Verze v8.1.0 MODERN • Přehled za 30 s</span>
         </div>
         <p style="font-size:13.5px; color:var(--text-muted); line-height:1.45;">
-            AtmoRead (<b>v8.0.0 MASTER</b>) promění čtení pohádek, knih i webových článků v živý zvukový a světelný zážitek. Vše ovládáš <b>jedním ťuknutím na velké dlaždice</b>.
+            AtmoRead (<b>v8.1.0 MODERN</b>) promění čtení pohádek, knih i webových článků v živý zvukový a světelný zážitek. Vše ovládáš <b>jedním ťuknutím na velké dlaždice</b>.
         </p>
 
         <div class="help-grid">
@@ -1855,7 +1973,7 @@
             <div>
                 <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                     <h1 class="brand-name">AtmoRead</h1>
-                    <span class="ver-badge" title="Aktuální verze aplikace AtmoRead">📦 Verze v8.0.0 MASTER</span>
+                    <span class="ver-badge" title="Aktuální verze aplikace AtmoRead">📦 Verze v9.0.0 FINAL</span>
                 </div>
                 <div class="header-meta" id="dictCounter">Živá zvuková atmosféra pro čtení a spánek</div>
             </div>
@@ -1874,77 +1992,30 @@
     </header>
 
     <!-- ====================================================================
-         1. ÚVODNÍ ROZCESTNÍK SE 3 KARTAMI (Lampička jako menší nadstavba)
+         1. ÚVODNÍ ROZCESTNÍK SE 3 KARTAMI (Segmented Pill Bar)
          ==================================================================== -->
     <section class="hub-grid" aria-label="Úvodní rozcestník">
         <button class="hub-card active" id="hubKids" onclick="selectProfileHub('kids')">
-            <div>
-                <div class="hub-card-top">
-                    <span class="hub-icon">🌙</span>
-                    <h2 class="hub-title">Dětský svět</h2>
-                </div>
-                <p class="hub-desc" style="margin-top:8px;">
-                    Teplý medovo-zlatý vzhled, dlouhé pohádky na dobrou noc, zvířátka, kouzla a jemné ukolébavky.
-                </p>
+            <div class="hub-card-top">
+                <span class="hub-icon">🌙</span>
+                <h2 class="hub-title">Dětský svět</h2>
             </div>
-            <span class="hub-tag">🍯 Medovo-zlatý režim + Ukolébavky</span>
         </button>
 
         <button class="hub-card" id="hubAdults" onclick="selectProfileHub('adults')">
-            <div>
-                <div class="hub-card-top">
-                    <span class="hub-icon">🍷</span>
-                    <h2 class="hub-title">Pro dospělé</h2>
-                </div>
-                <p class="hub-desc" style="margin-top:8px;">
-                    Fantasy, Detektivky, Romány a Články. Břidlice & pergamen, atmosféra kavárny, klavíru, krbu, vlaku a bouře.
-                </p>
+            <div class="hub-card-top">
+                <span class="hub-icon">🍷</span>
+                <h2 class="hub-title">Pro dospělé</h2>
             </div>
-            <span class="hub-tag">📜 Břidlice & Dospělá atmosféra</span>
         </button>
 
         <button class="hub-card" id="hubLamp" onclick="selectProfileHub('lamp')">
-            <div>
-                <div class="hub-card-top">
-                    <span class="hub-icon">🕯️</span>
-                    <h2 class="hub-title">Lampička</h2>
-                </div>
-                <p class="hub-desc" style="margin-top:6px; font-size:0.84rem;">
-                    Doplňková 100% lampička pro osvícení pokoje nebo papírové knihy.
-                </p>
+            <div class="hub-card-top">
+                <span class="hub-icon">🕯️</span>
+                <h2 class="hub-title">Lampička</h2>
             </div>
-            <span class="hub-tag">☀️ Nadstavba</span>
         </button>
     </section>
-
-    <!-- ODSTRANĚNO Z DOMU: RYCHLÁ ROZBALOVACÍ LIŠTA NÁPOVĚDY
-    <div style="margin-bottom:14px;">
-        <button class="big-tile-btn" style="width:100%; min-height:46px; flex-direction:row; justify-content:space-between; padding:8px 16px;" onclick="toggleInlineQuickHelp()">
-            <span style="display:flex; align-items:center; gap:8px;">
-                <span style="font-size:18px;">💡</span>
-                <span class="bt-title">Rychlá nápověda: Kde nahrát článek, fotku knihy nebo vlastní text a co jak funguje?</span>
-            </span>
-            <span class="tile-badge" id="quickHelpArrow">Rozbalit přehled ▼</span>
-        </button>
-        <div class="collapsible-plane" id="quickHelpPlane">
-            <div class="collapsible-plane-inner">
-                <div class="help-grid" style="padding-top:10px;">
-                    <div class="help-step-card">
-                        <div class="help-step-title">🎙️ Čtení vlastní knihy vs. 🎧 AI Vypravěč</div>
-                        <div class="help-step-text">
-                            Chceš-li číst papírovou knihu a mít kolem sebe zvuky na vyřčená slova, nech zapnuté <b>🎙️ Jen zvuky kolem</b> a klepni dole na <b>SPUSTIT</b>. Chceš-li, aby aplikace četla sama, zvol <b>🎧 AI Vypravěč</b>, vyber délku (<b>5 / 15 / 30 min</b>), tempo a hlas.
-                        </div>
-                    </div>
-                    <div class="help-step-card">
-                        <div class="help-step-title">🔗 Nahrání článku z URL, 📷 Fotky stránky a ✍️ Textu</div>
-                        <div class="help-step-text">
-                            Přepni na <b>🎧 AI Vypravěč</b> (nebo použij tlačítko <b>🔗 Načíst článek z URL</b>). V okně <b>🔗 Článek z URL</b> vložíš odkaz ze Seznamu/webu (vytáhne čistý text kolem nadpisu a uloží ho do historie). Přes <b>📷 Vyfotit stránku</b> ořízneš fotku knihy mimo ilustrace a přes <b>✍️ Vložit text</b> vložíš cokoliv ze schránky.
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- ====================================================================
          HLAVNÍ DLAŽDICOVÉ SCHÉMA (BEZ POSUVNÍKŮ)
@@ -1954,27 +2025,26 @@
         <!-- DLAŽDICE 1: ŽIVÁ ATMOSFÉRA A MONITOR SCÉNY -->
         <section class="tile tile-hero">
             <div class="tile-header">
-                <div class="tile-title">🎙️ Živá dvouvrstvá atmosféra & Režimy čtení</div>
+                <div class="tile-title">🎙️ Živá atmosféra & Režimy čtení</div>
                 <span class="tile-badge" id="activeSceneBadge">Scéna: Klidná louka</span>
             </div>
             <div class="hero-center">
                 <div class="hero-status-row">
-                <div class="scene-aura-orb" id="sceneAuraOrb">
-                    <svg class="book-svg" viewBox="0 0 220 145" fill="none">
-                        <ellipse cx="110" cy="85" rx="85" ry="42" fill="rgba(251, 191, 36, 0.16)"/>
-                        <path d="M22 108 C55 98, 92 104, 110 116 C128 104, 165 98, 198 108 L204 44 C168 34, 130 42, 110 54 C90 42, 52 34, 16 44 Z" fill="#451a03" stroke="#fbbf24" stroke-width="2.5"/>
-                        <path d="M28 102 C58 92, 92 98, 110 110 C128 98, 162 92, 192 102 L196 48 C164 38, 128 44, 110 56 C92 44, 56 38, 24 48 Z" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
-                        <line x1="110" y1="55" x2="110" y2="110" stroke="#b45309" stroke-width="2.5"/>
-                        <path d="M42 64 Q70 59 96 66 M40 76 Q70 71 95 78 M44 88 Q70 83 92 89" stroke="#92400e" stroke-width="2" stroke-linecap="round"/>
-                        <path d="M124 66 Q150 59 178 64 M125 78 Q150 71 176 76 M128 89 Q150 83 172 88" stroke="#92400e" stroke-width="2" stroke-linecap="round"/>
-                        <path d="M112 76 C128 45, 162 20, 190 12 C182 36, 162 56, 136 68 L112 76 Z" fill="#fbbf24" stroke="#fef08a" stroke-width="1.8"/>
-                        <path d="M108 82 L190 12" stroke="#78350f" stroke-width="2.2" stroke-linecap="round"/>
-                    </svg>
+                    <div class="scene-aura-orb" id="sceneAuraOrb" title="Živý zvukový ekvalizér">
+                        <div class="eq-orb-glass">
+                            <div class="eq-bars">
+                                <span class="eq-bar bar-1"></span>
+                                <span class="eq-bar bar-2"></span>
+                                <span class="eq-bar bar-3"></span>
+                                <span class="eq-bar bar-4"></span>
+                                <span class="eq-bar bar-5"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="status-bubble" id="liveStatusText">
+                        ✨ Vyber si nahoře Dětský svět nebo Pro dospělé a dole klepni na tlačítko SPUSTIT!
+                    </div>
                 </div>
-                <div class="status-bubble" id="liveStatusText">
-                    ✨ Vyber si nahoře Dětský svět nebo Pro dospělé a dole klepni na zelené tlačítko SPUSTIT!
-                </div>
-            </div>
             <div style="display:none;">
                 </div>
                 <!-- 4 HLAVNÍ REŽIMY ČTENÍ V ČISTÉM PŘEHLEDNÉM PÁSU PŘÍMO U MONITORU ŽIVÉ ATMOSFÉRY -->
@@ -2026,10 +2096,6 @@
                         <span class="bt-icon">📤</span>
                         <span class="bt-title">Exportovat (.txt)</span>
                     </button>
-                    <button class="compact-lamp-btn" id="recordVoiceBtn" onclick="toggleVoiceAudioRecording()" title="Nahrát vlastní hlas čtenáře a stáhnout jako .webm">
-                        <span class="bt-icon" id="recordVoiceIcon">🎙️</span>
-                        <span class="bt-title" id="recordVoiceLabel">Nahrát vlastní hlas (.webm)</span>
-                    </button>
                 </div>
                 <div id="autoBadgesBox"></div>
             </div>
@@ -2080,12 +2146,13 @@
                         <div class="tile-title" id="libraryTitle">📚 Knihovna dlouhých pohádek, knih a článků</div>
                         <span class="tile-badge" id="storyLengthBadge">🌙 Délka: Do 15 minut • Ťukni na slovo pro zvuk</span>
                     </div>
-                    <!-- FILTR KATEGORIÍ KNIHOVNY (4 PŘEPÍNACÍ PILULKY) -->
+                    <!-- RYCHLÉ FILTRY PŘÍBĚHŮ PODLE ČASU DO USNUTÍ -->
                     <div class="story-filter-bar" id="storyFilterBar">
-                        <button type="button" class="story-filter-pill active" data-storyfilter="all" onclick="setStoryCategoryFilter('all')">📚 Všechny</button>
-                        <button type="button" class="story-filter-pill" data-storyfilter="builtin" onclick="setStoryCategoryFilter('builtin')">📖 Vestavěné</button>
-                        <button type="button" class="story-filter-pill" data-storyfilter="ebooks" onclick="setStoryCategoryFilter('ebooks')">📂 E-knihy</button>
-                        <button type="button" class="story-filter-pill" data-storyfilter="url" onclick="setStoryCategoryFilter('url')">🔗 URL & YouTube</button>
+                        <button type="button" class="story-filter-pill active" data-storyfilter="all" onclick="setStoryCategoryFilter('all')">✨ Vše</button>
+                        <button type="button" class="story-filter-pill" data-storyfilter="short" onclick="setStoryCategoryFilter('short')">⚡ Krátké (do 5 min)</button>
+                        <button type="button" class="story-filter-pill" data-storyfilter="medium" onclick="setStoryCategoryFilter('medium')">🌙 Střední (15 min)</button>
+                        <button type="button" class="story-filter-pill" data-storyfilter="long" onclick="setStoryCategoryFilter('long')">🛌 Dlouhé uspávací (30+ min)</button>
+                        <button type="button" class="story-filter-pill" data-storyfilter="custom" onclick="setStoryCategoryFilter('custom')">📂 Moje E-knihy &amp; Vlastní</button>
                     </div>
                     <div class="story-controls">
                         <select id="storySelect" onchange="loadSelectedStory()"></select>
@@ -2117,13 +2184,9 @@
                                     <span class="bt-title">E-kniha PDF/EPUB/TXT</span>
                                 </button>
                                 <input type="file" id="ebookFileInput" accept=".pdf,.epub,.txt" style="display:none" onchange="handleEbookFileSelect(event)">
-                                <button type="button" class="big-tile-btn" style="min-height:50px; flex-direction:row; padding:8px 14px; gap:8px;" onclick="openUrlModal()">
-                                    <span class="bt-icon">🔗</span>
-                                    <span class="bt-title">Článek nebo YouTube z URL</span>
-                                </button>
-                                <button type="button" class="big-tile-btn" style="min-height:50px; flex-direction:row; padding:8px 14px; gap:8px;" onclick="document.getElementById('ocrInput').click()">
+                                <button type="button" class="big-tile-btn" style="min-height:50px; flex-direction:row; padding:8px 14px; gap:8px;" onclick="document.getElementById('ocrInput').click()" title="Vyfotit stránku knihy">
                                     <span class="bt-icon">📷</span>
-                                    <span class="bt-title">Vyfotit stránku</span>
+                                    <span class="bt-title">Vyfotit stránku knihy</span>
                                 </button>
                                 <input type="file" id="ocrInput" accept="image/*" style="display:none" onchange="handleOcrFileSelect(event)">
                                 <button type="button" class="big-tile-btn" style="min-height:50px; flex-direction:row; padding:8px 14px; gap:8px;" onclick="promptCustomText()">
@@ -2251,17 +2314,13 @@
                                         </div>
                                         <div class="voice-picker-row">
                                             <select id="ttsVoiceSelect" onchange="onSystemVoiceChange()" style="padding:8px 12px; font-size:13.5px;">
-                                                <option value="auto">🎙️ Automatický nejlepší hlas v zařízení</option>
+                                                <option value="auto">🎙️ Automatický nejlepší hlas (CZ / SK)</option>
                                             </select>
                                             <button type="button" class="big-tile-btn" style="min-height:42px; flex-direction:row; padding:6px 14px; gap:6px;" onclick="previewTtsVoice()">
                                                 <span>🔊</span>
                                                 <span class="bt-title">Zkusit hlas</span>
                                             </button>
                                         </div>
-                                        <button type="button" id="toggleForeignVoicesBtn" class="big-tile-btn" style="min-height:38px; width:100%; margin-top:8px; flex-direction:row; justify-content:center; padding:6px 12px; gap:8px;" onclick="toggleForeignVoices()">
-                                            <span class="bt-icon" style="font-size:16px;">🌍</span>
-                                            <span class="bt-title" style="font-size:12.5px;">Zobrazit i cizojazyčné hlasy v zařízení</span>
-                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -2300,7 +2359,7 @@
                         </div>
                     </div>
 
-                    <!-- LIŠTA E-BOOK ČTEČKY (POSTUP %, BIONIC READING, REKAPITULACE) -->
+                    <!-- LIŠTA E-BOOK ČTEČKY (ČISTÉ STRÁNKOVÁNÍ, A-/A+, BIONIC, CELÁ OBRAZOVKA) -->
                     <div class="reader-status-bar" id="readerStatusBar">
                         <div class="reader-progress-wrap">
                             <span class="reader-progress-label" id="readerProgressText">📖 Přečteno 0 % (Slovo 1 z 1)</span>
@@ -2313,29 +2372,17 @@
                                 <span class="reader-page-indicator" id="readerPageIndicator">Strana 1 / 1</span>
                                 <button type="button" class="compact-lamp-btn" id="readerNextPageBtn" onclick="goToReaderPage(currentReaderPage + 1)" title="Další stránka">Další ›</button>
                             </div>
-                            <button type="button" class="compact-lamp-btn" id="readerJumpPercentBtn" onclick="promptJumpToPercent()" title="Skočit na zvolené procento v knize">
-                                🎯 Skočit na %
-                            </button>
                         </div>
                         <div class="reader-smart-actions">
-                            <button type="button" class="compact-lamp-btn" id="handoverAiStatusBtn" onclick="handoverToAiNarrator()" title="Plynule předat čtení šeptavému AI Vypravěči z aktuálního slova" style="display:none; border-color:var(--accent); font-weight:800; background:rgba(251,191,36,0.15); color:var(--accent-soft);">
-                                🤝 Dočti to za mě
-                            </button>
                             <div style="display:inline-flex; align-items:center; gap:3px;">
                                 <button type="button" class="compact-lamp-btn" onclick="changeReaderFontSize(-2)" title="Zmenšit písmo (A-)" style="min-width:32px; padding:4px 8px; font-weight:800; min-height:36px;">A−</button>
                                 <button type="button" class="compact-lamp-btn" onclick="changeReaderFontSize(2)" title="Zvětšit písmo (A+)" style="min-width:32px; padding:4px 8px; font-weight:800; min-height:36px;">A+</button>
                             </div>
-                            <button type="button" class="compact-lamp-btn" id="zenReaderToggleBtn" onclick="toggleZenReaderMode()" title="Zen čtečka přes celou obrazovku">
-                                ⛶ Celá obrazovka
-                            </button>
-                            <button type="button" class="compact-lamp-btn" id="readerAddToQueueStatusBtn" onclick="addCurrentStoryToQueue()" title="Přidat aktuální příběh nebo článek do fronty dalšího čtení">
-                                ➕ Do fronty
-                            </button>
-                            <button type="button" class="compact-lamp-btn" id="readerRecapBtn" onclick="readPreviousRecap()" title="Přečte stručné shrnutí posledních ~120 slov">
-                                🧠 Co se stalo minule?
-                            </button>
                             <button type="button" class="compact-lamp-btn" id="readerBionicBtn" onclick="toggleBionicReading()" title="Zvýrazní první polovinu každého slova pro snazší noční čtení">
                                 👁️ Bionic čtení
+                            </button>
+                            <button type="button" class="compact-lamp-btn" id="zenReaderToggleBtn" onclick="toggleZenReaderMode()" title="Zen čtečka přes celou obrazovku">
+                                ⛶ Celá obrazovka
                             </button>
                         </div>
                     </div>
@@ -2350,7 +2397,7 @@
             <div class="tile-header">
                 <div class="tile-title">🔊 Zvuk, Časovač & 🕯️ Noční lampička</div>
                 <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                    <span class="tile-badge" id="audioVolBadge">🔊 Vyvážená</span>
+                    <span class="tile-badge" id="audioVolBadge">🔊 Střední</span>
                     <span class="tile-badge" id="auraNameLabel">🕯️ Svíčka (1800K)</span>
                 </div>
             </div>
@@ -2363,18 +2410,18 @@
                         <div class="choice-grid-3" id="sfxDensityGrid">
                             <button type="button" class="big-tile-btn active" data-density="story" onclick="setSfxDensityMode('story', true)" style="min-height:56px; padding:6px 6px;">
                                 <span class="bt-icon">🎭</span>
-                                <span class="bt-title">Pohádkový</span>
-                                <span class="bt-sub">Živé zvuky</span>
+                                <span class="bt-title">Plné zvuky</span>
+                                <span class="bt-sub">Všechny efekty</span>
                             </button>
                             <button type="button" class="big-tile-btn" data-density="sparse" onclick="setSfxDensityMode('sparse', true)" style="min-height:56px; padding:6px 6px;">
                                 <span class="bt-icon">🎬</span>
-                                <span class="bt-title">Filmový</span>
-                                <span class="bt-sub">Sparse Micro-Foley</span>
+                                <span class="bt-title">Jemné filmové</span>
+                                <span class="bt-sub">Zjemněné (8s)</span>
                             </button>
                             <button type="button" class="big-tile-btn" data-density="ambient_only" onclick="setSfxDensityMode('ambient_only', true)" style="min-height:56px; padding:6px 6px;">
                                 <span class="bt-icon">🧘</span>
-                                <span class="bt-title">Čistá atmosféra</span>
-                                <span class="bt-sub">Jen podkres scény</span>
+                                <span class="bt-title">Jen podkres</span>
+                                <span class="bt-sub">Bez efektů</span>
                             </button>
                         </div>
                     </div>
@@ -2399,13 +2446,13 @@
                         </button>
                         <button class="big-tile-btn active" data-vol="medium" onclick="setVolumePreset('medium')" style="min-height:64px;">
                             <span class="bt-icon">🔊</span>
-                            <span class="bt-title">Vyvážená</span>
-                            <span class="bt-sub">Jemný podkres</span>
+                            <span class="bt-title">Střední</span>
+                            <span class="bt-sub">Vyvážená</span>
                         </button>
                         <button class="big-tile-btn" data-vol="strong" onclick="setVolumePreset('strong')" style="min-height:64px;">
                             <span class="bt-icon">📢</span>
                             <span class="bt-title">Výrazná</span>
-                            <span class="bt-sub">Hlubší kulisa</span>
+                            <span class="bt-sub">Plná kulisa</span>
                         </button>
                     </div>
                 </div>
@@ -2477,7 +2524,7 @@
     <div class="dock-inner">
         <div class="dock-ver-pill" title="Aktuální verze aplikace AtmoRead">
             <span>AtmoRead</span>
-            <span style="color:var(--accent); font-size:12.5px;">v8.0.0 MASTER</span>
+            <span style="color:var(--accent); font-size:12px; font-weight:800;">v9.0.0 FINAL</span>
         </div>
         <button id="mainActionBtn" class="btn-primary-run" onclick="handleMainAction()">
             ▶️ SPUSTIT ODPOSLECH
@@ -2485,7 +2532,7 @@
         <button id="pauseResumeBtn" class="btn-pause-resume" onclick="togglePauseResume()" title="Pozastavit nebo navázat čtení" style="display:none;">
             ⏸️ PAUZA
         </button>
-        <button id="handoverAiDockBtn" class="btn-pause-resume" onclick="handoverToAiNarrator()" title="Plynule předat čtení šeptavému AI Vypravěči z aktuálního slova" style="display:none; background:rgba(251,191,36,0.18); border-color:var(--accent); color:var(--accent-soft);">
+        <button id="handoverAiDockBtn" class="btn-pause-resume btn-handover-ai" onclick="handoverToAiNarrator()" title="Plynule předat čtení šeptavému AI Vypravěči z aktuálního slova" style="display:none;">
             🤝 Dočti to za mě
         </button>
         <button class="btn-blackout-dock" onclick="toggleScreenBlackout(true)" title="Zhasnout displej pro úsporu baterie (AMOLED)">
@@ -2499,16 +2546,20 @@
 
 <script>
 /* ============================================================================
-   ATMOREAD v8.0.0 MASTER — HLAVNÍ LOGIKA A DVOUVRSTVÝ REÁLNÝ AUDIO ENGINE
+   ATMOREAD v9.0.0 FINAL — HLAVNÍ LOGIKA A DVOUVRSTVÝ REÁLNÝ AUDIO ENGINE
    (Databáze zvuků, barev, nálad a příběhů 5/15/30 min se načítá z data.js)
    ============================================================================ */
+
+function stripAccents(str) {
+    return (str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
 
 function normWord(str) {
     return (str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
 }
 
 /* ============================================================================
-   SEKCE 1: DVOUVRSTVÝ REÁLNÝ AUDIO ENGINE v7.0.0 (VYSOKÁ SLYŠITELNOST & DYNAMIKA)
+   SEKCE 1: DVOUVRSTVÝ REÁLNÝ AUDIO ENGINE v9.0.0 FINAL (VYSOKÁ SLYŠITELNOST & DYNAMIKA)
    - Polyfonní přehrávání One-Shot efektů (nové slovo ve větě nikdy neusekne předchozí zvuk!)
    - Automatický Sidechain Ducking: při spuštění zvuku z knihovny se podkres dočasně ztiší,
      a hlasitost AI Vypravěče se vyváží, aby každý zvuk (pes, kočka, meč, vlak, hrom) jasně vynikl
@@ -2524,13 +2575,13 @@ const SoundEngine = {
     pinkNoiseNode: null,
 
     isMuted: false,
-    sfxVolumeLevel: 0.32,
-    baseSfxVolumeLevel: 0.32,
-    sfxGainMultiplier: 1.15, // Zesílení efektů v kompresoru
+    sfxVolumeLevel: 0.75,
+    baseSfxVolumeLevel: 0.75,
+    sfxGainMultiplier: 1.2, // Zesílení efektů v kompresoru
     ttsNarratorVolume: 1.0, // 100% slyšitelnost AI Vypravěče pro všechny režimy (hlas vždy hlavní)
     bgVariationIndex: 1,    // Variace podkresu (1 až 3) s plynulým 1.8s crossfadem
     recentWordsHistory: [], // Sledování posledních slov pro 3D prostorový efekt vzdálenosti
-    bgVolumeLevel: 0.16,
+    bgVolumeLevel: 0.48,
     tailDurationSec: 0,     // Tail loop trvale vypnut
 
     activeAudioEls: new Set(),
@@ -2631,12 +2682,12 @@ const SoundEngine = {
         }
     },
 
-    // Dočasné ztišení podkresu (Sidechain Ducking) na 20 % jeho hlasitosti po dobu trvání efektu
+    // Dočasné ztišení podkresu (Sidechain Ducking) po dobu trvání efektu
     duckAmbienceForSfx(holdMs = 2500) {
         if (this.isMuted) return;
-        const duckedVol = this.bgVolumeLevel * 0.20;
+        const duckedVol = this.bgVolumeLevel * 0.25;
         if (this.bgGain && this.ctx) {
-            this.bgGain.gain.setTargetAtTime(Math.max(0.001, duckedVol), this.ctx.currentTime, 0.06);
+            this.bgGain.gain.setTargetAtTime(Math.max(0.001, duckedVol), this.ctx.currentTime, 0.05);
         }
         this.bgLoopAudios.forEach(a => {
             try { a.volume = Math.max(0.001, duckedVol); } catch (e) {}
@@ -2647,21 +2698,26 @@ const SoundEngine = {
             }
         });
 
-        if (this.duckRestoreTimer) clearTimeout(this.duckRestoreTimer);
+        if (this.duckRestoreTimer) {
+            clearTimeout(this.duckRestoreTimer);
+            this.duckRestoreTimer = null;
+        }
         this.duckRestoreTimer = setTimeout(() => {
             if (this.isMuted) return;
             if (this.bgGain && this.ctx) {
-                this.bgGain.gain.setTargetAtTime(this.bgVolumeLevel, this.ctx.currentTime, 0.45);
+                this.bgGain.gain.setTargetAtTime(this.bgVolumeLevel, this.ctx.currentTime, 0.35);
             }
             this.bgLoopAudios.forEach(a => {
-                try { a.volume = Math.min(0.85, this.bgVolumeLevel * 0.45); } catch (e) {}
+                const mult = a._origMult !== undefined ? a._origMult : 0.65;
+                try { a.volume = Math.min(1.0, this.bgVolumeLevel * mult); } catch (e) {}
             });
             this.moodCrossfadeAudios.forEach((ctrl, idx) => {
                 if (ctrl && ctrl.audio) {
-                    const targetVol = Math.min(0.65, this.bgVolumeLevel * 0.48);
-                    try { ctrl.audio.volume = idx === 0 ? targetVol : targetVol * 0.65; } catch (e) {}
+                    const targetVol = Math.min(1.0, this.bgVolumeLevel * 0.85);
+                    try { ctrl.audio.volume = idx === 0 ? targetVol : targetVol * 0.70; } catch (e) {}
                 }
             });
+            this.duckRestoreTimer = null;
         }, holdMs);
         this.activeTimers.add(this.duckRestoreTimer);
     },
@@ -2718,13 +2774,28 @@ const SoundEngine = {
                 return;
             }
 
-            // Rozestup mezi jakýmikoliv zvuky: v 'sparse' (Filmový) max 1× za 18 sekund, v 'story' (Pohádkový) max 1× za 5,5 sekundy
-            const minGapMs = (typeof sfxDensityMode !== 'undefined' && sfxDensityMode === 'sparse') ? 18000 : 5500;
+            const isMicMode = (currentMode === 'free' || currentMode === 'read');
+            let minGapMs = 3500;
+            let sameSoundCooldownMs = 12000;
+
+            if (isMicMode) {
+                // Mikrofonní režimy: minimální rozestup 900 ms, cooldown na stejný zvuk 6 000 ms
+                minGapMs = 900;
+                sameSoundCooldownMs = 6000;
+            } else if (typeof sfxDensityMode !== 'undefined' && sfxDensityMode === 'sparse') {
+                // Filmový režim: rozestup 8 s, cooldown 20 s
+                minGapMs = 8000;
+                sameSoundCooldownMs = 20000;
+            } else {
+                // AI Vypravěč v plném režimu: rozestup 3.5 s
+                minGapMs = 3500;
+                sameSoundCooldownMs = 12000;
+            }
+
             if (this.lastAnySfxTime && (now - this.lastAnySfxTime < minGapMs)) {
                 return;
             }
-            // Dlouhý cooldown na stejný zvuk: 45 000 ms (45 sekund)
-            if (this.cooldownMap[cluster.id] && (now - this.cooldownMap[cluster.id] < 45000)) {
+            if (this.cooldownMap[cluster.id] && (now - this.cooldownMap[cluster.id] < sameSoundCooldownMs)) {
                 return;
             }
         }
@@ -2786,15 +2857,15 @@ const SoundEngine = {
             const prioFactor = prio === 1 ? 1.0 : (prio === 2 ? 0.96 : 0.88);
             let targetVol = Math.min(1.0, this.sfxVolumeLevel * prioFactor);
 
-            // Režim "Filmový (Sparse Micro-Foley)": jemný prostorový mikro-zvuk (sfxVolumeLevel * 0.55)
+            // Režim "Jemné filmové": jemnější hlasitost (0.6x)
             if (typeof sfxDensityMode !== 'undefined' && sfxDensityMode === 'sparse') {
-                targetVol = targetVol * 0.55;
+                targetVol = targetVol * 0.60;
             }
 
-            // Špičkový limit hlasitosti (0.52) pro prioritní a hlasité zvuky
+            // Špičkový limit hlasitosti pro prioritní a extra hlasité zvuky
             const isLoudSound = prio === 1 || /^(thunder|storm|gunfire|explosion|dog|train|siren|dragon|bell)$/.test(cluster.id);
             if (isLoudSound) {
-                targetVol = Math.min(targetVol, (typeof sfxDensityMode !== 'undefined' && sfxDensityMode === 'sparse') ? 0.28 : 0.52);
+                targetVol = Math.min(targetVol, (typeof sfxDensityMode !== 'undefined' && sfxDensityMode === 'sparse') ? 0.45 : 0.85);
             }
 
             // 3D PROSTOROVÝ EFEKT VZDÁLENOSTI (55 % běžné hlasitosti)
@@ -2818,7 +2889,7 @@ const SoundEngine = {
                 fadeOutMs: finalFadeOutMs,
                 playbackRate: rateShift,
                 loop: false,
-                maxPeakCap: isLoudSound ? 0.52 : 1.0
+                maxPeakCap: isLoudSound ? 0.85 : 1.0
             });
 
             const shotEntry = {
@@ -2979,17 +3050,14 @@ const SoundEngine = {
     },
 
     /* ========================================================================
-       SAMETOVÝ AUDIO PŘEHRÁVAČ S LOGARITMICKÝM FADE-OUTEM (NIKDY NEUSEKNE ZVUK!):
-       - Používá logaritmickou křivku slábnutí Math.pow(1 - p, 2.25) s krokem 30 ms,
-         která přesně odpovídá lidskému sluchu v decibelech.
-       - Pokud je samotný zdrojový .ogg soubor krátký (např. jen 1,5 s), automaticky
-         zapne jemné doznívání (soft-loop během fade-outu nebo včasný fade-out před koncem souboru),
-         takže žádný zvuk nikdy neskončí tvrdým zaříznutím!
+       OPRAVENÝ AUDIO PŘEHRÁVAČ BEZ CORS BLOKACE S PLYNULÝM JS FADE-IN / FADE-OUT:
+       - Žádný crossOrigin ani createMediaElementSource (Chrome externí .ogg neztiší)
+       - Nativní audio.volume (0.0 až 1.0) s plynulým intervalem: Fade-In (250 ms), Fade-Out (600 ms)
        ======================================================================== */
-    playRealAudioWithEnvelope(urlOrUrls, opts) {
+    playRealAudioWithEnvelope(urlOrUrls, opts = {}) {
         const urls = Array.isArray(urlOrUrls) ? urlOrUrls : [urlOrUrls];
         const isOneShot = !opts.loop;
-        const targetV = Math.min(opts.maxPeakCap || 1.0, Math.min(1.0, opts.targetVolume || 0.85));
+        const targetV = Math.min(opts.maxPeakCap || 1.0, Math.min(1.0, opts.targetVolume !== undefined ? opts.targetVolume : 0.85));
 
         let currentAudio = null;
         let stopped = false;
@@ -2997,34 +3065,44 @@ const SoundEngine = {
         let fadeInInt = null;
         let fadeOutTimer = null;
         let fadeOutInt = null;
+        let watchdogTimer = null;
 
         const cleanup = () => {
             if (stopped) return;
             stopped = true;
-            if (fadeInInt) clearInterval(fadeInInt);
-            if (fadeOutTimer) clearTimeout(fadeOutTimer);
-            if (fadeOutInt) clearInterval(fadeOutInt);
+            if (watchdogTimer) { clearTimeout(watchdogTimer); watchdogTimer = null; }
+            if (fadeInInt) { clearInterval(fadeInInt); fadeInInt = null; }
+            if (fadeOutTimer) { clearTimeout(fadeOutTimer); fadeOutTimer = null; }
+            if (fadeOutInt) { clearInterval(fadeOutInt); fadeOutInt = null; }
             if (currentAudio) {
-     try { currentAudio.pause(); currentAudio.currentTime = 0; } catch (e) {}
+                try { currentAudio.pause(); currentAudio.currentTime = 0; } catch (e) {}
                 this.activeAudioEls.delete(currentAudio);
             }
         };
 
-        const fadeOutAndStop = (durationMs = 2400) => {
+        // BEZPEČNOSTNÍ POJISTKA PROTI ZASEKNUTÍ ZVUKU (WATCHDOG: 4200 ms pro všechny One-Shot efekty)
+        if (isOneShot) {
+            watchdogTimer = setTimeout(() => {
+                cleanup();
+            }, 4200);
+            this.activeTimers.add(watchdogTimer);
+        }
+
+        const fadeOutAndStop = (durationMs = 600) => {
             if (stopped || !currentAudio) {
                 cleanup();
                 return;
             }
-            if (isFadingOut && durationMs > 800) return; // Už plynule doznívá
+            if (isFadingOut && durationMs > 500) return; // Už plynule doznívá
             isFadingOut = true;
 
             if (fadeInInt) { clearInterval(fadeInInt); fadeInInt = null; }
             if (fadeOutTimer) { clearTimeout(fadeOutTimer); fadeOutTimer = null; }
             if (fadeOutInt) { clearInterval(fadeOutInt); fadeOutInt = null; }
 
-            const intervalMs = 30;
-            const steps = Math.max(8, Math.floor(durationMs / intervalMs));
-            const startVol = Math.max(0.02, currentAudio.volume);
+            const intervalMs = 25;
+            const steps = Math.max(6, Math.floor(durationMs / intervalMs));
+            const startVol = Math.max(0.01, currentAudio.volume);
             let step = 0;
 
             fadeOutInt = setInterval(() => {
@@ -3034,10 +3112,10 @@ const SoundEngine = {
                 }
                 step++;
                 const progress = Math.min(1, step / steps);
-                // Exponenciální / logaritmická křivka pro přirozené doznívání do úplného ticha
-                const curvedVol = startVol * Math.pow(1 - progress, 2.25);
+                // Plynulé logaritmické slábnutí do ticha
+                const curvedVol = startVol * Math.pow(1 - progress, 2.0);
 
-                if (curvedVol <= 0.003 || step >= steps) {
+                if (curvedVol <= 0.005 || step >= steps) {
                     currentAudio.volume = 0;
                     cleanup();
                 } else {
@@ -3052,13 +3130,13 @@ const SoundEngine = {
                 cleanup();
                 return;
             }
+            // Přehráváme přímo new Audio(url) bez CORS omezení a bez Web Audio MediaElementSource uzlu
             const audio = new Audio(urls[idx]);
             currentAudio = audio;
-            // U One-Shot efektů (!opts.loop) VŽDY nastav audio.loop = false (nikdy krátké zvuky neopakuj ve smyčce)
             audio.loop = isOneShot ? false : !!opts.loop;
             if (opts.playbackRate) audio.playbackRate = opts.playbackRate;
 
-            const initialVol = isOneShot ? 0.02 : 0.01;
+            const initialVol = isOneShot ? 0.05 : 0.02;
             audio.volume = initialVol;
             this.activeAudioEls.add(audio);
 
@@ -3076,14 +3154,13 @@ const SoundEngine = {
 
             audio.onerror = fallbackNext;
 
-            // Jakmile prohlížeč zjistí skutečnou délku nahrávky (.ogg), přizpůsobíme obálku tak,
-            // aby proběhl sametový Fade-Out
+            // Jakmile prohlížeč zjistí délku nahrávky, nastavíme Fade-Out
             audio.addEventListener('loadedmetadata', () => {
                 if (stopped || !isOneShot || !isFinite(audio.duration) || audio.duration <= 0) return;
 
                 const fileMs = audio.duration * 1000;
-                const fileFadeOutMs = Math.max(300, Math.min(opts.fadeOutMs || 850, Math.round(fileMs * 0.45)));
-                const fadeStart = Math.max(100, Math.min(fileMs - fileFadeOutMs, (opts.totalDurationMs || 2000) - fileFadeOutMs));
+                const fileFadeOutMs = Math.max(250, Math.min(opts.fadeOutMs || 600, Math.round(fileMs * 0.40)));
+                const fadeStart = Math.max(100, Math.min(fileMs - fileFadeOutMs, (opts.totalDurationMs || 2200) - fileFadeOutMs));
                 if (fadeOutTimer) { clearTimeout(fadeOutTimer); fadeOutTimer = null; }
                 fadeOutTimer = setTimeout(() => {
                     fadeOutAndStop(fileFadeOutMs);
@@ -3096,8 +3173,8 @@ const SoundEngine = {
                     cleanup();
                     return;
                 }
-                const fadeMs = isOneShot ? (opts.fadeInMs || 250) : (opts.fadeInMs || 2000);
-                const inSteps = Math.max(2, Math.floor(fadeMs / 30));
+                const fadeMs = opts.fadeInMs !== undefined ? opts.fadeInMs : (isOneShot ? 250 : 1800);
+                const inSteps = Math.max(2, Math.floor(fadeMs / 25));
                 let curStep = 0;
                 fadeInInt = setInterval(() => {
                     if (stopped || !currentAudio || isFadingOut) {
@@ -3112,12 +3189,12 @@ const SoundEngine = {
                     } else {
                         audio.volume = Math.min(1.0, Math.max(0, v));
                     }
-                }, 30);
+                }, 25);
                 this.activeTimers.add(fadeInInt);
 
-                const totalMs = opts.totalDurationMs || 2000;
-                const fOutMs = opts.fadeOutMs || 850;
-                const fadeStart = Math.max(250, totalMs - fOutMs);
+                const totalMs = opts.totalDurationMs || 2200;
+                const fOutMs = opts.fadeOutMs || 600;
+                const fadeStart = Math.max(200, totalMs - fOutMs);
 
                 if (!isFinite(audio.duration) || audio.duration <= 0) {
                     fadeOutTimer = setTimeout(() => {
@@ -3197,16 +3274,16 @@ const SoundEngine = {
         if (!changed && this.moodCrossfadeAudios.length > 0) return;
 
         const oldControllers = [...this.moodCrossfadeAudios];
-        oldControllers.forEach(ctrl => ctrl.fadeOutAndStop(2800));
+        oldControllers.forEach(ctrl => ctrl.fadeOutAndStop(2200));
         this.moodCrossfadeAudios = [];
 
-        const targetVol = Math.min(0.65, this.bgVolumeLevel * 0.48);
+        const targetVol = Math.min(1.0, this.bgVolumeLevel * 0.85);
         scene.urls.forEach((u, idx) => {
             const ctrl = this.playRealAudioWithEnvelope(u, {
-                targetVolume: idx === 0 ? targetVol : targetVol * 0.65,
-                fadeInMs: 2800,
+                targetVolume: idx === 0 ? targetVol : targetVol * 0.70,
+                fadeInMs: 2200,
                 totalDurationMs: 3600 * 1000,
-                fadeOutMs: 3000,
+                fadeOutMs: 2400,
                 loop: true
             });
             this.moodCrossfadeAudios.push(ctrl);
@@ -3255,6 +3332,10 @@ const SoundEngine = {
     },
 
     startAmbience(preset) {
+        this.init();
+        if (this.ctx && this.ctx.state === 'suspended') {
+            try { this.ctx.resume(); } catch (e) {}
+        }
         if (preset === 'off') {
             this.stopAmbience();
             return;
@@ -3313,6 +3394,7 @@ const SoundEngine = {
     applyAmbiencePreset(preset, fadeInMs = 1800) {
         this.bgMode = preset;
         this.melodyStep = 0;
+        if (typeof updateSceneAuraOrb === 'function') updateSceneAuraOrb();
 
         if (preset === 'off') return;
 
@@ -3327,11 +3409,14 @@ const SoundEngine = {
 
         if (this.isMuted) return;
         this.init();
+        if (this.ctx && this.ctx.state === 'suspended') {
+            try { this.ctx.resume(); } catch (e) {}
+        }
 
         if (preset === 'auto_mood') {
-            const initialScene = this.currentMoodId || (currentProfile === 'adults' ? 'cafe' : 'meadow');
+            const initialScene = currentProfile === 'adults' ? 'fireplace' : 'meadow';
             this.currentMoodId = '';
-            this.transitionMoodScene(initialScene, !!this.currentMoodId);
+            this.transitionMoodScene(initialScene, false);
             return;
         }
         else if (preset === 'classic_piano') {
@@ -3839,12 +3924,13 @@ const SoundEngine = {
         }
     },
 
-    addLoopAudio(url, mult = 0.4, fadeInMs = 1800) {
+    addLoopAudio(url, mult = 0.65, fadeInMs = 1800) {
         const a = new Audio(url);
         a.loop = true;
-        const targetVol = Math.min(0.85, this.bgVolumeLevel * mult);
+        a._origMult = mult;
+        const targetVol = Math.min(1.0, this.bgVolumeLevel * mult);
         if (fadeInMs > 0) {
-            a.volume = 0.01;
+            a.volume = 0.02;
             const steps = Math.max(6, Math.floor(fadeInMs / 40));
             let s = 0;
             const fi = setInterval(() => {
@@ -3853,7 +3939,7 @@ const SoundEngine = {
                     clearInterval(fi);
                     return;
                 }
-                a.volume = Math.min(targetVol, 0.01 + (targetVol - 0.01) * (s / steps));
+                a.volume = Math.min(targetVol, 0.02 + (targetVol - 0.02) * (s / steps));
                 if (s >= steps) clearInterval(fi);
             }, 40);
             this.activeTimers.add(fi);
@@ -3926,6 +4012,7 @@ const SoundEngine = {
         this.bgMode = 'off';
         const lbl = document.getElementById('bgStateLabel');
         if (lbl) lbl.innerText = 'Bez podkresu';
+        if (typeof updateSceneAuraOrb === 'function') updateSceneAuraOrb();
     },
 
     stopAllEverything() {
@@ -3963,7 +4050,8 @@ const SoundEngine = {
         updateMainButtonLabel();
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
 
-        document.getElementById('autoBadgesBox').innerHTML = '';
+        const autoBox = document.getElementById('autoBadgesBox');
+        if (autoBox) autoBox.innerHTML = '';
         setStatus('🛑 Všechny zvuky, čtení i podkres byly okamžitě zastaveny.');
     }
 };
@@ -4025,13 +4113,18 @@ function getStoryKey() {
 
 function getRecommendedSfxDensity(profile = currentProfile, mode = currentMode) {
     if (mode === 'silent') return 'ambient_only';
+    if (mode === 'free' || mode === 'read') return 'story'; // Výchozí pro čtení s mikrofonem
     if (profile === 'adults') return 'sparse';
-    return 'story';
+    return 'story'; // Výchozí pro děti
 }
 
 function setSfxDensityMode(mode, isManual = false) {
     if (!['story', 'sparse', 'ambient_only'].includes(mode)) mode = 'story';
     sfxDensityMode = mode;
+    try {
+        localStorage.setItem('atmoread_sfx_density_mode', mode);
+    } catch (e) {}
+
     document.querySelectorAll('[data-density]').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.density === mode);
     });
@@ -4046,15 +4139,13 @@ function setSfxDensityMode(mode, isManual = false) {
         }
     }
 
-    if (isManual) {
-        const labels = {
-            story: '🎭 Pohádkový režim: Živé zvuky klíčových slov (5,5s rozestup)',
-            sparse: '🎬 Filmový režim: Jemné prostorové mikro-zvuky (max 1× za 18s, zjemněná hlasitost)',
-            ambient_only: '🧘 Čistá atmosféra: Zvukové efekty slov vypnuty, hraje pouze plynulý podkres scény'
-        };
-        showAutoBadge(mode === 'story' ? '🎭 Živé zvuky' : (mode === 'sparse' ? '🎬 Filmový foley' : '🧘 Čistá atmosféra'));
-        setStatus(labels[mode] || 'Hustota zvuků změněna.');
-    }
+    const labels = {
+        story: '🎭 Plné zvuky aktivovány (u mikrofonu rozestup 0,9 s, u AI Vypravěče 3,5 s).',
+        sparse: '🎬 Jemné filmové zvuky aktivovány (jemnější hlasitost 0.6x, rozestup 8 s).',
+        ambient_only: '🧘 Jen podkres aktivován (jednorázové efekty vypnuty, hraje pouze podkres scény).'
+    };
+    showAutoBadge(mode === 'story' ? '🎭 Plné zvuky' : (mode === 'sparse' ? '🎬 Jemné filmové' : '🧘 Jen podkres'));
+    setStatus(labels[mode] || 'Hustota zvuků změněna.');
 }
 
 // Přepnutí 3 karet v úvodním rozcestníku (Děti vs. Dospělí vs. Lampička)
@@ -4068,13 +4159,19 @@ function selectProfileHub(target) {
     stopActiveSession();
     currentProfile = (target === 'adults') ? 'adults' : 'kids';
     document.body.setAttribute('data-profile', currentProfile);
+    document.body.classList.toggle('theme-adults', currentProfile === 'adults');
 
-    document.getElementById('hubKids').classList.toggle('active', currentProfile === 'kids');
-    document.getElementById('hubAdults').classList.toggle('active', currentProfile === 'adults');
-    document.getElementById('hubLamp').classList.remove('active');
+    const hk = document.getElementById('hubKids');
+    const ha = document.getElementById('hubAdults');
+    const hl = document.getElementById('hubLamp');
+    if (hk) hk.classList.toggle('active', currentProfile === 'kids');
+    if (ha) ha.classList.toggle('active', currentProfile === 'adults');
+    if (hl) hl.classList.remove('active');
 
-    document.getElementById('brandEmoji').innerText = currentProfile === 'adults' ? '🍷' : '📖';
-    document.getElementById('libraryTitle').innerText = currentProfile === 'adults'
+    const be = document.getElementById('brandEmoji');
+    const lt = document.getElementById('libraryTitle');
+    if (be) be.innerText = currentProfile === 'adults' ? '🍷' : '📖';
+    if (lt) lt.innerText = currentProfile === 'adults'
         ? '📚 Knihovna pro dospělé (Fantasy, Detektivky, Romány a Články)'
         : '📚 Knihovna dlouhých pohádek na spaní';
 
@@ -4098,16 +4195,50 @@ function selectProfileHub(target) {
     if (kidsRow) kidsRow.style.display = (currentProfile === 'kids') ? 'flex' : 'none';
 
     if (SoundEngine.bgMode === 'auto_mood') {
-        SoundEngine.transitionMoodScene(currentProfile === 'adults' ? 'cafe' : 'meadow');
+        SoundEngine.transitionMoodScene(currentProfile === 'adults' ? 'fireplace' : 'meadow');
     }
 
     setStatus(currentProfile === 'adults'
-        ? '🍷 Režim knih pro dospělé aktivován (dospělá atmosféra: kavárna, noční klavír, krb, expres, šerm).'
+        ? '🍷 Režim knih pro dospělé aktivován (dospělá atmosféra: praskající krb, noční klavír, kavárna, expres, šerm).'
         : '🌙 Dětské pohádky na spaní aktivovány (volba délky 5/15/30 min, zvířátka, stroje a ukolébavky).');
 }
 
 let STEM_PREFIX_MAP = new Map();
 let SHORT_STEMS = [];
+
+function initNormalizedLibraries() {
+    if (typeof SOUND_LIBRARY !== 'undefined' && Array.isArray(SOUND_LIBRARY)) {
+        for (let i = 0; i < SOUND_LIBRARY.length; i++) {
+            const cluster = SOUND_LIBRARY[i];
+            if (!cluster || !cluster.stems) continue;
+            const normalizedStems = [];
+            for (let j = 0; j < cluster.stems.length; j++) {
+                const raw = cluster.stems[j];
+                const stripped = stripAccents(raw).replace(/[^a-z0-9]/g, '');
+                const withAcc = (raw || '').toLowerCase().trim().replace(/[^a-záčďéěíňóřšťúůýž0-9]/gi, '');
+                if (stripped && !normalizedStems.includes(stripped)) normalizedStems.push(stripped);
+                if (withAcc && !normalizedStems.includes(withAcc)) normalizedStems.push(withAcc);
+            }
+            cluster.stems = normalizedStems;
+        }
+    }
+    if (typeof MOOD_SCENES !== 'undefined') {
+        const keys = Object.keys(MOOD_SCENES);
+        for (let i = 0; i < keys.length; i++) {
+            const sc = MOOD_SCENES[keys[i]];
+            if (!sc || !sc.stems) continue;
+            const normalizedStems = [];
+            for (let j = 0; j < sc.stems.length; j++) {
+                const raw = sc.stems[j];
+                const stripped = stripAccents(raw).replace(/[^a-z0-9]/g, '');
+                const withAcc = (raw || '').toLowerCase().trim().replace(/[^a-záčďéěíňóřšťúůýž0-9]/gi, '');
+                if (stripped && !normalizedStems.includes(stripped)) normalizedStems.push(stripped);
+                if (withAcc && !normalizedStems.includes(withAcc)) normalizedStems.push(withAcc);
+            }
+            sc.stems = normalizedStems;
+        }
+    }
+}
 
 function buildFastStemIndex() {
     STEM_PREFIX_MAP.clear();
@@ -4117,7 +4248,7 @@ function buildFastStemIndex() {
         const cluster = SOUND_LIBRARY[i];
         if (!cluster.stems) continue;
         for (let j = 0; j < cluster.stems.length; j++) {
-            const nSt = normWord(cluster.stems[j]);
+            const nSt = stripAccents(cluster.stems[j]).replace(/[^a-z0-9]/g, '');
             if (!nSt) continue;
             if (nSt.length < 3) {
                 if (!SHORT_STEMS.includes(nSt)) SHORT_STEMS.push(nSt);
@@ -4134,50 +4265,69 @@ function buildFastStemIndex() {
     }
 }
 
-function hasWordTriggerFast(cleanWord) {
-    if (!cleanWord || cleanWord.length < 3) return false;
+function hasWordTriggerFast(rawWord) {
+    if (!rawWord || rawWord.length < 3) return false;
+    const clean = stripAccents(rawWord).replace(/[^a-z0-9]/g, '');
+    if (!clean || clean.length < 3) return false;
     for (let i = 0; i < SHORT_STEMS.length; i++) {
         const st = SHORT_STEMS[i];
-        if (cleanWord === st || (cleanWord.startsWith(st) && (cleanWord.length - st.length <= 2))) return true;
+        if (clean === st || clean.startsWith(st) || (st.length >= 3 && clean.includes(st))) return true;
     }
-    const pref = cleanWord.slice(0, 3);
+    const pref = clean.slice(0, 3);
     const list = STEM_PREFIX_MAP.get(pref);
-    if (!list) return false;
-    for (let i = 0; i < list.length; i++) {
-        const nSt = list[i];
-        if (cleanWord === nSt) return true;
-        if (nSt.length <= 3) {
-            if (cleanWord.startsWith(nSt) && (cleanWord.length - nSt.length <= 2)) return true;
-        } else {
-            if (cleanWord.startsWith(nSt)) return true;
+    if (list) {
+        for (let i = 0; i < list.length; i++) {
+            const nSt = list[i];
+            if (clean === nSt || clean.startsWith(nSt) || (nSt.length >= 3 && clean.includes(nSt))) return true;
+        }
+    }
+    if (typeof SOUND_LIBRARY !== 'undefined' && Array.isArray(SOUND_LIBRARY)) {
+        for (let i = 0; i < SOUND_LIBRARY.length; i++) {
+            const cluster = SOUND_LIBRARY[i];
+            if (!cluster.stems) continue;
+            for (let j = 0; j < cluster.stems.length; j++) {
+                if (doesWordMatchStem(rawWord, cluster.stems[j])) return true;
+            }
         }
     }
     return false;
 }
 
-function doesWordMatchStem(cleanWord, rawStem) {
-    const nSt = normWord(rawStem);
-    if (!nSt) return false;
-    if (cleanWord === nSt) return true;
-    if (nSt.length <= 3) {
-        return cleanWord.startsWith(nSt) && (cleanWord.length - nSt.length <= 2);
+function doesWordMatchStem(rawWord, stem) {
+    if (!rawWord || !stem) return false;
+    const cleanNoAcc = stripAccents(rawWord).replace(/[^a-z0-9]/g, '');
+    const cleanWithAcc = (rawWord || '').toLowerCase().trim().replace(/[^a-záčďéěíňóřšťúůýž0-9]/gi, '');
+    const stemNoAcc = stripAccents(stem).replace(/[^a-z0-9]/g, '');
+    const stemWithAcc = (stem || '').toLowerCase().trim().replace(/[^a-záčďéěíňóřšťúůýž0-9]/gi, '');
+    if (!stemNoAcc) return false;
+
+    // 1. Shoda bez diakritiky (cleanWord.startsWith(stem) nebo cleanWord.includes(stem) pro kořeny >= 3 znaky)
+    if (cleanNoAcc === stemNoAcc || cleanNoAcc.startsWith(stemNoAcc)) return true;
+    if (stemNoAcc.length >= 3 && cleanNoAcc.includes(stemNoAcc)) return true;
+
+    // 2. Shoda s diakritikou
+    if (stemWithAcc) {
+        if (cleanWithAcc === stemWithAcc || cleanWithAcc.startsWith(stemWithAcc)) return true;
+        if (stemWithAcc.length >= 3 && cleanWithAcc.includes(stemWithAcc)) return true;
     }
-    return cleanWord.startsWith(nSt);
+
+    return false;
 }
 
 function checkWordTriggers(rawWord, isManualClick = false) {
-    const clean = normWord(rawWord);
-    if (!clean || clean.length < 3) return false;
+    const cleanNoAcc = stripAccents(rawWord).replace(/[^a-z0-9]/g, '');
+    const cleanWithAcc = (rawWord || '').toLowerCase().trim().replace(/[^a-záčďéěíňóřšťúůýž0-9]/gi, '');
+    if (!cleanNoAcc || cleanNoAcc.length < 3) return false;
 
     // Dětská personalizace a sourozenecký kompromis: Kouzelný zvuk zvonkohry a zlatá záře pro každého sourozence zvlášť
     if (childName && currentProfile === 'kids' && (Date.now() - lastChildMagicTrigger > 2600)) {
         const siblingNames = childName.split(/[,;&]+/).map(s => s.trim()).filter(Boolean);
         for (const sibName of siblingNames) {
-            const cleanChild = normWord(sibName);
+            const cleanChild = stripAccents(sibName).replace(/[^a-z0-9]/g, '');
             if (cleanChild.length < 3) continue;
             const stemLen = Math.max(3, cleanChild.length - 2);
             const childStem = cleanChild.slice(0, stemLen);
-            if (clean === cleanChild || (clean.length >= 3 && clean.startsWith(childStem))) {
+            if (cleanNoAcc === cleanChild || (cleanNoAcc.length >= 3 && cleanNoAcc.startsWith(childStem))) {
                 lastChildMagicTrigger = Date.now();
                 SoundEngine.playChildNameMagic(sibName);
                 showAutoBadge(`✨ Kouzlo: ${sibName}! ✨`);
@@ -4188,12 +4338,12 @@ function checkWordTriggers(rawWord, isManualClick = false) {
     }
 
     // 1. Vyhodnocení dynamické nálady pro plynulý crossfade podkresu
-    evaluateDynamicMood(clean);
+    evaluateDynamicMood(rawWord);
 
     // 2. Pokud je lampička v režimu "Dynamická (podle děje)", plynule mění barvu podle slov
     if (selectedLampModeId === 'dynamic') {
         for (const dyn of DYNAMIC_AURA_PALETTE) {
-            if (dyn.stems.some(st => doesWordMatchStem(clean, st))) {
+            if (dyn.stems.some(st => doesWordMatchStem(rawWord, st))) {
                 setAuraRgb(dyn.rgb, `✨ Dynamická: ${dyn.name}`);
                 break;
             }
@@ -4206,11 +4356,11 @@ function checkWordTriggers(rawWord, isManualClick = false) {
 
     for (const cluster of SOUND_LIBRARY) {
         for (const st of cluster.stems) {
-            if (doesWordMatchStem(clean, st)) {
-                const nSt = normWord(st);
-                const exactBonus = (clean === nSt) ? 50 : 0;
+            if (doesWordMatchStem(rawWord, st)) {
+                const stClean = stripAccents(st).replace(/[^a-z0-9]/g, '');
+                const exactBonus = (cleanNoAcc === stClean || cleanWithAcc === (st || '').toLowerCase().trim()) ? 60 : 0;
                 const prioBonus = (4 - (cluster.priority || 2)) * 10;
-                const lenScore = nSt.length * 3;
+                const lenScore = stClean.length * 3;
                 const score = exactBonus + prioBonus + lenScore;
                 if (score > bestScore) {
                     bestScore = score;
@@ -4222,19 +4372,20 @@ function checkWordTriggers(rawWord, isManualClick = false) {
 
     if (bestCluster) {
         SoundEngine.triggerCluster(bestCluster, rawWord, isManualClick);
-        SoundEngine.recentWordsHistory.push(clean);
+        SoundEngine.recentWordsHistory.push(cleanNoAcc);
         if (SoundEngine.recentWordsHistory.length > 15) SoundEngine.recentWordsHistory.shift();
         return true;
     }
-    SoundEngine.recentWordsHistory.push(clean);
+    SoundEngine.recentWordsHistory.push(cleanNoAcc);
     if (SoundEngine.recentWordsHistory.length > 15) SoundEngine.recentWordsHistory.shift();
     return false;
 }
 
-function evaluateDynamicMood(cleanWord) {
+function evaluateDynamicMood(rawWord) {
+    if (typeof MOOD_SCENES === 'undefined') return;
     for (const key of Object.keys(MOOD_SCENES)) {
         const sc = MOOD_SCENES[key];
-        if (sc.stems.some(st => doesWordMatchStem(cleanWord, st))) {
+        if (sc.stems && sc.stems.some(st => doesWordMatchStem(rawWord, st))) {
             recentMoodWindow.push(key);
             if (recentMoodWindow.length > 5) recentMoodWindow.shift();
 
@@ -4424,12 +4575,17 @@ async function togglePureLamp(show) {
     } catch (e) {}
     }
     const screen = document.getElementById('pureLampScreen');
-    screen.classList.toggle('active', show);
-    if (!show) {
-        screen.classList.remove('zen-hide');
-        document.getElementById('hubKids').classList.toggle('active', currentProfile === 'kids');
-        document.getElementById('hubAdults').classList.toggle('active', currentProfile === 'adults');
-        document.getElementById('hubLamp').classList.remove('active');
+    if (screen) {
+        screen.classList.toggle('active', show);
+        if (!show) {
+            screen.classList.remove('zen-hide');
+            const hk = document.getElementById('hubKids');
+            const ha = document.getElementById('hubAdults');
+            const hl = document.getElementById('hubLamp');
+            if (hk) hk.classList.toggle('active', currentProfile === 'kids');
+            if (ha) ha.classList.toggle('active', currentProfile === 'adults');
+            if (hl) hl.classList.remove('active');
+        }
     }
     if (show && 'wakeLock' in navigator) {
         try { wakeLockSentinel = await navigator.wakeLock.request('screen'); } catch (e) {}
@@ -4611,8 +4767,18 @@ function selectAmbience(preset) {
     document.querySelectorAll('[data-lullmodal]').forEach(b => {
         b.classList.toggle('active', b.dataset.lullmodal === preset);
     });
-    if (preset === 'off') SoundEngine.stopAmbience();
-    else SoundEngine.startAmbience(preset);
+    if (preset === 'off') {
+        SoundEngine.stopAmbience();
+    } else {
+        SoundEngine.init();
+        if (SoundEngine.ctx && SoundEngine.ctx.state === 'suspended') {
+            try { SoundEngine.ctx.resume(); } catch (e) {}
+        }
+        if (SoundEngine.isMuted) {
+            setVolumePreset('medium');
+        }
+        SoundEngine.startAmbience(preset);
+    }
 }
 
 function setVolumePreset(level) {
@@ -4654,11 +4820,11 @@ function setVolumePreset(level) {
     const wasMuted = SoundEngine.isMuted;
     SoundEngine.isMuted = false;
 
-    // Poměry nastavené tak, aby zvuky a podkres tvořily jemnou kulisu POD hlasem a nikdy ho nepřehlušily
+    // Jasně slyšitelné hlasitosti v definovaných poměrech
     const map = {
-        soft:   { sfx: 0.18, boost: 0.90, ttsVol: 1.0, bg: 0.09, tail: 0, label: '🔉 Jemná kulisa' },
-        medium: { sfx: 0.32, boost: 1.15, ttsVol: 1.0, bg: 0.16, tail: 0, label: '🔊 Vyvážená' },
-        strong: { sfx: 0.48, boost: 1.40, ttsVol: 1.0, bg: 0.25, tail: 0, label: '📢 Výrazná' }
+        soft:   { sfx: 0.45, boost: 1.0, ttsVol: 1.0, bg: 0.28, tail: 0, label: '🔉 Jemná' },
+        medium: { sfx: 0.75, boost: 1.2, ttsVol: 1.0, bg: 0.48, tail: 0, label: '🔊 Střední' },
+        strong: { sfx: 1.00, boost: 1.4, ttsVol: 1.0, bg: 0.70, tail: 0, label: '📢 Výrazná' }
     };
     const cfg = map[level] || map.medium;
     SoundEngine.baseSfxVolumeLevel = cfg.sfx;
@@ -4676,7 +4842,14 @@ function setVolumePreset(level) {
         SoundEngine.bgGain.gain.setTargetAtTime(cfg.bg, SoundEngine.ctx.currentTime, 0.1);
     }
     SoundEngine.bgLoopAudios.forEach(a => {
-        a.volume = Math.min(1.0, cfg.bg * 0.45);
+        const mult = a._origMult !== undefined ? a._origMult : 0.65;
+        a.volume = Math.min(1.0, cfg.bg * mult);
+    });
+    SoundEngine.moodCrossfadeAudios.forEach((ctrl, idx) => {
+        if (ctrl && ctrl.audio) {
+            const targetVol = Math.min(1.0, cfg.bg * 0.85);
+            try { ctrl.audio.volume = idx === 0 ? targetVol : targetVol * 0.70; } catch (e) {}
+        }
     });
 
     if (wasMuted && isSessionRunning && SoundEngine.bgMode !== 'off') {
@@ -4711,11 +4884,11 @@ function getActiveVolumeBadgeLabel() {
     const level = activeVolBtn ? activeVolBtn.dataset.vol : 'medium';
     const map = {
         off: '🔇 Zvuky vypnuty',
-        soft: '🔉 Jemná kulisa',
-        medium: '🔊 Vyvážená',
+        soft: '🔉 Jemná',
+        medium: '🔊 Střední',
         strong: '📢 Výrazná'
     };
-    return map[level] || '🔊 Vyvážená';
+    return map[level] || '🔊 Střední';
 }
 
 function promptCustomSleepTimer() {
@@ -4822,25 +4995,25 @@ function checkSleepBridgePhase(idx) {
             sleepBridgePhase = 1;
         }
     } else if (progress >= 0.80) {
-        // Fáze 2 (posledních 20 % slov příběhu): čistý podkres (vypne náhlé SFX) + Spánková červená [225, 38, 24] pro melatonin
+        // Fáze 2 (posledních 20 % slov příběhu): čistý podkres (vypne náhlé SFX) + Melatoninová spánková červená #E11D48 = [225, 29, 72]
         if (sleepBridgePhase !== 2) {
             sleepBridgePhase = 2;
             setSfxDensityMode('ambient_only', false);
-            setAuraRgb([225, 38, 24], '🌙 Spánková červená (Melatonin)');
+            setAuraRgb([225, 29, 72], '🌙 Melatoninová spánková červená');
             showAutoBadge('🌙 Spánkový most: Fáze 2');
-            setStatus('🌙 Spánkový most: Posledních 20 % příběhu – vypínám náhlé efekty pro klidné usnutí a ladím světlo do spánkové červené pro tvorbu melatoninu.');
+            setStatus('🌙 Spánkový most: Posledních 20 % příběhu – vypínám náhlé efekty pro klidné usnutí a ladím světlo do melatoninově červené (#E11D48).');
         }
     }
 }
 
-function triggerSleepBridgePhase3() {
+function startSleepBridgeAfterStory() {
     sleepBridgePhase = 3;
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     if (ttsWordTimer) { clearTimeout(ttsWordTimer); ttsWordTimer = null; }
     if (ttsSentenceTimer) { clearTimeout(ttsSentenceTimer); ttsSentenceTimer = null; }
     if (silentInterval) { clearTimeout(silentInterval); silentInterval = null; }
     if (recognition) {
-        try { recognition.onend = null; recognition.stop(); } catch (e) {}
+        try { recognition.onend = null; recognition.onerror = null; recognition.stop(); } catch (e) {}
         recognition = null;
     }
     if (typeof stopWhisperMicMonitor === 'function') {
@@ -4853,30 +5026,35 @@ function triggerSleepBridgePhase3() {
     updatePauseResumeButton();
     updateHandoverButtonVisibility();
 
-    // Fáze 3: NEVYPÍNEJ zvuk do náhlého ticha! Spustí 20minutový tichý spánkový šum (pinknoise na 0.18)
+    // Automaticky přepneme auru na melatoninovou spánkovou červenou (#E11D48 = [225, 29, 72])
+    setAuraRgb([225, 29, 72], '🌙 Melatoninová spánková červená');
+
+    // Spustíme tichý noční šum / déšť bez náhlého ticha
     SoundEngine.stopAmbience();
     SoundEngine.isMuted = false;
-    SoundEngine.bgVolumeLevel = 0.18;
-    SoundEngine.baseSfxVolumeLevel = 0.18;
-    SoundEngine.sfxVolumeLevel = 0.18;
+    SoundEngine.bgVolumeLevel = 0.22;
+    SoundEngine.baseSfxVolumeLevel = 0.15;
+    SoundEngine.sfxVolumeLevel = 0.15;
     if (SoundEngine.bgGain && SoundEngine.ctx) {
-        SoundEngine.bgGain.gain.setTargetAtTime(0.18, SoundEngine.ctx.currentTime, 0.4);
+        SoundEngine.bgGain.gain.setTargetAtTime(0.22, SoundEngine.ctx.currentTime, 0.4);
     }
     SoundEngine.startAmbience('pinknoise');
-    setAuraRgb([225, 38, 24], '🌙 Spánková červená (Melatonin)');
 
     showAutoBadge('🌙 Spánkový most (20 min)');
-    setStatus('🌙 Pohádka skončila – běží 20min Spánkový most pro hluboké usnutí...');
+    setStatus('🌙 Pohádka skončila – běží 20minutový Spánkový most: melatoninově červená (#E11D48) a tichý noční šum plynule doznívají do úplného ticha...');
 
     startSleepBridgeTimer(20);
 }
+const triggerSleepBridgePhase3 = startSleepBridgeAfterStory;
 
 function startSleepBridgeTimer(minutes = 20) {
     if (sleepCountdown) clearInterval(sleepCountdown);
     if (sleepBridgeCountdown) clearInterval(sleepBridgeCountdown);
 
-    let remSec = minutes * 60; // 1200 s
-    const totalFadeSec = 5 * 60; // Posledních 5 minut = 300 s
+    const initialMinutes = minutes || 20;
+    let remSec = initialMinutes * 60; // 1200 s
+    const totalSec = remSec;
+    const initialVol = SoundEngine.bgVolumeLevel || 0.22;
     const badge = document.getElementById('audioVolBadge');
 
     const updateCountdownUI = () => {
@@ -4891,14 +5069,18 @@ function startSleepBridgeTimer(minutes = 20) {
         remSec--;
         updateCountdownUI();
 
-        // Posledních 5 minut: nepozorovaně ztiší šum do nuly
-        if (remSec <= totalFadeSec && remSec > 0 && !SoundEngine.isMuted) {
-            const fadeRatio = remSec / totalFadeSec;
-            const currentVol = 0.18 * fadeRatio;
+        // 20minutový plynulý Fade-Out do úplného ticha
+        if (!SoundEngine.isMuted && totalSec > 0) {
+            const ratio = Math.max(0, remSec / totalSec);
+            const currentVol = initialVol * Math.pow(ratio, 1.25);
             SoundEngine.bgVolumeLevel = currentVol;
             if (SoundEngine.bgGain && SoundEngine.ctx) {
                 SoundEngine.bgGain.gain.setTargetAtTime(Math.max(0.0001, currentVol), SoundEngine.ctx.currentTime, 0.8);
             }
+            SoundEngine.bgLoopAudios.forEach(a => {
+                const mult = a._origMult !== undefined ? a._origMult : 0.65;
+                try { a.volume = Math.max(0, currentVol * mult); } catch (e) {}
+            });
         }
 
         if (remSec <= 0) {
@@ -4918,6 +5100,9 @@ function startSleepBridgeTimer(minutes = 20) {
 function switchMode(mode) {
     stopActiveSession();
     currentMode = mode;
+    if (mode === 'silent') {
+        document.querySelectorAll('.w-tok.active-word').forEach(el => el.classList.remove('active-word'));
+    }
 
     document.querySelectorAll('[data-mode]').forEach(b => {
         if (mode === 'silent') {
@@ -4934,7 +5119,16 @@ function switchMode(mode) {
         freeBar.classList.toggle('hidden', mode !== 'free');
     }
     if (storyTile) {
-        storyTile.classList.toggle('visible', mode !== 'free');
+        if (mode === 'free') {
+            // Scénář 1: Papírová kniha — automaticky sbalit a skrýt box čtečky (#storyTile), na displeji zůstane jen Orb, podkres a nastavení bez rolování
+            storyTile.classList.remove('visible');
+            storyTile.style.display = 'none';
+        } else {
+            // Scénář 2: AI Vypravěč (tts) nebo Čtu z displeje (read / silent) — zobrazit #storyTile hned pod přepínačem režimů
+            storyTile.style.display = '';
+            void storyTile.offsetWidth;
+            storyTile.classList.add('visible');
+        }
     }
 
     const dispToggle = document.getElementById('displayReadModeToggle');
@@ -4959,9 +5153,9 @@ function switchMode(mode) {
    ============================================================================ */
 function handoverToAiNarrator() {
     SoundEngine.init();
-    // 1. Okamžitě bez přerušení podkresu vypne mikrofon
+    // 1. Okamžitě bez přerušení hudebního podkresu vypne mikrofon
     if (recognition) {
-        try { recognition.onend = null; recognition.stop(); } catch (e) {}
+        try { recognition.onend = null; recognition.onerror = null; recognition.stop(); } catch (e) {}
         recognition = null;
     }
     if (typeof stopWhisperMicMonitor === 'function') {
@@ -4972,6 +5166,11 @@ function handoverToAiNarrator() {
         silentInterval = null;
     }
 
+    // Ujistíme se, že je příběh/kniha načtena do paměti
+    if (!storyWordsData || !storyWordsData.length) {
+        loadSelectedStory(false);
+    }
+
     // 2. Přepne currentMode = 'tts'
     currentMode = 'tts';
     document.querySelectorAll('[data-mode]').forEach(b => {
@@ -4980,15 +5179,19 @@ function handoverToAiNarrator() {
     const storyTile = document.getElementById('storyTile');
     const freeBar = document.getElementById('freeRecordBar');
     if (freeBar) freeBar.classList.add('hidden');
-    if (storyTile) storyTile.classList.add('visible');
+    if (storyTile) {
+        storyTile.style.display = '';
+        void storyTile.offsetWidth;
+        storyTile.classList.add('visible');
+    }
     const dispToggle = document.getElementById('displayReadModeToggle');
     if (dispToggle) dispToggle.style.display = 'none';
 
-    // 3. Nastaví styl hlasu na šeptavý a pomalejší uspávací tempo (0.78)
+    // 3. Nastaví šeptavého AI Vypravěče ('whisper') a uspávací tempo 0.82
     setTtsVoiceStyle('whisper', true);
-    ttsTempoMultiplier = 0.78;
+    ttsTempoMultiplier = 0.82;
     document.querySelectorAll('[data-tempo]').forEach(b => {
-        b.classList.toggle('active', Math.abs(parseFloat(b.dataset.tempo) - 0.78) < 0.04);
+        b.classList.toggle('active', Math.abs(parseFloat(b.dataset.tempo) - 0.82) < 0.04);
     });
 
     isSessionRunning = true;
@@ -4997,22 +5200,25 @@ function handoverToAiNarrator() {
     updatePauseResumeButton();
     updateHandoverButtonVisibility();
 
-    if (!storyWordsData || !storyWordsData.length) {
-        loadSelectedStory(false);
-    }
+    const totalWords = (storyWordsData && storyWordsData.length) || 1;
+    currentWordIndex = Math.max(0, Math.min(currentWordIndex, totalWords - 1));
 
     // 4. Plynule naváže čtením AI Vypravěče přesně od aktuálního slova (currentWordIndex)
-    showAutoBadge('🤝 Předáno AI Vypravěči');
-    setStatus(`🤝 Předáno AI Vypravěči: Šeptavý hlas plynule navazuje od slova ${currentWordIndex + 1}/${storyWordsData.length}...`);
+    showAutoBadge('🤝 Dočítá AI Vypravěč');
+    setStatus(`🤝 Předáno AI Vypravěči: Šeptavý hlas plynule pokračuje od slova ${currentWordIndex + 1}/${totalWords}...`);
     startAiStoryReading();
 }
 
 function updateHandoverButtonVisibility() {
-    const isParentReading = isSessionRunning && (currentMode === 'read' || currentMode === 'free');
+    const isParentReading = (isSessionRunning || isPaused) && (currentMode === 'read' || currentMode === 'free');
+    const sel = document.getElementById('storySelect');
+    const hasStory = (storyWordsData && storyWordsData.length > 0) || (sel && sel.value !== '-1' && sel.value !== '');
+    const shouldShow = isParentReading && hasStory;
+
     const statusBtn = document.getElementById('handoverAiStatusBtn');
     const dockBtn = document.getElementById('handoverAiDockBtn');
-    if (statusBtn) statusBtn.style.display = isParentReading ? 'inline-flex' : 'none';
-    if (dockBtn) dockBtn.style.display = isParentReading ? 'inline-flex' : 'none';
+    if (statusBtn) statusBtn.style.display = shouldShow ? 'inline-flex' : 'none';
+    if (dockBtn) dockBtn.style.display = shouldShow ? 'inline-flex' : 'none';
 }
 /* LEGACY_SWITCH_CLEANUP
     }
@@ -5039,10 +5245,22 @@ function toggleReaderSettingsPlane() {
 const toggleStorySettingsPlane = toggleReaderSettingsPlane;
 
 function setStoryDuration(mins) {
+    if (mins === 'short') mins = 5;
+    else if (mins === 'medium') mins = 15;
+    else if (mins === 'long') mins = 30;
     currentStoryDuration = mins;
     document.querySelectorAll('[data-dur]').forEach(b => {
         b.classList.toggle('active', parseInt(b.dataset.dur, 10) === mins);
     });
+
+    const catMap = { 5: 'short', 15: 'medium', 30: 'long' };
+    const matchingCat = catMap[mins];
+    if (matchingCat && currentStoryCategoryFilter !== 'all' && currentStoryCategoryFilter !== 'custom') {
+        currentStoryCategoryFilter = matchingCat;
+        document.querySelectorAll('[data-storyfilter]').forEach(b => {
+            b.classList.toggle('active', b.dataset.storyfilter === matchingCat);
+        });
+    }
 
     const wasRunning = isSessionRunning && (currentMode === 'tts' || currentMode === 'silent');
     if (wasRunning) stopActiveSession();
@@ -5110,14 +5328,13 @@ function populateSystemVoices() {
     if (!allVoices.length) return;
 
     const prevVal = sel.value || selectedSystemVoiceURI;
-    sel.innerHTML = '<option value="auto">🎙️ Automatický nejlepší hlas v zařízení</option>';
+    sel.innerHTML = '<option value="auto">🎙️ Automatický nejlepší hlas (CZ / SK)</option>';
 
-    // Upřednostníme české a slovenské hlasy + anglické hlasy pro EN režim
+    // Výhradně české a slovenské hlasy (cs, sk), případně en pro anglický režim
     const targetPrefix = currentLang === 'cs' ? ['cs', 'sk'] : ['en'];
     const matching = allVoices.filter(v => targetPrefix.some(p => (v.lang || '').toLowerCase().startsWith(p)));
-    const listToShow = showForeignVoices ? allVoices : (matching.length > 0 ? matching : allVoices.slice(0, 15));
 
-    listToShow.forEach(v => {
+    matching.forEach(v => {
         const opt = document.createElement('option');
         opt.value = v.voiceURI;
         const qualityBadge = /natural|online|neural|google|microsoft/i.test(v.name) ? '★ ' : '';
@@ -5128,24 +5345,6 @@ function populateSystemVoices() {
     if ([...sel.options].some(o => o.value === prevVal)) {
         sel.value = prevVal;
     }
-}
-
-function toggleForeignVoices() {
-    showForeignVoices = !showForeignVoices;
-    const btn = document.getElementById('toggleForeignVoicesBtn');
-    if (btn) {
-        btn.classList.toggle('active', showForeignVoices);
-        const titleEl = btn.querySelector('.bt-title');
-        if (titleEl) {
-            titleEl.innerText = showForeignVoices
-                ? '🌍 Cizojazyčné hlasy zobrazeny (VŠECHNY)'
-                : '🌍 Zobrazit i cizojazyčné hlasy v zařízení';
-        }
-    }
-    populateSystemVoices();
-    setStatus(showForeignVoices
-        ? '🌍 V roletce jsou nyní vypsány VŠECHNY hlasy v zařízení (včetně SK, PL, DE, EN, FR atd.) a dovolí jimi číst český text.'
-        : '🎙️ V roletce jsou zobrazeny doporučené hlasy pro vybraný jazyk.');
 }
 
 function onSystemVoiceChange() {
@@ -5240,7 +5439,8 @@ function previewTtsVoice() {
 function updateSceneAuraOrb() {
     const orb = document.getElementById('sceneAuraOrb');
     if (orb) {
-        orb.classList.toggle('pulsing', !!(isSessionRunning && !isPaused));
+        const isPlaying = !!((isSessionRunning && !isPaused) || (SoundEngine && SoundEngine.bgMode && SoundEngine.bgMode !== 'off' && !SoundEngine.isMuted));
+        orb.classList.toggle('pulsing', isPlaying);
     }
 }
 
@@ -5257,9 +5457,15 @@ function updateBottomDockVisibility() {
     updateHandoverButtonVisibility();
 }
 
+function syncSessionActiveCalm() {
+    const isRunning = !!(isSessionRunning && !isPaused);
+    document.body.classList.toggle('session-active-calm', isRunning);
+}
+
 function updateMainButtonLabel() {
     const btn = document.getElementById('mainActionBtn');
     updateSceneAuraOrb();
+    syncSessionActiveCalm();
     if (!btn) return;
     const isRunningOrPaused = !!(isSessionRunning || isPaused);
     if (isRunningOrPaused) {
@@ -5275,36 +5481,9 @@ function updateMainButtonLabel() {
     else if (currentMode === 'silent') btn.innerText = '▶️ TICHÉ ČTENÍ';
     else btn.innerText = '▶️ SPUSTIT ČTENÍ';
     updateBottomDockVisibility();
-    return;
-    /* DUMMY_UPDATE_LABEL
-    const btn = document.getElementById('mainActionBtn');
-    if (!btn) return;
-    if (isSessionRunning) {
-        btn.classList.add('running');
-        btn.innerText = '🛑 ZASTAVIT';
-        return;
-    }
-    btn.classList.remove('running');
-    if (currentMode === 'free') btn.innerText = '🎙️ SPUSTIT ODPOSLECH';
-    else if (currentMode === 'read') btn.innerText = '🎙️ ČÍST NAHLAS';
-    else if (currentMode === 'tts') btn.innerText = '🎧 AI VYPRAVĚČ';
-    DUMMY_UPDATE_LABEL */ } /*
-}
-if (false) {
-    const btn = document.getElementById('mainActionBtn');
-    if (isSessionRunning) {
-        btn.classList.add('running');
-        btn.innerText = '🛑 ZASTAVIT PROBÍHAJÍCÍ ČTENÍ / ODPOSLECH';
-        return;
-    }
-    btn.classList.remove('running');
-    if (currentMode === 'free') btn.innerText = '🎙️ SPUSTIT AUTOMATICKÝ ODPOSLECH';
-    else if (currentMode === 'read') btn.innerText = '🎙️ ČÍST VYBRANÝ PŘÍBĚH NAHLAS';
-    else if (currentMode === 'tts') btn.innerText = '🎧 SPUSTIT AI VYPRAVĚČE (PŘEDČÍTÁ SÁM)';
-    else if (currentMode === 'silent') btn.innerText = '🤫 SPUSTIT TICHÉ ČTENÍ OČIMA';
 }
 
-*/ let lastPositionSaveTime = 0;
+let lastPositionSaveTime = 0;
 const POSITIONS_STORAGE_KEY = 'atmoread_positions_v71';
 
 function getStoredPositionsMap() {
@@ -5482,7 +5661,7 @@ function stopActiveSession() {
     SoundEngine.stopIdleWatcher();
 
     if (recognition) {
-        try { recognition.onend = null; recognition.stop(); } catch (e) {}
+        try { recognition.onend = null; recognition.onerror = null; recognition.stop(); } catch (e) {}
         recognition = null;
     }
     if (silentInterval) {
@@ -5510,6 +5689,11 @@ function startVoiceRecognition() {
     }
 
     processedSpeechWords = {};
+    if (recognition) {
+        try { recognition.onend = null; recognition.onerror = null; recognition.stop(); } catch (e) {}
+        recognition = null;
+    }
+
     recognition = new SR();
     recognition.lang = currentLang === 'cs' ? 'cs-CZ' : 'en-US';
     recognition.continuous = true;
@@ -5518,29 +5702,32 @@ function startVoiceRecognition() {
         startWhisperMicMonitor();
     }
 
-    setStatus('🎙️ Poslouchám tvůj hlas... Zkus říct třeba „pes“, „kočka“, „kůň“, „auto“, „klavír“ nebo čti příběh!');
+    setStatus('🎙️ Naslouchám tvému hlasu...');
 
     recognition.onresult = (event) => {
         for (let i = event.resultIndex; i < event.results.length; i++) {
-            const phrase = event.results[i][0].transcript.trim();
+            const res = event.results[i];
+            const phrase = res[0].transcript.trim();
             if (!phrase) continue;
             const words = phrase.split(/\s+/);
             if (!processedSpeechWords[i]) processedSpeechWords[i] = [];
 
             for (let wIdx = 0; wIdx < words.length; wIdx++) {
                 const word = words[wIdx];
-                const clean = normWord(word);
+                const clean = stripAccents(word).replace(/[^a-z0-9]/g, '');
                 if (clean.length < 3) continue;
 
                 if (processedSpeechWords[i][wIdx] !== clean) {
                     processedSpeechWords[i][wIdx] = clean;
                     checkWordTriggers(word);
-                saveReadingPosition(true);
-                    if (currentMode === 'read') advanceReaderBySpokenWord(word);
+                    saveReadingPosition(true);
+                    if (currentMode === 'read' || (currentMode === 'free' && storyWordsData && storyWordsData.length > 0)) {
+                        advanceReaderBySpokenWord(word);
+                    }
                 }
             }
             if (currentMode === 'free') {
-                if (event.results[i].isFinal) {
+                if (res.isFinal) {
                     if (phrase && !recordedFreeTranscript.includes(phrase)) {
                         recordedFreeTranscript.push(phrase);
                     }
@@ -5554,14 +5741,50 @@ function startVoiceRecognition() {
         }
     };
 
+    let restartTimer = null;
+    const restartRecognition = () => {
+        if (restartTimer) clearTimeout(restartTimer);
+        restartTimer = setTimeout(() => {
+            if (isSessionRunning && !isPaused && (currentMode === 'free' || currentMode === 'read') && recognition) {
+                processedSpeechWords = {};
+                try {
+                    recognition.start();
+                    setStatus('🎙️ Naslouchám tvému hlasu...');
+                } catch (e) {
+                    // Tichá obsluha stavu
+                }
+            }
+        }, 250);
+    };
+
+    recognition.onerror = (event) => {
+        if (event && event.error === 'no-speech') {
+            // Tichá pauza rodiče při otočení stránky nebo pohlazení dítěte — tiše restartujeme za 250 ms bez bliknutí UI
+            setStatus('🎙️ Naslouchám tvému hlasu...');
+            restartRecognition();
+            return;
+        }
+        if (event && event.error === 'aborted') {
+            if (isSessionRunning && !isPaused && (currentMode === 'free' || currentMode === 'read')) {
+                restartRecognition();
+            }
+            return;
+        }
+        console.warn('Speech recognition warning:', event ? event.error : 'unknown');
+    };
+
     recognition.onend = () => {
-        if (isSessionRunning && (currentMode === 'free' || currentMode === 'read')) {
-            processedSpeechWords = {};
-            try { recognition.start(); } catch (e) {}
+        if (isSessionRunning && !isPaused && (currentMode === 'free' || currentMode === 'read')) {
+            setStatus('🎙️ Naslouchám tvému hlasu...');
+            restartRecognition();
         }
     };
 
-    try { recognition.start(); } catch (e) {}
+    try {
+        recognition.start();
+    } catch (e) {
+        console.warn('Recognition start:', e);
+    }
 }
 
 /* ============================================================================
@@ -5588,8 +5811,7 @@ function toggleInlineQuickHelp() {
 }
 
 /* ============================================================================
-/* ============================================================================
-   FRONTA DALŠÍHO ČTENÍ (AUTOMATICKÝ PLAYLIST) & DĚTSKÁ PERSONALIZACE (v7.0.0)
+   FRONTA DALŠÍHO ČTENÍ (AUTOMATICKÝ PLAYLIST) & DĚTSKÁ PERSONALIZACE (v9.0.0 FINAL)
    ============================================================================ */
 function renderReadingQueue() {
     const container = document.getElementById('readingQueueContainer');
@@ -5737,8 +5959,7 @@ function playQueueItemAt(idx) {
 
 function advanceQueueAndPlay() {
     if (!readingQueue || !readingQueue.length) {
-        stopActiveSession();
-        setStatus('😴 Fronta čtení je dokončena. Dobrou noc a sladké sny!');
+        startSleepBridgeAfterStory();
         return;
     }
     const nextItem = readingQueue.shift();
@@ -5969,7 +6190,7 @@ ${c1} se zachumlal do své měkoučké peřinky, ${c2} chytil svého sourozence 
 }
 
 /* ============================================================================
-   DVOJITÝ PLYNULÝ AI VYPRAVĚČ v7.0.0 (DUAL-BUFFER A/B PRE-SYNTHESIS PIPELINE):
+   DVOJITÝ PLYNULÝ AI VYPRAVĚČ v9.0.0 FINAL (DUAL-BUFFER A/B PRE-SYNTHESIS PIPELINE):
    - Odstraňuje nepřirozené mezery uprostřed vět (žádné umělé sekání po 22 slovech!)
    - Čistí typografické znaky (pomlčky —, –, uvozovky „“), na kterých se české TTS zasekává
    - DVOJITÝ ZÁSOBNÍK NA POZADÍ (Slot A + Slot B): Zatímco vypravěč čte aktuální větu (Slot A),
@@ -5991,25 +6212,6 @@ function countSentenceTriggerWords(wordsArr) {
         const clean = normWord(wordsArr[i]);
         if (clean.length >= 3 && hasWordTriggerFast(clean)) {
             count++;
-        }
-    }
-    return count;
-}
-
-function _old_countSentenceTriggerWords(wordsArr) {
-    let count = 0;
-    return 0;
-}
-function _unused_old_counter() {
-    for (const w of wordsArr) {
-        const clean = normWord(w);
-        if (clean.length < 3) continue;
-        for (const c of SOUND_LIBRARY) {
-            if (!seenClusters.has(c.id) && c.stems.some(st => doesWordMatchStem(clean, st))) {
-                seenClusters.add(c.id);
-                count++;
-                break;
-            }
         }
     }
     return count;
@@ -6188,12 +6390,8 @@ function startAiStoryReading() {
                     advanceQueueAndPlay();
                     return;
                 }
-                if (isSleepBridgeEnabled) {
-                    triggerSleepBridgePhase3();
-                    return;
-                }
-                stopActiveSession();
-                setStatus('😴 Příběh je dočtený. Dobrou noc a sladké sny!');
+                // Jakmile AI Vypravěč dočte poslední větu příběhu (a fronta je prázdná), nesmí nastat náhlé ticho – automaticky Spánkový most!
+                startSleepBridgeAfterStory();
                 return;
             }
 
@@ -6218,36 +6416,24 @@ function startAiStoryReading() {
 }
 
 function startSilentPacer() {
-    setStatus('🤫 Tiché čtení běží – čti očima, zvuky s dlouhým dozvukem a barvy se spouštějí samy...');
-    const stepNextWord = () => {
-        if (!isSessionRunning || currentMode !== 'silent') return;
-        if (currentWordIndex >= storyWordsData.length) {
-            if (readingQueue && readingQueue.length > 0) {
-                advanceQueueAndPlay();
-                return;
-            }
-            if (isSleepBridgeEnabled) {
-                triggerSleepBridgePhase3();
-                return;
-            }
-            stopActiveSession();
-            setStatus('😴 Konec příběhu. Sladké sny!');
-            return;
-        }
-        const raw = storyWordsData[currentWordIndex];
-        const triggered = checkWordTriggers(raw);
-        highlightWordAt(currentWordIndex);
+    if (silentInterval) {
+        clearTimeout(silentInterval);
+        clearInterval(silentInterval);
+        silentInterval = null;
+    }
 
-        const isEndSentence = /[.!?…]/.test(raw);
-        let delay = estimateWordDurationMs(raw, ttsTempoMultiplier);
-        if (isEndSentence) {
-            delay += triggered ? 1350 : 480;
-        }
-        currentWordIndex++;
-        saveReadingPosition(true);
-        silentInterval = setTimeout(stepNextWord, delay);
-    };
-    stepNextWord();
+    // 1. Nezvýrazňuj žádné skákající slovo (.active-word), aby čtenáře nic vizuálně nestresovalo
+    document.querySelectorAll('.w-tok.active-word').forEach(el => el.classList.remove('active-word'));
+
+    // 2. Okamžitě spusť analyzePageDominantMood() pro aktuální stránku (600 slov) a udržuj plynulý atmosférický podkres scény
+    const startIdx = currentReaderPage * READER_PAGE_SIZE;
+    analyzePageDominantMood(startIdx, READER_PAGE_SIZE);
+
+    if (SoundEngine.bgMode === 'auto_mood' && !SoundEngine.isMuted) {
+        SoundEngine.startAmbience('auto_mood');
+    }
+
+    setStatus('🤫 Tiché čtení očima: Atmosférický podkres scény (Roomscape) plyne podle nálady stránky. Čti svým tempem bez skákajícího kurzoru! Na podbarvená slova můžeš ťuknout.');
 }
 
 /* ============================================================================
@@ -6281,13 +6467,13 @@ function loadSelectedStory(animatePlane = true) {
         if (switchPlane) switchPlane.classList.add('open');
         if (durPlane) durPlane.classList.remove('open');
         const variant = story.activeVariant || 'summary';
-        document.getElementById('readerSwitchSummaryBtn').classList.toggle('active', variant === 'summary');
-        document.getElementById('readerSwitchFullBtn').classList.toggle('active', variant === 'full');
+        const sumBtn = document.getElementById('readerSwitchSummaryBtn');
+        const fullBtn = document.getElementById('readerSwitchFullBtn');
+        if (sumBtn) sumBtn.classList.toggle('active', variant === 'summary');
+        if (fullBtn) fullBtn.classList.toggle('active', variant === 'full');
         finalText = variant === 'full' ? story.fullText : story.summaryText;
         const wCount = finalText.trim().split(/\s+/).length;
         const estMin = Math.max(1, Math.round(wCount / 115));
-        const sumBtn = document.getElementById('readerSwitchSummaryBtn');
-        const fullBtn = document.getElementById('readerSwitchFullBtn');
         if (story.isYouTube) {
             if (sumBtn) sumBtn.innerHTML = '<span class="bt-icon">⚡</span><span class="bt-title">Mluvené shrnutí videa</span>';
             if (fullBtn) fullBtn.innerHTML = '<span class="bt-icon">▶️</span><span class="bt-title">Celý přepis videa</span>';
@@ -6338,6 +6524,7 @@ function loadSelectedStory(animatePlane = true) {
     } else {
         updateReaderProgressBar();
     }
+    updateHandoverButtonVisibility();
 }
 
 const READER_PAGE_SIZE = 600;
@@ -6354,7 +6541,7 @@ function analyzePageDominantMood(startWordIdx, wordCount = 600) {
             ? currentReaderPage * (typeof READER_PAGE_SIZE === 'number' ? READER_PAGE_SIZE : 600)
             : (currentWordIndex || 0);
     }
-    const defaultMood = currentProfile === 'adults' ? 'cafe' : 'meadow';
+    const defaultMood = currentProfile === 'adults' ? 'fireplace' : 'meadow';
     if (!storyWordsData || !storyWordsData.length || typeof MOOD_SCENES === 'undefined') {
         SoundEngine.transitionMoodScene(defaultMood, true);
         const fbScene = (typeof MOOD_SCENES !== 'undefined') ? MOOD_SCENES[defaultMood] : null;
@@ -6372,15 +6559,13 @@ function analyzePageDominantMood(startWordIdx, wordCount = 600) {
     for (let k = 0; k < sceneKeys.length; k++) {
         const key = sceneKeys[k];
         // Drobný výchozí profilový tiebreaker
-        scores[key] = (key === 'cafe' && currentProfile === 'adults') ? 0.25
+        scores[key] = (key === 'fireplace' && currentProfile === 'adults') ? 0.25
                     : (key === 'meadow' && currentProfile === 'kids') ? 0.25
                     : 0;
     }
 
     for (let i = 0; i < pageWords.length; i++) {
-        const clean = normWord(pageWords[i]);
-        if (clean.length < 3) continue;
-
+        const raw = pageWords[i];
         for (let sIdx = 0; sIdx < sceneKeys.length; sIdx++) {
             const key = sceneKeys[sIdx];
             const sc = MOOD_SCENES[key];
@@ -6388,14 +6573,8 @@ function analyzePageDominantMood(startWordIdx, wordCount = 600) {
 
             for (let stIdx = 0; stIdx < sc.stems.length; stIdx++) {
                 const rawStem = sc.stems[stIdx];
-                const nSt = normWord(rawStem);
-                if (!nSt) continue;
-
-                if (clean === nSt) {
-                    scores[key] += 3.5;
-                    break;
-                } else if (doesWordMatchStem(clean, rawStem)) {
-                    scores[key] += 2.0;
+                if (doesWordMatchStem(raw, rawStem)) {
+                    scores[key] += 2.5;
                     break;
                 }
             }
@@ -6468,7 +6647,7 @@ function renderReaderCurrentPage(animatePlane = false) {
             const span = document.createElement('span');
             span.className = 'w-tok';
             span.id = `w-${idx}`;
-            if (idx === currentWordIndex) span.classList.add('active-word');
+            if (currentMode !== 'silent' && idx === currentWordIndex) span.classList.add('active-word');
             span.innerHTML = isBionicReadingEnabled ? formatBionicWord(word) : escapeHtml(word);
 
             const clean = normWord(word);
@@ -6538,10 +6717,16 @@ function goToReaderPage(targetPage) {
     currentReaderPage = targetPage;
     currentWordIndex = targetPage * READER_PAGE_SIZE;
     renderReaderCurrentPage(true);
-    highlightWordAt(currentWordIndex);
+    if (currentMode === 'silent') {
+        document.querySelectorAll('.w-tok.active-word').forEach(el => el.classList.remove('active-word'));
+        analyzePageDominantMood(currentWordIndex, READER_PAGE_SIZE);
+    } else {
+        highlightWordAt(currentWordIndex);
+    }
     saveReadingPosition(true);
     setStatus(`📄 Přechod na stranu ${currentReaderPage + 1} / ${totalPages}...`);
 }
+const changeReaderPage = goToReaderPage;
 
 function renderEmptyState() {
     const box = document.getElementById('readerBox');
@@ -6555,7 +6740,7 @@ function renderEmptyState() {
                 <line x1="60" y1="31" x2="60" y2="62" stroke="var(--accent)" stroke-width="2"/>
             </svg>
             <h3 class="empty-state-title">Žádná kniha ani článek není právě otevřen</h3>
-            <p class="empty-state-subtitle">Vyber si libovolnou pohádku z naší knihovny, nahraj vlastní e-knihu v PDF/EPUB nebo vlož odkaz na internetový článek.</p>
+            <p class="empty-state-subtitle">Vyber si libovolnou pohádku z naší knihovny, nahraj vlastní e-knihu v PDF/EPUB nebo vyfoť stránku papírové knihy.</p>
             <div class="empty-actions-row">
                 <button type="button" class="big-tile-btn" onclick="focusStorySelect()" style="min-height:48px; padding:10px 16px; flex-direction:row; gap:8px;">
                     <span class="bt-icon">📖</span>
@@ -6565,9 +6750,9 @@ function renderEmptyState() {
                     <span class="bt-icon">📂</span>
                     <span class="bt-title">Nahrát E-knihu</span>
                 </button>
-                <button type="button" class="big-tile-btn" onclick="openUrlModal()" style="min-height:48px; padding:10px 16px; flex-direction:row; gap:8px;">
-                    <span class="bt-icon">🔗</span>
-                    <span class="bt-title">Načíst článek / YouTube</span>
+                <button type="button" class="big-tile-btn" onclick="document.getElementById('ocrInput').click()" style="min-height:48px; padding:10px 16px; flex-direction:row; gap:8px;">
+                    <span class="bt-icon">📷</span>
+                    <span class="bt-title">Vyfotit stránku knihy</span>
                 </button>
             </div>
         </div>
@@ -6650,65 +6835,15 @@ function deleteCurrentCustomStory() {
     unloadCurrentStory();
     populateStoryDropdown();
     showAutoBadge('🗑️ Smazáno z knihovny');
-    setStatus(`🗑️ „${story.title}“ byl úspěšně smazán z knihovny.`); } /*
+    setStatus(`🗑️ „${story.title}“ byl úspěšně smazán z knihovny.`);
 }
 
-if (false) {
-    return;
-}
-if (false) {
-    if (!box) return;
-
-    const populateTokens = () => {
-        box.innerHTML = '';
-        storyWordsData = text.trim().split(/\s+/);
-        currentWordIndex = 0;
-
-        renderReaderCurrentPage(false);
-    // bionic updated
-    if (false) (() => {
-            const span = document.createElement('span');
-            span.className = 'w-tok';
-            span.id = `w-${idx}`;
-            span.innerHTML = isBionicReadingEnabled ? formatBionicWord(word) : escapeHtml(word);
-
-            const clean = normWord(word);
-            const hasSfx = clean.length >= 3 && SOUND_LIBRARY.some(c => c.stems.some(s => doesWordMatchStem(clean, s)));
-            if (hasSfx) span.classList.add('trig-sfx');
-
-            span.onclick = () => {
-                currentWordIndex = idx;
-                highlightWordAt(idx);
-                checkWordTriggers(word, true);
-                saveReadingPosition(true);
-            };
-
-            box.appendChild(span);
-            box.appendChild(document.createTextNode(' '));
-        });
-
-        updateReaderProgressBar();
-        // Přednačteme zvuky obsažené v příběhu pro nulovou latenci při čtení
-        SoundEngine.preloadStorySounds(storyWordsData);
-    };
-
-    if (animatePlane && box.childNodes.length > 0) {
-        box.style.opacity = '0';
-        box.style.transform = 'translateY(5px)';
-        setTimeout(() => {
-            populateTokens();
-            requestAnimationFrame(() => {
-                box.style.opacity = '1';
-                box.style.transform = 'translateY(0)';
-            });
-        }, 230);
-    } else {
-        populateTokens();
-    }
-}
-
-*/ function highlightWordAt(idx) {
+function highlightWordAt(idx) {
     if (!storyWordsData || !storyWordsData.length) return;
+    if (currentMode === 'silent') {
+        document.querySelectorAll('.w-tok.active-word').forEach(el => el.classList.remove('active-word'));
+        return;
+    }
     checkSleepBridgePhase(idx);
     const targetPage = Math.floor(idx / READER_PAGE_SIZE);
     if (targetPage !== currentReaderPage) {
@@ -6725,22 +6860,12 @@ if (false) {
     }
 }
 
-// legacy highlightWordAt removed
-if (false) {
-    document.querySelectorAll('.w-tok.active-word').forEach(el => el.classList.remove('active-word'));
-    const target = document.getElementById(`w-${idx}`);
-    if (target) {
-        target.classList.add('active-word');
-        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        updateReaderProgressBar();
-    }
-}
-
 function advanceReaderBySpokenWord(spoken) {
-    const cleanSpoken = normWord(spoken);
+    const cleanSpoken = stripAccents(spoken).replace(/[^a-z0-9]/g, '');
     if (cleanSpoken.length < 3) return;
     for (let i = currentWordIndex; i < Math.min(storyWordsData.length, currentWordIndex + 14); i++) {
-        if (normWord(storyWordsData[i]).startsWith(cleanSpoken.slice(0, 4))) {
+        const bookWord = stripAccents(storyWordsData[i]).replace(/[^a-z0-9]/g, '');
+        if (bookWord.startsWith(cleanSpoken.slice(0, 4)) || cleanSpoken.startsWith(bookWord.slice(0, 4))) {
             currentWordIndex = i;
             highlightWordAt(i);
             saveReadingPosition();
@@ -6885,7 +7010,8 @@ function initOcrCanvasDrag() {
 }
 
 function closeOcrModal() {
-    document.getElementById('ocrModal').classList.remove('active');
+    const om = document.getElementById('ocrModal');
+    if (om) om.classList.remove('active');
 }
 
 async function confirmOcrRecognize() {
@@ -7010,14 +7136,16 @@ function openUrlModal() {
     }
 
     renderUrlHistoryList();
-    document.getElementById('urlModal').classList.add('active');
+    const um = document.getElementById('urlModal');
+    if (um) um.classList.add('active');
     setTimeout(() => {
         if (inp) inp.focus();
     }, 90);
 }
 
 function closeUrlModal() {
-    document.getElementById('urlModal').classList.remove('active');
+    const um = document.getElementById('urlModal');
+    if (um) um.classList.remove('active');
 }
 
 function clearUrlInputField() {
@@ -7036,8 +7164,10 @@ async function pasteUrlFromClipboard() {
     try {
         const text = await navigator.clipboard.readText();
         if (text) {
-            document.getElementById('articleUrlInput').value = text.trim();
-            document.getElementById('urlModalStatus').innerText = '📋 Odkaz byl vložen ze schránky. Klepni na zelené tlačítko dole!';
+            const inp = document.getElementById('articleUrlInput');
+            const st = document.getElementById('urlModalStatus');
+            if (inp) inp.value = text.trim();
+            if (st) st.innerText = '📋 Odkaz byl vložen ze schránky. Klepni na zelené tlačítko dole!';
         }
     } catch (e) {
         const inp = document.getElementById('articleUrlInput');
@@ -7045,7 +7175,8 @@ async function pasteUrlFromClipboard() {
             inp.value = '';
             inp.focus();
         }
-        document.getElementById('urlModalStatus').innerText = 'ℹ️ Pole je připravené – podrž v něm prst (nebo stiskni Ctrl+V) a vlož odkaz.';
+        const st = document.getElementById('urlModalStatus');
+        if (st) st.innerText = 'ℹ️ Pole je připravené – podrž v něm prst (nebo stiskni Ctrl+V) a vlož odkaz.';
     }
 }
 
@@ -7174,8 +7305,10 @@ function loadArticleFromHistory(idx) {
 
 function setUrlExtractMode(mode) {
     urlExtractMode = mode === 'full' ? 'full' : 'summary';
-    document.getElementById('urlModeSummaryBtn').classList.toggle('active', urlExtractMode === 'summary');
-    document.getElementById('urlModeFullBtn').classList.toggle('active', urlExtractMode === 'full');
+    const sumBtn = document.getElementById('urlModeSummaryBtn');
+    const fullBtn = document.getElementById('urlModeFullBtn');
+    if (sumBtn) sumBtn.classList.toggle('active', urlExtractMode === 'summary');
+    if (fullBtn) fullBtn.classList.toggle('active', urlExtractMode === 'full');
 }
 
 function switchLoadedArticleVariant(variant) {
@@ -7827,35 +7960,6 @@ async function fetchCleanArticleFromUrl(targetUrl) {
     if (isYouTube) {
         return await fetchRealYouTubeTranscript(targetUrl);
     }
-    if (false) {
-        return await fetchRealYouTubeTranscript(targetUrl);
-    }
-    if (false) {
-        try {
-            const jinaUrl = 'https://r.jina.ai/' + targetUrl;
-            const resp = await fetch(jinaUrl, {
-                headers: { 'Accept': 'text/plain' }
-            });
-            if (resp.ok) {
-                const raw = await resp.text();
-                let title = '';
-                const titleMatch = raw.match(/^Title:\s*(.+)$/m);
-                if (titleMatch && titleMatch[1]) {
-                    title = titleMatch[1].replace(/\s*-\s*YouTube$/i, '').trim();
-                }
-                if (!title) title = 'YouTube video';
-                const paragraphs = extractYouTubeTranscript(raw, title);
-                return {
-                    title: `▶️ YouTube: ${title}`,
-                    paragraphs: paragraphs.length ? paragraphs : [`Přepis a obsah videa „${title}“.`],
-                    isYouTube: true,
-                    rawVideoTitle: title
-                };
-            }
-        } catch (e) {
-            console.warn('YouTube extraction via r.jina.ai failed:', e);
-        }
-    }
     // 1. Primární čtečkový extraktor r.jina.ai s chirurgickým filtrem kolem nadpisu článku
     try {
         const jinaUrl = 'https://r.jina.ai/' + targetUrl;
@@ -8077,16 +8181,14 @@ async function fetchAndProcessUrlArticle() {
 
         let summaryText = '';
         if (geminiKey) {
-
             try {
-                if (false) {
-                } if (isYouTube) {
+                if (isYouTube) {
                     statusEl.innerText = '🤖 Generuji mluvené shrnutí YouTube videa přes Gemini AI...';
                     summaryText = await summarizeYouTubeWithGeminiApi(title, fullCleanText, geminiKey);
                 } else {
-                    statusEl.innerText = '🤖 Generuji mluvené shrnutí článku přes Gemini AI...'; summaryText = await summarizeWithGeminiApi(title, fullCleanText, geminiKey);
-                    }
-                // summarize completed
+                    statusEl.innerText = '🤖 Generuji mluvené shrnutí článku přes Gemini AI...';
+                    summaryText = await summarizeWithGeminiApi(title, fullCleanText, geminiKey);
+                }
             } catch (e) {
                 summaryText = buildLocalSmartSummary(title, paragraphs);
             }
@@ -8151,6 +8253,7 @@ async function fetchAndProcessUrlArticle() {
 
 function showAutoBadge(text) {
     const box = document.getElementById('autoBadgesBox');
+    if (!box) return;
     const b = document.createElement('span');
     b.className = 'auto-badge';
     b.innerText = text;
@@ -8248,13 +8351,6 @@ function toggleBionicReading() {
     } catch (e) {}
 
     renderReaderCurrentPage(false);
-    // bionic updated
-    if (false) (() => {
-        const span = document.getElementById(`w-${idx}`);
-        if (span) {
-            span.innerHTML = isBionicReadingEnabled ? formatBionicWord(word) : escapeHtml(word);
-        }
-    });
 
     showAutoBadge(isBionicReadingEnabled ? '👁️ Bionic čtení: ZAP' : '👁️ Bionic čtení: VYP');
     setStatus(isBionicReadingEnabled
@@ -8943,12 +9039,14 @@ function toggleWhisperDetector() {
 }
 
 function setStatus(msg) {
-    document.getElementById('liveStatusText').innerText = msg;
+    const el = document.getElementById('liveStatusText');
+    if (el) el.innerText = msg;
 }
 
 function toggleLanguage() {
     currentLang = currentLang === 'cs' ? 'en' : 'cs';
-    document.getElementById('langBtn').innerHTML = `<span>🌐</span><span class="bt-title">${currentLang.toUpperCase()}</span>`;
+    const langBtn = document.getElementById('langBtn');
+    if (langBtn) langBtn.innerHTML = `<span>🌐</span><span class="bt-title">${currentLang.toUpperCase()}</span>`;
     populateSystemVoices();
     populateStoryDropdown();
     loadSelectedStory(true);
@@ -8961,6 +9059,39 @@ function setStoryCategoryFilter(cat) {
     document.querySelectorAll('[data-storyfilter]').forEach(b => {
         b.classList.toggle('active', b.dataset.storyfilter === cat);
     });
+
+    if (cat === 'short') {
+        currentStoryDuration = 5;
+        document.querySelectorAll('[data-dur]').forEach(b => {
+            b.classList.toggle('active', parseInt(b.dataset.dur, 10) === 5);
+        });
+        showAutoBadge('⚡ Krátké (do 5 min)');
+        setStatus('⚡ Filtr nastaven na: Krátké pohádky do 5 minut (svižné verze pro rychlé usnutí).');
+    } else if (cat === 'medium') {
+        currentStoryDuration = 15;
+        document.querySelectorAll('[data-dur]').forEach(b => {
+            b.classList.toggle('active', parseInt(b.dataset.dur, 10) === 15);
+        });
+        showAutoBadge('🌙 Střední (15 min)');
+        setStatus('🌙 Filtr nastaven na: Střední pohádky na 15 minut (ideální výpravná kapitola).');
+    } else if (cat === 'long') {
+        currentStoryDuration = 30;
+        document.querySelectorAll('[data-dur]').forEach(b => {
+            b.classList.toggle('active', parseInt(b.dataset.dur, 10) === 30);
+        });
+        showAutoBadge('🛌 Dlouhé uspávací (30+ min)');
+        setStatus('🛌 Filtr nastaven na: Dlouhé uspávací pohádky a knihy na 30+ minut.');
+    } else if (cat === 'custom' || cat === 'ebooks') {
+        showAutoBadge('📂 Moje E-knihy & Vlastní');
+        setStatus('📂 Zobrazuji nahrané e-knihy (PDF/EPUB/TXT) a vlastní vložené texty.');
+    } else {
+        showAutoBadge('✨ Všechny příběhy');
+        setStatus('✨ Zobrazuji všechny příběhy, knihy i články.');
+    }
+
+    const wasRunning = isSessionRunning && (currentMode === 'tts' || currentMode === 'silent');
+    if (wasRunning) stopActiveSession();
+
     populateStoryDropdown();
     const sel = document.getElementById('storySelect');
     if (sel && sel.options.length > 0 && sel.options[0].value !== '-1') {
@@ -8968,6 +9099,10 @@ function setStoryCategoryFilter(cat) {
         loadSelectedStory(true);
     } else {
         unloadCurrentStory();
+    }
+
+    if (wasRunning) {
+        setTimeout(() => startActiveSession(), 200);
     }
 }
 
@@ -9060,12 +9195,31 @@ function populateStoryDropdown() {
     let items = [];
 
     list.forEach((s, idx) => {
-        if (currentStoryCategoryFilter === 'builtin') {
-            if (s.isCustom || s.isEbook || s.isUrlArticle || s.isYouTube) return;
-        } else if (currentStoryCategoryFilter === 'ebooks') {
-            if (!s.isEbook) return;
-        } else if (currentStoryCategoryFilter === 'url') {
-            if (!s.isUrlArticle && !s.isYouTube) return;
+        const isCustomOrEbook = !!(s.isCustom || s.isEbook || s.isUrlArticle || s.isYouTube);
+
+        if (currentStoryCategoryFilter === 'short') {
+            // Krátké (do 5 min): vestavěné pohádky (mají verzi pro 5 min) + vlastní příběhy do 7 minut
+            if (isCustomOrEbook) {
+                const metaCheck = calculateStoryReadingMeta(s);
+                if (metaCheck.totalMins > 7) return;
+            }
+        } else if (currentStoryCategoryFilter === 'medium') {
+            // Střední (15 min): vestavěné pohádky (mají verzi pro 15 min) + vlastní příběhy v rozsahu 5 až 25 minut
+            if (isCustomOrEbook) {
+                const metaCheck = calculateStoryReadingMeta(s);
+                if (metaCheck.totalMins < 5 || metaCheck.totalMins > 25) return;
+            }
+        } else if (currentStoryCategoryFilter === 'long') {
+            // Dlouhé uspávací (30+ min): vestavěné pohádky (mají verzi pro 30 min) + dlouhé e-knihy nad 20 minut
+            if (isCustomOrEbook) {
+                const metaCheck = calculateStoryReadingMeta(s);
+                if (metaCheck.totalMins < 20) return;
+            }
+        } else if (currentStoryCategoryFilter === 'custom' || currentStoryCategoryFilter === 'ebooks') {
+            // Moje E-knihy & Vlastní: pouze nahrané EPUB/PDF/TXT a vlastní příběhy
+            if (!isCustomOrEbook) return;
+        } else if (currentStoryCategoryFilter === 'builtin') {
+            if (isCustomOrEbook) return;
         }
 
         const meta = calculateStoryReadingMeta(s);
@@ -9112,7 +9266,7 @@ function exportAtmoReadBackup() {
     try {
         const backupData = {
             app: 'AtmoRead',
-            version: 'v8.0.0 MASTER',
+            version: 'v9.0.0 FINAL',
             exportedAt: new Date().toISOString(),
             data: {
                 ebooks: getStoredEbooks(),
@@ -9240,27 +9394,14 @@ function importAtmoReadBackup(event) {
     reader.readAsText(file, 'utf-8');
 }
 
-/*
-if (false) {
-    loadCustomStoriesIntoMemory();
-    loadEbooksIntoMemory();
-    const sel = document.getElementById('storySelect');
-    sel.innerHTML = '';
-    const list = STORIES[getStoryKey()] || STORIES.kids_cs;
-    list.forEach((s, idx) => {
-        const opt = document.createElement('option');
-        opt.value = idx;
-        opt.innerText = s.title;
-        sel.appendChild(opt);
-    });
-}
-
-*/ function initUI() {
+function initUI() {
+    document.body.classList.toggle('theme-adults', currentProfile === 'adults');
+    initNormalizedLibraries();
     buildFastStemIndex();
     const totalStems = SOUND_LIBRARY.reduce((acc, c) => acc + c.stems.length, 0)
                      + DYNAMIC_AURA_PALETTE.reduce((acc, p) => acc + p.stems.length, 0);
     const dictEl = document.getElementById('dictCounter'); if (dictEl) dictEl.innerText = 'Živá zvuková atmosféra pro čtení a spánek'; const _oldDictStr =
-        `Verze v8.0.0 MASTER • 100% Ověřené zvuky (${SOUND_LIBRARY.length} okruhů, ${totalStems}+ kořenů) • 5/15/30 min příběhy • Plynulé přechody`;
+        `Verze v9.0.0 FINAL • 100% Ověřené zvuky (${SOUND_LIBRARY.length} okruhů, ${totalStems}+ kořenů) • 5/15/30 min příběhy • Plynulé přechody`;
 
     // Vykreslení 4 smysluplných barev lampičky
     const mainLampWrap = document.getElementById('lampModeTilesMain');
@@ -9313,7 +9454,12 @@ if (false) {
     // Výchozí podkres: Dynamický podkres scény ('auto_mood')
     SoundEngine.bgMode = 'auto_mood';
     renderAmbienceTiles();
-    setSfxDensityMode(getRecommendedSfxDensity(currentProfile, currentMode), false);
+    const savedDensity = localStorage.getItem('atmoread_sfx_density_mode');
+    if (savedDensity && ['story', 'sparse', 'ambient_only'].includes(savedDensity)) {
+        setSfxDensityMode(savedDensity, false);
+    } else {
+        setSfxDensityMode(getRecommendedSfxDensity(currentProfile, currentMode), false);
+    }
     renderUrlHistoryList();
 
     selectLampMode('candle');
@@ -9325,18 +9471,6 @@ if (false) {
         if (bionicBtn) bionicBtn.classList.toggle('active', isBionicReadingEnabled);
     } catch (e) {}
     populateStoryDropdown();
-    try {
-
-
-
-    } catch (e) {}
-
-
-    try {
-
-
-
-    } catch (e) {}
     loadReadingQueueFromStorage();
     renderReadingQueue();
     if (childName) {
@@ -9351,6 +9485,16 @@ if (false) {
     restoreReadingPosition();
     const freeBarInit = document.getElementById('freeRecordBar');
     if (freeBarInit) freeBarInit.classList.toggle('hidden', currentMode !== 'free');
+    const storyTileInit = document.getElementById('storyTile');
+    if (storyTileInit) {
+        if (currentMode === 'free') {
+            storyTileInit.classList.remove('visible');
+            storyTileInit.style.display = 'none';
+        } else {
+            storyTileInit.style.display = '';
+            storyTileInit.classList.add('visible');
+        }
+    }
     initOcrCanvasDrag();
     initCarouselDragAndTouch();
     initReaderFontSize();
@@ -9389,8 +9533,8 @@ function animateSky() {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fillStyle = currentProfile === 'adults'
-            ? `rgba(226, 199, 146, ${alpha * 0.75})`
-            : `rgba(253, 230, 138, ${alpha})`;
+            ? `rgba(16, 185, 129, ${alpha * 0.75})`
+            : `rgba(129, 140, 248, ${alpha * 0.8})`;
         ctx.fill();
     });
     requestAnimationFrame(animateSky);
