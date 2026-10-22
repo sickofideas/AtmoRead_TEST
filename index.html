@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>AtmoRead v9.5.0 AUDIO FIX — Živá atmosféra pro pohádky, knihy i články</title>
+    <title>AtmoRead v9.6.0 — Živá atmosféra pro pohádky, knihy i články</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2080,10 +2080,10 @@
     <div class="ocr-modal-card">
         <div class="tile-header" style="margin-bottom:2px;">
             <div class="tile-title">❓ Jak AtmoRead funguje (Stručný průvodce)</div>
-            <span class="tile-badge">v9.5.0 AUDIO FIX</span>
+            <span class="tile-badge">v9.6.0</span>
         </div>
         <p style="font-size:13.5px; color:var(--text-muted); line-height:1.45;">
-            AtmoRead (<b>v9.5.0 AUDIO FIX</b>) promění čtení pohádek, knih i webových článků v živý zvukový a světelný zážitek. Vše ovládáš <b>jedním ťuknutím na velké dlaždice</b>.
+            AtmoRead (<b>v9.6.0</b>) promění čtení pohádek, knih i webových článků v živý zvukový a světelný zážitek. Vše ovládáš <b>jedním ťuknutím na velké dlaždice</b>.
         </p>
 
         <div class="help-grid">
@@ -2139,7 +2139,7 @@
         <div class="brand-box">
             <span style="font-size:34px;" id="brandEmoji">📖</span>
             <div>
-                <h1 class="brand-name">AtmoRead <span class="ver-badge">v9.5.0 AUDIO FIX</span></h1>
+                <h1 class="brand-name">AtmoRead <span class="ver-badge">v9.6.0</span></h1>
                 <div class="header-meta" id="dictCounter" style="display:none;"></div>
             </div>
         </div>
@@ -2357,6 +2357,10 @@
                                 <button type="button" class="big-tile-btn" style="min-height:50px; flex-direction:row; padding:8px 14px; gap:8px;" onclick="promptCustomText()">
                                     <span class="bt-icon">✍️</span>
                                     <span class="bt-title">Vložit vlastní text</span>
+                                </button>
+                                <button type="button" class="big-tile-btn" style="min-height:50px; flex-direction:row; padding:8px 14px; gap:8px;" onclick="openUrlModal()" title="Načíst článek z webu nebo YouTube z URL">
+                                    <span class="bt-icon">🔗</span>
+                                    <span class="bt-title">Článek z webu / URL</span>
                                 </button>
                             </div>
 
@@ -2694,7 +2698,7 @@
     <div class="dock-inner">
         <div class="dock-ver-pill" title="Aktuální verze aplikace AtmoRead">
             <span>AtmoRead</span>
-            <span style="color:var(--accent); font-size:12px; font-weight:800;">v9.4.0</span>
+            <span style="color:var(--accent); font-size:12px; font-weight:800;">v9.6.0</span>
         </div>
         <button id="mainActionBtn" class="btn-primary-run" onclick="handleMainAction()">
             ▶️ REAGOVAT NA ČTENÍ
@@ -3756,7 +3760,8 @@ const SoundEngine = {
             return;
         }
 
-        const isSameActive = (this.bgMode === preset);
+        const isActuallyPlaying = this.bgLoopAudios.length > 0 || this.moodCrossfadeAudios.length > 0 || !!this.bgSeqInterval || !!this.pinkNoiseNode;
+        const isSameActive = (this.bgMode === preset && isActuallyPlaying);
         if (isSameActive) {
             this.bgVariationIndex = (this.bgVariationIndex % 3) + 1;
             this.crossfadeAmbienceVariation(preset);
@@ -3767,7 +3772,7 @@ const SoundEngine = {
         this.bgMode = preset;
         this.bgVariationIndex = Math.floor(Math.random() * 3) + 1;
         this.melodyStep = 0;
-        this.applyAmbiencePreset(preset, 1800);
+        this.applyAmbiencePreset(preset, 1200);
     },
 
     crossfadeAmbienceVariation(preset) {
@@ -3829,7 +3834,7 @@ const SoundEngine = {
         }
 
         if (preset === 'auto_mood') {
-            const initialScene = currentProfile === 'adults' ? 'fireplace' : 'meadow';
+            const initialScene = currentProfile === 'adults' ? 'home' : 'meadow';
             this.currentMoodId = '';
             this.transitionMoodScene(initialScene, { isImmediate: true, isPageLookahead: false });
             return;
@@ -4671,7 +4676,7 @@ function selectProfileHub(target) {
     if (kidsRow) kidsRow.style.display = (currentProfile === 'kids') ? 'flex' : 'none';
 
     if (SoundEngine.bgMode === 'auto_mood') {
-        SoundEngine.transitionMoodScene(currentProfile === 'adults' ? 'fireplace' : 'meadow', { isImmediate: true });
+        SoundEngine.transitionMoodScene(currentProfile === 'adults' ? 'home' : 'meadow', { isImmediate: true });
     }
 
     setStatus(currentProfile === 'adults'
@@ -4741,20 +4746,75 @@ function buildFastStemIndex() {
     }
 }
 
+const CZECH_VERB_PREFIXES = ['za', 'vy', 'po', 'pro', 'roz', 'od', 'na', 'pri', 'do', 'ze', 'vz'];
+
+function doesWordMatchStem(rawWord, stem) {
+    if (!rawWord || !stem) return false;
+    const cleanNoAcc = stripAccents(rawWord).replace(/[^a-z0-9]/g, '');
+    const cleanWithAcc = (rawWord || '').toLowerCase().trim().replace(/[^a-záčďéěíňóřšťúůýž0-9]/gi, '');
+    const stemNoAcc = stripAccents(stem).replace(/[^a-z0-9]/g, '');
+    const stemWithAcc = (stem || '').toLowerCase().trim().replace(/[^a-záčďéěíňóřšťúůýž0-9]/gi, '');
+    if (!stemNoAcc || !cleanNoAcc) return false;
+
+    // a) Černá listina falešných shod (FALSE_POSITIVE_WORDS)
+    if (stemNoAcc === 'had') {
+        if (/^(hadan|hadat|hadk|hadov|hadej)/.test(cleanNoAcc)) return false;
+    } else if (stemNoAcc === 'pes') {
+        if (/^(pest|pesin|pesk|pesi|pesn)/.test(cleanNoAcc)) return false;
+    } else if (stemNoAcc === 'les') {
+        if (/^(lesk|leskl|lesot)/.test(cleanNoAcc)) return false;
+    } else if (stemNoAcc === 'led') {
+        if (/^(ledn|leda|ledv)/.test(cleanNoAcc)) return false;
+    } else if (stemNoAcc === 'rak') {
+        if (/^(rakos|rakv|rakous)/.test(cleanNoAcc)) return false;
+    } else if (stemNoAcc === 'kov') {
+        if (cleanNoAcc.startsWith('kovo') && !cleanNoAcc.startsWith('kovad') && !cleanNoAcc.startsWith('kovar')) return false;
+    } else if (stemNoAcc === 'auto') {
+        if (/^(autor|auton|autent)/.test(cleanNoAcc)) return false;
+    }
+
+    // b) Přímá shoda od začátku slova
+    if (cleanNoAcc === stemNoAcc || cleanNoAcc.startsWith(stemNoAcc)) return true;
+    if (stemWithAcc && (cleanWithAcc === stemWithAcc || cleanWithAcc.startsWith(stemWithAcc))) return true;
+
+    // c) Shoda s běžnou českou slovesnou předponou – POUZE pokud má kořen stemNoAcc.length >= 4
+    if (stemNoAcc.length >= 4) {
+        for (let i = 0; i < CZECH_VERB_PREFIXES.length; i++) {
+            const pfx = CZECH_VERB_PREFIXES[i];
+            if (cleanNoAcc.startsWith(pfx) && cleanNoAcc.length > pfx.length) {
+                const stripped = cleanNoAcc.slice(pfx.length);
+                if (stripped.startsWith(stemNoAcc)) return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 function hasWordTriggerFast(rawWord) {
     if (!rawWord || rawWord.length < 3) return false;
     const clean = stripAccents(rawWord).replace(/[^a-z0-9]/g, '');
     if (!clean || clean.length < 3) return false;
+
     for (let i = 0; i < SHORT_STEMS.length; i++) {
-        const st = SHORT_STEMS[i];
-        if (clean === st || clean.startsWith(st) || (st.length >= 3 && clean.includes(st))) return true;
+        if (doesWordMatchStem(rawWord, SHORT_STEMS[i])) return true;
     }
     const pref = clean.slice(0, 3);
     const list = STEM_PREFIX_MAP.get(pref);
     if (list) {
         for (let i = 0; i < list.length; i++) {
-            const nSt = list[i];
-            if (clean === nSt || clean.startsWith(nSt) || (nSt.length >= 3 && clean.includes(nSt))) return true;
+            if (doesWordMatchStem(rawWord, list[i])) return true;
+        }
+    }
+    for (let p = 0; p < CZECH_VERB_PREFIXES.length; p++) {
+        const pfx = CZECH_VERB_PREFIXES[p];
+        if (clean.startsWith(pfx) && clean.length > pfx.length + 3) {
+            const pList = STEM_PREFIX_MAP.get(clean.slice(pfx.length, pfx.length + 3));
+            if (pList) {
+                for (let i = 0; i < pList.length; i++) {
+                    if (doesWordMatchStem(rawWord, pList[i])) return true;
+                }
+            }
         }
     }
     if (typeof SOUND_LIBRARY !== 'undefined' && Array.isArray(SOUND_LIBRARY)) {
@@ -4766,27 +4826,6 @@ function hasWordTriggerFast(rawWord) {
             }
         }
     }
-    return false;
-}
-
-function doesWordMatchStem(rawWord, stem) {
-    if (!rawWord || !stem) return false;
-    const cleanNoAcc = stripAccents(rawWord).replace(/[^a-z0-9]/g, '');
-    const cleanWithAcc = (rawWord || '').toLowerCase().trim().replace(/[^a-záčďéěíňóřšťúůýž0-9]/gi, '');
-    const stemNoAcc = stripAccents(stem).replace(/[^a-z0-9]/g, '');
-    const stemWithAcc = (stem || '').toLowerCase().trim().replace(/[^a-záčďéěíňóřšťúůýž0-9]/gi, '');
-    if (!stemNoAcc) return false;
-
-    // 1. Shoda bez diakritiky (cleanWord.startsWith(stem) nebo cleanWord.includes(stem) pro kořeny >= 3 znaky)
-    if (cleanNoAcc === stemNoAcc || cleanNoAcc.startsWith(stemNoAcc)) return true;
-    if (stemNoAcc.length >= 3 && cleanNoAcc.includes(stemNoAcc)) return true;
-
-    // 2. Shoda s diakritikou
-    if (stemWithAcc) {
-        if (cleanWithAcc === stemWithAcc || cleanWithAcc.startsWith(stemWithAcc)) return true;
-        if (stemWithAcc.length >= 3 && cleanWithAcc.includes(stemWithAcc)) return true;
-    }
-
     return false;
 }
 
@@ -4883,17 +4922,34 @@ function checkWordTriggers(rawWord, isManualClick = false, prevWordsContext = nu
     }
 
     if (bestCluster) {
-        if (triggeredClustersSet && triggeredClustersSet.has(bestCluster.id)) {
-            SoundEngine.recentWordsHistory.push(cleanNoAcc);
-            if (SoundEngine.recentWordsHistory.length > 15) SoundEngine.recentWordsHistory.shift();
-            return false;
+        if (triggeredClustersSet) {
+            if (typeof triggeredClustersSet.has === 'function') {
+                if (triggeredClustersSet.has(bestCluster.id)) {
+                    SoundEngine.recentWordsHistory.push(cleanNoAcc);
+                    if (SoundEngine.recentWordsHistory.length > 15) SoundEngine.recentWordsHistory.shift();
+                    return false;
+                }
+            } else if (typeof triggeredClustersSet === 'object') {
+                const lastTime = triggeredClustersSet[bestCluster.id] || 0;
+                if (Date.now() - lastTime < 4000) {
+                    SoundEngine.recentWordsHistory.push(cleanNoAcc);
+                    if (SoundEngine.recentWordsHistory.length > 15) SoundEngine.recentWordsHistory.shift();
+                    return false;
+                }
+            }
         }
 
         let didPlay = false;
         if (!hasNegation) {
             const played = SoundEngine.triggerCluster(bestCluster, rawWord, isManualClick);
             if (played === true) {
-                if (triggeredClustersSet) triggeredClustersSet.add(bestCluster.id);
+                if (triggeredClustersSet) {
+                    if (typeof triggeredClustersSet.add === 'function') {
+                        triggeredClustersSet.add(bestCluster.id);
+                    } else if (typeof triggeredClustersSet === 'object') {
+                        triggeredClustersSet[bestCluster.id] = Date.now();
+                    }
+                }
                 didPlay = true;
             }
         }
@@ -6492,19 +6548,37 @@ function startVoiceRecognition() {
 
             if (!processedSpeechWords[i]) {
                 processedSpeechWords[i] = {
-                    triggeredClusterIds: new Set(),
-                    lastReaderWordIdx: 0
+                    lastCheckedWordIdx: 0,
+                    lastTriggeredAtByCluster: {},
+                    lastReaderWordIdx: 0,
+                    wordTriggeredMap: {}
                 };
             }
             const state = processedSpeechWords[i];
+            if (!state.wordTriggeredMap) state.wordTriggeredMap = {};
+            if (!state.lastTriggeredAtByCluster) state.lastTriggeredAtByCluster = {};
 
-            for (let wIdx = 0; wIdx < words.length; wIdx++) {
+            const startWIdx = Math.max(0, (state.lastCheckedWordIdx || 0) - 1);
+
+            for (let wIdx = startWIdx; wIdx < words.length; wIdx++) {
+                if (state.wordTriggeredMap[wIdx]) {
+                    if (currentMode === 'read' && wIdx >= state.lastReaderWordIdx) {
+                        state.lastReaderWordIdx = wIdx + 1;
+                        advanceReaderBySpokenWord(words[wIdx]);
+                        saveReadingPosition(true);
+                    }
+                    continue;
+                }
+
                 const word = words[wIdx];
                 const clean = stripAccents(word).replace(/[^a-z0-9]/g, '');
                 if (clean.length < 3) continue;
 
                 const prevWords = words.slice(Math.max(0, wIdx - 3), wIdx);
-                checkWordTriggers(word, false, prevWords, state.triggeredClusterIds);
+                const played = checkWordTriggers(word, false, prevWords, state.lastTriggeredAtByCluster);
+                if (played) {
+                    state.wordTriggeredMap[wIdx] = true;
+                }
 
                 if (currentMode === 'read' && wIdx >= state.lastReaderWordIdx) {
                     state.lastReaderWordIdx = wIdx + 1;
@@ -6512,6 +6586,7 @@ function startVoiceRecognition() {
                     saveReadingPosition(true);
                 }
             }
+            state.lastCheckedWordIdx = words.length;
 
             if (currentMode === 'free') {
                 if (isFinal) {
@@ -7359,7 +7434,7 @@ function analyzePageDominantMood(startWordIdx, wordCount = 120) {
     if (typeof startWordIdx !== 'number' || isNaN(startWordIdx)) {
         startWordIdx = (typeof currentWordIndex === 'number') ? currentWordIndex : 0;
     }
-    const defaultMood = currentProfile === 'adults' ? 'fireplace' : 'meadow';
+    const defaultMood = currentProfile === 'adults' ? 'home' : 'meadow';
     if (!storyWordsData || !storyWordsData.length || typeof MOOD_SCENES === 'undefined') {
         SoundEngine.transitionMoodScene(defaultMood, { isImmediate: true, isPageLookahead: true });
         const fbScene = (typeof MOOD_SCENES !== 'undefined') ? MOOD_SCENES[defaultMood] : null;
@@ -7379,7 +7454,7 @@ function analyzePageDominantMood(startWordIdx, wordCount = 120) {
     const sceneKeys = Object.keys(MOOD_SCENES);
     for (let k = 0; k < sceneKeys.length; k++) {
         const key = sceneKeys[k];
-        scores[key] = (key === 'fireplace' && currentProfile === 'adults') ? 0.25
+        scores[key] = (key === 'home' && currentProfile === 'adults') ? 0.25
                     : (key === 'meadow' && currentProfile === 'kids') ? 0.25
                     : 0;
         matchCounts[key] = 0;
@@ -10679,6 +10754,9 @@ function importAtmoReadBackup(event) {
 }
 
 async function initUI() {
+    if (typeof MOOD_SCENES !== 'undefined' && MOOD_SCENES.home && !MOOD_SCENES.fireplace) {
+        MOOD_SCENES.fireplace = MOOD_SCENES.home;
+    }
     document.body.classList.toggle('theme-adults', currentProfile === 'adults');
     initNormalizedLibraries();
     buildFastStemIndex();
