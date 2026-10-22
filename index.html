@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>AtmoRead v9.4.0 — Živá atmosféra pro pohádky, knihy i články</title>
+    <title>AtmoRead v9.5.0 AUDIO FIX — Živá atmosféra pro pohádky, knihy i články</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2080,10 +2080,10 @@
     <div class="ocr-modal-card">
         <div class="tile-header" style="margin-bottom:2px;">
             <div class="tile-title">❓ Jak AtmoRead funguje (Stručný průvodce)</div>
-            <span class="tile-badge">v9.4.0</span>
+            <span class="tile-badge">v9.5.0 AUDIO FIX</span>
         </div>
         <p style="font-size:13.5px; color:var(--text-muted); line-height:1.45;">
-            AtmoRead (<b>v9.4.0</b>) promění čtení pohádek, knih i webových článků v živý zvukový a světelný zážitek. Vše ovládáš <b>jedním ťuknutím na velké dlaždice</b>.
+            AtmoRead (<b>v9.5.0 AUDIO FIX</b>) promění čtení pohádek, knih i webových článků v živý zvukový a světelný zážitek. Vše ovládáš <b>jedním ťuknutím na velké dlaždice</b>.
         </p>
 
         <div class="help-grid">
@@ -2139,7 +2139,7 @@
         <div class="brand-box">
             <span style="font-size:34px;" id="brandEmoji">📖</span>
             <div>
-                <h1 class="brand-name">AtmoRead</h1>
+                <h1 class="brand-name">AtmoRead <span class="ver-badge">v9.5.0 AUDIO FIX</span></h1>
                 <div class="header-meta" id="dictCounter" style="display:none;"></div>
             </div>
         </div>
@@ -3133,14 +3133,14 @@ const SoundEngine = {
     },
 
     triggerCluster(cluster, spokenWord = '', isManualClick = false) {
-        if (sessionState === 'ending') return;
+        if (sessionState === 'ending') return false;
         const now = Date.now();
         const prio = cluster.priority || 2;
 
         if (!isManualClick) {
             // Režim "Čistá atmosféra": zcela vypne jednorázové One-Shot zvukové efekty slov
             if (typeof sfxDensityMode !== 'undefined' && sfxDensityMode === 'ambient_only') {
-                return;
+                return false;
             }
 
             const isMicMode = (currentMode === 'free' || currentMode === 'read');
@@ -3148,9 +3148,9 @@ const SoundEngine = {
             let sameSoundCooldownMs = 12000;
 
             if (isMicMode) {
-                // Mikrofonní režimy: minimální rozestup 900 ms, cooldown na stejný zvuk 6 000 ms
-                minGapMs = 900;
-                sameSoundCooldownMs = 6000;
+                // Mikrofonní režimy: minimální rozestup 450 ms, cooldown na stejný zvuk 4 000 ms
+                minGapMs = 450;
+                sameSoundCooldownMs = 4000;
             } else if (typeof sfxDensityMode !== 'undefined' && sfxDensityMode === 'sparse') {
                 // Filmový režim: rozestup 8 s, cooldown 20 s
                 minGapMs = 8000;
@@ -3162,16 +3162,16 @@ const SoundEngine = {
             }
 
             if (this.lastAnySfxTime && (now - this.lastAnySfxTime < minGapMs)) {
-                return;
+                return false;
             }
             if (this.cooldownMap[cluster.id] && (now - this.cooldownMap[cluster.id] < sameSoundCooldownMs)) {
-                return;
+                return false;
             }
         }
 
         // Pouze pokud právě burácí prioritní zvuk 1 spuštěný před méně než 550 ms, vynecháme drobný šelest priority 3
         if (prio === 3 && this.currentOneShot && this.currentOneShot.priority === 1 && (now - this.currentOneShot.startTime < 550)) {
-            return;
+            return false;
         }
 
         this.cooldownMap[cluster.id] = now;
@@ -3184,7 +3184,7 @@ const SoundEngine = {
         showAutoBadge(`${cluster.emoji} ${spokenWord || cluster.label}${distTag} ${prioTag}`);
 
         // Pokud uživatel v nastavení zvuků zvolil "🔇 Vypnuto", zvuky vůbec nepřehráváme
-        if (this.isMuted) return;
+        if (this.isMuted) return false;
 
         this.init();
 
@@ -3272,6 +3272,7 @@ const SoundEngine = {
         }
 
         // VRSTVA 2: startAmbientTailLoop VYPNUTO (druhá vrstva se nepere s hlavním podkresem)
+        return true;
     },
 
     // Okamžitý akustický tranzient (0 ms latence) posilující vnímání spuštěného zvuku přes řeč
@@ -3427,6 +3428,7 @@ const SoundEngine = {
         const mySessionId = activeSessionId;
         const urls = Array.isArray(urlOrUrls) ? urlOrUrls : [urlOrUrls];
         const isOneShot = !opts.loop;
+        const checkSession = !opts.loop;
         const targetV = Math.min(opts.maxPeakCap || 1.0, Math.min(1.0, opts.targetVolume !== undefined ? opts.targetVolume : 0.85));
 
         let currentAudio = null;
@@ -3453,14 +3455,14 @@ const SoundEngine = {
         // BEZPEČNOSTNÍ POJISTKA PROTI ZASEKNUTÍ ZVUKU (WATCHDOG: 4200 ms pro všechny One-Shot efekty)
         if (isOneShot) {
             watchdogTimer = setTimeout(() => {
-                if (mySessionId !== activeSessionId) { cleanup(); return; }
+                if (checkSession && mySessionId !== activeSessionId) { cleanup(); return; }
                 cleanup();
             }, 4200);
             this.activeTimers.add(watchdogTimer);
         }
 
         const fadeOutAndStop = (durationMs = 600) => {
-            if (mySessionId !== activeSessionId) { cleanup(); return; }
+            if (checkSession && mySessionId !== activeSessionId) { cleanup(); return; }
             if (stopped || !currentAudio) {
                 cleanup();
                 return;
@@ -3478,7 +3480,7 @@ const SoundEngine = {
             let step = 0;
 
             fadeOutInt = setInterval(() => {
-                if (mySessionId !== activeSessionId) {
+                if (checkSession && mySessionId !== activeSessionId) {
                     clearInterval(fadeOutInt);
                     cleanup();
                     return;
@@ -3503,7 +3505,7 @@ const SoundEngine = {
         };
 
         const tryPlayIndex = (idx) => {
-            if (mySessionId !== activeSessionId) { cleanup(); return; }
+            if (checkSession && mySessionId !== activeSessionId) { cleanup(); return; }
             if (stopped || this.isMuted || idx >= urls.length) {
                 cleanup();
                 return;
@@ -3520,7 +3522,7 @@ const SoundEngine = {
 
             let advancedToFallback = false;
             const fallbackNext = () => {
-                if (mySessionId !== activeSessionId) { cleanup(); return; }
+                if (checkSession && mySessionId !== activeSessionId) { cleanup(); return; }
                 if (advancedToFallback || stopped) return;
                 advancedToFallback = true;
                 this.activeAudioEls.delete(audio);
@@ -3535,7 +3537,7 @@ const SoundEngine = {
 
             // Jakmile prohlížeč zjistí délku nahrávky, nastavíme Fade-Out
             audio.addEventListener('loadedmetadata', () => {
-                if (mySessionId !== activeSessionId) { cleanup(); return; }
+                if (checkSession && mySessionId !== activeSessionId) { cleanup(); return; }
                 if (stopped || !isOneShot || !isFinite(audio.duration) || audio.duration <= 0) return;
 
                 const fileMs = audio.duration * 1000;
@@ -3543,14 +3545,14 @@ const SoundEngine = {
                 const fadeStart = Math.max(100, Math.min(fileMs - fileFadeOutMs, (opts.totalDurationMs || 2200) - fileFadeOutMs));
                 if (fadeOutTimer) { clearTimeout(fadeOutTimer); fadeOutTimer = null; }
                 fadeOutTimer = setTimeout(() => {
-                    if (mySessionId !== activeSessionId) { cleanup(); return; }
+                    if (checkSession && mySessionId !== activeSessionId) { cleanup(); return; }
                     fadeOutAndStop(fileFadeOutMs);
                 }, fadeStart);
                 this.activeTimers.add(fadeOutTimer);
             }, { once: true });
 
             audio.play().then(() => {
-                if (mySessionId !== activeSessionId) { cleanup(); return; }
+                if (checkSession && mySessionId !== activeSessionId) { cleanup(); return; }
                 if (stopped || this.isMuted) {
                     cleanup();
                     return;
@@ -3559,7 +3561,7 @@ const SoundEngine = {
                 const inSteps = Math.max(2, Math.floor(fadeMs / 25));
                 let curStep = 0;
                 fadeInInt = setInterval(() => {
-                    if (mySessionId !== activeSessionId) {
+                    if (checkSession && mySessionId !== activeSessionId) {
                         clearInterval(fadeInInt);
                         cleanup();
                         return;
@@ -3585,7 +3587,7 @@ const SoundEngine = {
 
                 if (!isFinite(audio.duration) || audio.duration <= 0) {
                     fadeOutTimer = setTimeout(() => {
-                        if (mySessionId !== activeSessionId) { cleanup(); return; }
+                        if (checkSession && mySessionId !== activeSessionId) { cleanup(); return; }
                         fadeOutAndStop(fOutMs);
                     }, fadeStart);
                     this.activeTimers.add(fadeOutTimer);
@@ -3595,7 +3597,7 @@ const SoundEngine = {
             });
 
             audio.onended = () => {
-                if (mySessionId !== activeSessionId) { cleanup(); return; }
+                if (checkSession && mySessionId !== activeSessionId) { cleanup(); return; }
                 if (!audio.loop) cleanup();
             };
         };
@@ -3657,12 +3659,14 @@ const SoundEngine = {
 
         const now = Date.now();
 
-        // Stabilita atmosféry: automatická změna scény smí přepnout podkres maximálně 1× za 30 sekund
+        // Stabilita atmosféry: automatická změna scény smí přepnout podkres maximálně 1× za 30 sekund (v mikrofonních režimech za 8 sekund pro živou reakci na knihu)
         // (s plynulým 6s prolínáním) a jen tehdy, když nová scéna získá alespoň 2 klíčové shody
         // (přímý skok na jinou kapitolu nebo ruční volba uživatele se provede ihned).
         if (!isImmediate) {
             if (matchCount < 2) return;
-            if (this.lastMoodTransitionTime && (now - this.lastMoodTransitionTime < 30000)) {
+            const isMicMode = (currentMode === 'free' || currentMode === 'read');
+            const minTransitionInterval = isMicMode ? 8000 : 30000;
+            if (this.lastMoodTransitionTime && (now - this.lastMoodTransitionTime < minTransitionInterval)) {
                 return;
             }
         }
@@ -4814,7 +4818,7 @@ function getPrecedingWordsInSentence(wordsArr, currentIndex, maxLookback = 3) {
     return res;
 }
 
-function checkWordTriggers(rawWord, isManualClick = false, prevWordsContext = null) {
+function checkWordTriggers(rawWord, isManualClick = false, prevWordsContext = null, triggeredClustersSet = null) {
     if (sessionState === 'ending') return false;
     const cleanNoAcc = stripAccents(rawWord).replace(/[^a-z0-9]/g, '');
     const cleanWithAcc = (rawWord || '').toLowerCase().trim().replace(/[^a-záčďéěíňóřšťúůýž0-9]/gi, '');
@@ -4879,12 +4883,23 @@ function checkWordTriggers(rawWord, isManualClick = false, prevWordsContext = nu
     }
 
     if (bestCluster) {
+        if (triggeredClustersSet && triggeredClustersSet.has(bestCluster.id)) {
+            SoundEngine.recentWordsHistory.push(cleanNoAcc);
+            if (SoundEngine.recentWordsHistory.length > 15) SoundEngine.recentWordsHistory.shift();
+            return false;
+        }
+
+        let didPlay = false;
         if (!hasNegation) {
-            SoundEngine.triggerCluster(bestCluster, rawWord, isManualClick);
+            const played = SoundEngine.triggerCluster(bestCluster, rawWord, isManualClick);
+            if (played === true) {
+                if (triggeredClustersSet) triggeredClustersSet.add(bestCluster.id);
+                didPlay = true;
+            }
         }
         SoundEngine.recentWordsHistory.push(cleanNoAcc);
         if (SoundEngine.recentWordsHistory.length > 15) SoundEngine.recentWordsHistory.shift();
-        return !hasNegation;
+        return didPlay;
     }
     SoundEngine.recentWordsHistory.push(cleanNoAcc);
     if (SoundEngine.recentWordsHistory.length > 15) SoundEngine.recentWordsHistory.shift();
@@ -4893,6 +4908,7 @@ function checkWordTriggers(rawWord, isManualClick = false, prevWordsContext = nu
 
 function evaluateDynamicMood(rawWord) {
     if (typeof MOOD_SCENES === 'undefined') return;
+    const isMicMode = (currentMode === 'free' || currentMode === 'read');
     for (const key of Object.keys(MOOD_SCENES)) {
         const sc = MOOD_SCENES[key];
         if (sc.stems && sc.stems.some(st => doesWordMatchStem(rawWord, st))) {
@@ -4905,7 +4921,10 @@ function evaluateDynamicMood(rawWord) {
                 counts[m] = (counts[m] || 0) + 1;
                 if (counts[m] >= maxC) { maxC = counts[m]; topMood = m; }
             });
-            if (maxC >= 2) {
+            if (isMicMode) {
+                // V mikrofonních režimech přepínáme scénu už při 1. shodě klíčového slova
+                SoundEngine.transitionMoodScene(topMood, { isPageLookahead: false, matchCount: 2, isImmediate: false });
+            } else if (maxC >= 2) {
                 SoundEngine.transitionMoodScene(topMood, { isPageLookahead: false, matchCount: maxC, isImmediate: false });
             }
             break;
@@ -5582,6 +5601,7 @@ function updateSleepBridgeUI() {
 }
 
 function checkSleepBridgePhase(idx) {
+    if (currentMode === 'free') return;
     if (!isSleepBridgeEnabled || !storyWordsData || !storyWordsData.length) return;
     const progress = (idx + 1) / storyWordsData.length;
     if (progress < 0.80) {
@@ -5780,7 +5800,11 @@ function switchMode(mode) {
     }
 
     // Automaticky nastavit doporučenou hustotu zvuků pro daný profil a režim
-    setSfxDensityMode(getRecommendedSfxDensity(currentProfile, currentMode), false);
+    if (currentMode === 'free' || currentMode === 'read') {
+        setSfxDensityMode('story', false);
+    } else {
+        setSfxDensityMode(getRecommendedSfxDensity(currentProfile, currentMode), false);
+    }
 
     updateMainButtonLabel();
     updateHandoverButtonVisibility();
@@ -6426,7 +6450,6 @@ function stopActiveSession() {
 }
 
 function startVoiceRecognition() {
-    activeSessionId++;
     sessionState = 'playing';
     const mySessionId = activeSessionId;
 
@@ -6462,10 +6485,15 @@ function startVoiceRecognition() {
             if (!phrase) continue;
             const words = phrase.split(/\s+/);
 
+            const statusEl = document.getElementById('liveStatusText');
+            if (statusEl) {
+                statusEl.innerText = `🗣️ Slyším: „${words.slice(-8).join(' ')}“`;
+            }
+
             if (!processedSpeechWords[i]) {
                 processedSpeechWords[i] = {
-                    processedWordIndices: new Set(),
-                    triggeredWords: new Set()
+                    triggeredClusterIds: new Set(),
+                    lastReaderWordIdx: 0
                 };
             }
             const state = processedSpeechWords[i];
@@ -6475,26 +6503,16 @@ function startVoiceRecognition() {
                 const clean = stripAccents(word).replace(/[^a-z0-9]/g, '');
                 if (clean.length < 3) continue;
 
-                // Rozlišuj předběžný a potvrzený přepis: jednorázové zvukové efekty spouštěj pro každé vyslovené slovo v dané větě maximálně jednou
-                const alreadyTriggered = state.processedWordIndices.has(wIdx) || state.triggeredWords.has(clean);
-                if (!alreadyTriggered) {
-                    state.processedWordIndices.add(wIdx);
-                    const prevWords = words.slice(Math.max(0, wIdx - 3), wIdx);
-                    const didTrigger = checkWordTriggers(word, false, prevWords);
-                    if (didTrigger) {
-                        state.triggeredWords.add(clean);
-                    }
+                const prevWords = words.slice(Math.max(0, wIdx - 3), wIdx);
+                checkWordTriggers(word, false, prevWords, state.triggeredClusterIds);
+
+                if (currentMode === 'read' && wIdx >= state.lastReaderWordIdx) {
+                    state.lastReaderWordIdx = wIdx + 1;
+                    advanceReaderBySpokenWord(word);
                     saveReadingPosition(true);
-                    if (currentMode === 'read' || (currentMode === 'free' && storyWordsData && storyWordsData.length > 0)) {
-                        advanceReaderBySpokenWord(word);
-                    }
-                } else if (currentMode === 'read' || (currentMode === 'free' && storyWordsData && storyWordsData.length > 0)) {
-                    if (!state.processedWordIndices.has(wIdx)) {
-                        state.processedWordIndices.add(wIdx);
-                        advanceReaderBySpokenWord(word);
-                    }
                 }
             }
+
             if (currentMode === 'free') {
                 if (isFinal) {
                     if (phrase && !recordedFreeTranscript.includes(phrase)) {
@@ -6505,8 +6523,6 @@ function startVoiceRecognition() {
                     lastRecordedInterim = phrase;
                 }
             }
-
-            setStatus(`🗣️ Slyším (${isFinal ? 'potvrzeno' : 'předběžně'}): „${words.slice(-7).join(' ')}“`);
         }
     };
 
@@ -6515,33 +6531,36 @@ function startVoiceRecognition() {
         if (restartTimer) clearTimeout(restartTimer);
         restartTimer = setTimeout(() => {
             if (mySessionId !== activeSessionId) return;
-            if (isSessionRunning && !isPaused && (currentMode === 'free' || currentMode === 'read') && recognition) {
-                processedSpeechWords = {};
-                try {
-                    recognition.start();
-                    setStatus('🎙️ Naslouchám tvému hlasu...');
-                } catch (e) {
-                    // Tichá obsluha stavu
-                }
+            if (isSessionRunning && !isPaused && (currentMode === 'free' || currentMode === 'read')) {
+                startVoiceRecognition();
             }
         }, 250);
     };
 
     recognition.onerror = (event) => {
         if (mySessionId !== activeSessionId) return;
-        if (event && event.error === 'no-speech') {
+        const err = event ? event.error : '';
+        if (err === 'not-allowed' || err === 'audio-capture') {
+            const statusEl = document.getElementById('liveStatusText');
+            if (statusEl) {
+                statusEl.innerText = '⚠️ Mikrofon není povolen – klikni na ikonu zámečku v adresním řádku a povol mikrofon.';
+            }
+            console.warn('Speech recognition permission error:', err);
+            return;
+        }
+        if (err === 'no-speech') {
             // Tichá pauza rodiče při otočení stránky nebo pohlazení dítěte — tiše restartujeme za 250 ms bez bliknutí UI
             setStatus('🎙️ Naslouchám tvému hlasu...');
             restartRecognition();
             return;
         }
-        if (event && event.error === 'aborted') {
+        if (err === 'aborted') {
             if (isSessionRunning && !isPaused && (currentMode === 'free' || currentMode === 'read')) {
                 restartRecognition();
             }
             return;
         }
-        console.warn('Speech recognition warning:', event ? event.error : 'unknown');
+        console.warn('Speech recognition warning:', err || 'unknown');
     };
 
     recognition.onend = () => {
@@ -7004,7 +7023,6 @@ function estimateWordDurationMs(word, rate = 0.86) {
 }
 
 function startAiStoryReading() {
-    activeSessionId++;
     sessionState = 'playing';
     const mySessionId = activeSessionId;
 
@@ -10737,11 +10755,15 @@ async function initUI() {
     // Výchozí podkres: Dynamický podkres scény ('auto_mood')
     SoundEngine.bgMode = 'auto_mood';
     renderAmbienceTiles();
-    const savedDensity = localStorage.getItem('atmoread_sfx_density_mode');
-    if (savedDensity && ['story', 'sparse', 'ambient_only'].includes(savedDensity)) {
-        setSfxDensityMode(savedDensity, false);
+    if (currentMode === 'free' || currentMode === 'read') {
+        setSfxDensityMode('story', false);
     } else {
-        setSfxDensityMode(getRecommendedSfxDensity(currentProfile, currentMode), false);
+        const savedDensity = localStorage.getItem('atmoread_sfx_density_mode');
+        if (savedDensity && ['story', 'sparse', 'ambient_only'].includes(savedDensity)) {
+            setSfxDensityMode(savedDensity, false);
+        } else {
+            setSfxDensityMode(getRecommendedSfxDensity(currentProfile, currentMode), false);
+        }
     }
     renderUrlHistoryList();
 
