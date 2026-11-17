@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>AtmoRead v10.0 — Živá atmosféra pro pohádky, knihy i články</title>
+    <title>AtmoRead v10.0.1 — Živá atmosféra pro pohádky, knihy i články</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1745,7 +1745,7 @@
             <div class="brand-box">
                 <span class="brand-emoji" id="brandEmoji">📖</span>
                 <div>
-                    <h1 class="brand-name">AtmoRead <span class="ver-badge">v10.0</span></h1>
+                    <h1 class="brand-name">AtmoRead <span class="ver-badge">v10.0.1</span></h1>
                     <div class="header-meta" id="dictCounter" style="display:none;"></div>
                 </div>
             </div>
@@ -6667,7 +6667,9 @@ function loadSelectedStory(animatePlane = true) {
     const lenBadge = document.getElementById('storyLengthBadge');
 
     let finalText = story.text || '';
-    activeBookPages = (Array.isArray(story.pages) && story.pages.length > 0) ? story.pages : null;
+    activeBookPages = (Array.isArray(story.pages) && story.pages.length > 0)
+        ? story.pages.map(p => stripAlzaAndEbookWatermarks(p)).filter(Boolean)
+        : null;
 
     if (story.isUrlArticle && story.summaryText && story.fullText) {
         if (switchPlane) switchPlane.classList.add('open');
@@ -6677,7 +6679,7 @@ function loadSelectedStory(animatePlane = true) {
         const fullBtn = document.getElementById('readerSwitchFullBtn');
         if (sumBtn) sumBtn.classList.toggle('active', variant === 'summary');
         if (fullBtn) fullBtn.classList.toggle('active', variant === 'full');
-        finalText = variant === 'full' ? story.fullText : story.summaryText;
+        finalText = stripAlzaAndEbookWatermarks(variant === 'full' ? story.fullText : story.summaryText);
         const wCount = finalText.trim().split(/\s+/).length;
         const estMin = Math.max(1, Math.round(wCount / 115));
         if (story.isYouTube) {
@@ -6703,6 +6705,7 @@ function loadSelectedStory(animatePlane = true) {
         } else {
             finalText = story.text || '';
         }
+        finalText = stripAlzaAndEbookWatermarks(finalText);
 
         const wCount = finalText.trim().split(/\s+/).length;
         const durIcon = currentStoryDuration === 5 ? '⚡ Do 5 min' : (currentStoryDuration === 30 ? '🌌 Do 30 min' : '🌙 Do 15 min');
@@ -6849,6 +6852,7 @@ function analyzePageDominantMood(startWordIdx, wordCount = 120) {
 function renderStoryText(text, animatePlane = false) {
     if (typeof text === 'string') {
         if (Array.isArray(activeBookPages) && activeBookPages.length > 0) {
+            activeBookPages = activeBookPages.map(p => stripAlzaAndEbookWatermarks(p)).filter(Boolean);
             storyWordsData = [];
             bookPageRanges = [];
             for (const pStr of activeBookPages) {
@@ -6860,7 +6864,8 @@ function renderStoryText(text, animatePlane = false) {
                 bookPageRanges.push({ start, end });
             }
         } else {
-            storyWordsData = text.trim() ? text.trim().split(/\s+/).filter(Boolean) : [];
+            const cleanedText = stripAlzaAndEbookWatermarks(text);
+            storyWordsData = cleanedText ? cleanedText.split(/\s+/).filter(Boolean) : [];
             buildBookPageRanges();
         }
         currentWordIndex = 0;
@@ -9264,14 +9269,17 @@ async function loadEbooksIntoMemory() {
             ? (typeof posObj.currentPage === 'number' ? posObj.currentPage : (typeof posObj.pageIdx === 'number' ? posObj.pageIdx : (item.currentPage || 0)))
             : (item.currentPage || 0);
 
-        const itemPages = Array.isArray(item.pages) && item.pages.length ? item.pages : null;
+        const itemPages = (Array.isArray(item.pages) && item.pages.length)
+            ? item.pages.map(p => stripAlzaAndEbookWatermarks(p)).filter(Boolean)
+            : null;
+        const cleanBookText = stripAlzaAndEbookWatermarks(item.text || '');
 
         let existing = STORIES[currentKey].find(s => (item.id && s.ebookId === item.id) || s.title === item.title);
         if (!existing) {
             const newStory = {
                 ebookId: item.id,
                 title: item.title,
-                text: item.text,
+                text: cleanBookText,
                 pages: itemPages,
                 isEbook: true,
                 isCustom: true,
@@ -9285,10 +9293,35 @@ async function loadEbooksIntoMemory() {
         } else {
             existing.wordIndex = savedWordPos;
             existing.currentPage = savedPagePos;
+            existing.text = cleanBookText;
             if (itemPages) existing.pages = itemPages;
             getOrAssignBookId(existing, 0, currentKey);
         }
     });
+}
+
+function stripAlzaAndEbookWatermarks(rawText) {
+    if (!rawText || typeof rawText !== 'string') return '';
+    let text = rawText;
+
+    // 1. Chirurgické vyříznutí vodoznaku Alza.cz (normální i rozpadlý s mezerami mezi písmeny)
+    // Od "Prodáno" / "Zakoupeno" až přesně po 12. hex znak na konci UUID (8-4-4-4-12)
+    const alzaFullUidRegex = /(?:P\s*r\s*o\s*d\s*[aá]\s*n\s*o|Z\s*a\s*k\s*o\s*u\s*p\s*e\s*n\s*o)[\s\S]{0,380}?U\s*I\s*D\s*:\s*(?:[0-9a-fA-F]\s*){8}-\s*(?:[0-9a-fA-F]\s*){4}-\s*(?:[0-9a-fA-F]\s*){4}-\s*(?:[0-9a-fA-F]\s*){4}-\s*(?:[0-9a-fA-F]\s*){12}/gi;
+    text = text.replace(alzaFullUidRegex, ' ');
+
+    // 2. Záložní zachycení Alza vodoznaku bez UID (končící číslem objednávky nebo e-mailem)
+    const alzaOrderRegex = /(?:P\s*r\s*o\s*d\s*[aá]\s*n\s*o|Z\s*a\s*k\s*o\s*u\s*p\s*e\s*n\s*o)\s*(?:\d\s*){1,2}\.\s*(?:\d\s*){1,2}\.\s*(?:\d\s*){4}\s*n\s*a\s*(?:w\s*w\s*w\s*\.\s*)?a\s*l\s*z\s*a\s*\.\s*c\s*z[\s\S]{0,220}?(?:o\s*b\s*j\s*e\s*d\s*n\s*[aá]\s*v\s*k\s*y\s*(?:\d\s*){6,14})/gi;
+    text = text.replace(alzaOrderRegex, ' ');
+
+    // 3. Samostatné zbytky UID nebo čísla objednávky, pokud se v PDF rozpadly na více řádků
+    const orphanUidRegex = /\bU\s*I\s*D\s*:\s*(?:[0-9a-fA-F]\s*){8}-\s*(?:[0-9a-fA-F]\s*){4}-\s*(?:[0-9a-fA-F]\s*){4}-\s*(?:[0-9a-fA-F]\s*){4}-\s*(?:[0-9a-fA-F]\s*){12}/gi;
+    text = text.replace(orphanUidRegex, ' ');
+
+    // 4. Další české e-shopy (Palmknihy, Kosmas, Martinus, Luxor)
+    const otherShopsRegex = /(?:Tato\s+elektronick[aá]\s+kniha\s+byla\s+zakoupena|Určeno\s+pro\s+osobní\s+potřebu|Licencováno\s+pro)[^.!?\n]{0,180}/gi;
+    text = text.replace(otherShopsRegex, ' ');
+
+    return text.replace(/\s{2,}/g, ' ').trim();
 }
 
 function isWatermarkOrNoiseLine(line, lineIndex, totalLinesInPage) {
@@ -9303,17 +9336,19 @@ function isWatermarkOrNoiseLine(line, lineIndex, totalLinesInPage) {
         return true;
     }
 
-    // 2. České sociální DRM vodoznaky (Alza.cz aj.)
-    const drmRegex = /(zakoupeno\s+v\s+alza|alza\.cz|alza\s*media|určeno\s+(?:výhradně\s+)?pro\s+osobní\s+potřebu|tato\s+(?:elektronická\s+)?kniha\s+byla\s+zakoupena|objednávka\s*(?:č\.?|číslo)?\s*[:#]?\s*\d*|sociální\s+drm|elektronická\s+kniha\s+je\s+chráněna|nešířit\s+dále|zákaz\s+(?:kopírování\s+a\s+)?šíření|licencováno\s+(?:pro|uživateli))/i;
-    if (drmRegex.test(trimmed)) {
-        return true;
+    // 2. Krátké samostatné řádky sociálního DRM (dlouhé řádky s navazujícím textem řeší stripAlzaAndEbookWatermarks)
+    if (trimmed.length <= 160) {
+        const drmRegex = /^(?:zakoupeno\s+v\s+alza|alza\.cz|alza\s*media|určeno\s+(?:výhradně\s+)?pro\s+osobní\s+potřebu|tato\s+(?:elektronická\s+)?kniha\s+byla\s+zakoupena|číslo\s+objednávky|sociální\s+drm|elektronická\s+kniha\s+je\s+chráněna|nešířit\s+dále|zákaz\s+(?:kopírování\s+a\s+)?šíření|licencováno\s+(?:pro|uživateli))/i;
+        if (drmRegex.test(trimmed)) {
+            return true;
+        }
     }
 
     // 3. Řádky s e-mailem čtenáře v záhlaví, zápatí nebo doprovodném DRM textu
     const hasEmail = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/i.test(trimmed);
     if (hasEmail) {
         const isEdgeLine = lineIndex <= 2 || lineIndex >= Math.max(0, totalLinesInPage - 3);
-        const hasBuyerHint = /(e-?mail|kupující|čtenář|zákazník|uživatel|zakoup|objednáv|licenc|vodoznak|osobní|alza)/i.test(trimmed);
+        const hasBuyerHint = /(e-?mail|kupující|čtenář|zákazník|uživatel|zakoup|prod[aá]n|objednáv|licenc|vodoznak|osobní|alza)/i.test(trimmed);
         if (isEdgeLine || hasBuyerHint || trimmed.length <= 90) {
             return true;
         }
@@ -9322,7 +9357,7 @@ function isWatermarkOrNoiseLine(line, lineIndex, totalLinesInPage) {
     return false;
 }
 
-function reconstructPdfPageLines(textItems) {
+function reconstructPdfPageLines(textItems, pageWidth = 0) {
     if (!Array.isArray(textItems) || !textItems.length) return [];
 
     // Seskupení textových bloků podle Y se stanovenou tolerancí (2.8 px)
@@ -9337,6 +9372,18 @@ function reconstructPdfPageLines(textItems) {
         const tx = Array.isArray(item.transform) ? item.transform : [1, 0, 0, 1, 0, 0];
         const x = typeof tx[4] === 'number' ? tx[4] : 0;
         const y = typeof tx[5] === 'number' ? tx[5] : 0;
+
+        // Odfiltrování svisle rotovaného vodoznaku na okraji stránky
+        const isRotated = Math.abs(tx[1] || 0) > 0.01 || Math.abs(tx[2] || 0) > 0.01;
+        if (isRotated) {
+            const nearMargin = x < 75 || (pageWidth > 0 && x > pageWidth - 75);
+            const looksLikeWatermark = rawStr.trim().length <= 3
+                || /(prod[aá]n|zakoupen|alza|uid|objedn[aá]v|www\.|\.cz|@)/i.test(rawStr);
+            if (nearMargin || looksLikeWatermark || Math.abs(tx[1] || 0) > 0.35) {
+                continue;
+            }
+        }
+
         const width = typeof item.width === 'number' ? item.width : 0;
         const fontSize = Math.max(6, Math.abs(tx[0]) || Math.abs(tx[3]) || 11);
 
@@ -9357,23 +9404,26 @@ function reconstructPdfPageLines(textItems) {
     // Seřazení řádků shora dolů (PDF osa Y roste vzhůru -> sestupně)
     lines.sort((a, b) => b.y - a.y);
 
-    // V rámci každého řádku seřazení zleva doprava podle X
+    // V rámci každého řádku seřazení zleva doprava podle X s chytrým spojováním znaků
     const reconstructed = [];
     for (const bucket of lines) {
         bucket.items.sort((a, b) => a.x - b.x);
         let lineText = '';
+        let prevPiece = null;
         let prevEndX = null;
 
         for (const piece of bucket.items) {
             const text = piece.str;
             if (!text) continue;
 
-            if (prevEndX !== null) {
+            if (prevPiece !== null && prevEndX !== null) {
                 const gap = piece.x - prevEndX;
-                const spaceThreshold = Math.max(1.8, piece.fontSize * 0.18);
+                const bothSingleChar = prevPiece.str.trim().length === 1 && text.trim().length === 1;
+                const shouldJoinTight = (gap < 2.5) || (bothSingleChar && gap < 3.0);
                 const endsWithSpace = /\s$/.test(lineText);
                 const startsWithSpace = /^\s/.test(text);
-                if (gap > spaceThreshold && !endsWithSpace && !startsWithSpace) {
+
+                if (!shouldJoinTight && !endsWithSpace && !startsWithSpace) {
                     lineText += ' ';
                 }
             }
@@ -9381,6 +9431,7 @@ function reconstructPdfPageLines(textItems) {
             lineText += text;
             const estWidth = piece.width > 0 ? piece.width : (text.length * piece.fontSize * 0.45);
             prevEndX = Math.max(prevEndX || 0, piece.x + estWidth);
+            prevPiece = piece;
         }
 
         const cleanedLine = lineText.replace(/\s+/g, ' ').trim();
@@ -9408,8 +9459,14 @@ async function extractTextFromPdf(file, onProgress = null) {
     // Průchod 1: Extrakce a rekonstrukce řádků + sběr četnosti opakujících se záhlaví/zápatí
     for (let pageNum = 1; pageNum <= totalPdfPages; pageNum++) {
         const page = await pdf.getPage(pageNum);
+        const viewport = page.getViewport({ scale: 1.0 });
         const textContent = await page.getTextContent();
-        const lines = reconstructPdfPageLines(textContent.items || []);
+        const rawLines = reconstructPdfPageLines(textContent.items || [], viewport ? viewport.width : 0);
+
+        // Chirurgické vyříznutí vodoznaků na úrovni řádků ještě před analýzou záhlaví (zachová věty pokračující za vodoznakem)
+        const lines = rawLines
+            .map(l => stripAlzaAndEbookWatermarks(l))
+            .filter(Boolean);
         rawPagesLines.push(lines);
 
         for (let idx = 0; idx < lines.length; idx++) {
@@ -9429,10 +9486,9 @@ async function extractTextFromPdf(file, onProgress = null) {
 
     // Určení opakujících se záhlaví/zápatí/vodoznaků (> 25 % stránek a alespoň 3 stránky)
     const repeatingLines = new Set();
-    const minFreqPages = Math.max(3, Math.ceil(totalPdfPages * 0.250001));
     if (totalPdfPages >= 3) {
         for (const [norm, pageSet] of lineFrequencyPages.entries()) {
-            if (pageSet.size > totalPdfPages * 0.25 && pageSet.size >= 3 && pageSet.size >= minFreqPages - 1) {
+            if (pageSet.size > totalPdfPages * 0.25 && pageSet.size >= 3) {
                 repeatingLines.add(norm);
             }
         }
@@ -9442,7 +9498,7 @@ async function extractTextFromPdf(file, onProgress = null) {
         onProgress(totalPdfPages, totalPdfPages, 'cleaning');
     }
 
-    // Průchod 2: Filtrace balastu, spojení rozdělených slov a sestavení čistých stránek
+    // Průchod 2: Filtrace balastu, spojení rozdělených slov a finální čištění stránek
     let removedLinesCount = 0;
     const cleanedPages = [];
 
@@ -9465,16 +9521,18 @@ async function extractTextFromPdf(file, onProgress = null) {
         let pageText = keptLines.join('\n');
         // Spojení slov rozdělených pomlčkou na konci řádku
         pageText = pageText.replace(/([a-záčďéěíňóřšťúůýž])-\s*\n\s*([a-záčďéěíňóřšťúůýž])/gi, '$1$2');
-        pageText = pageText.replace(/\s+/g, ' ').trim();
+        pageText = stripAlzaAndEbookWatermarks(pageText.replace(/\s+/g, ' ').trim());
 
         if (pageText.length > 0) {
             cleanedPages.push(pageText);
         }
     }
 
+    const fullText = stripAlzaAndEbookWatermarks(cleanedPages.join('\n\n'));
+
     return {
         pages: cleanedPages,
-        fullText: cleanedPages.join('\n\n'),
+        fullText,
         totalPdfPages,
         removedLinesCount
     };
@@ -10349,7 +10407,7 @@ async function exportAtmoReadBackup() {
         const storedEbooks = await AtmoReadDB.getAllEbooks();
         const backupData = {
             app: 'AtmoRead',
-            version: 'v10.0',
+            version: 'v10.0.1',
             exportedAt: new Date().toISOString(),
             data: {
                 ebooks: (storedEbooks && storedEbooks.length) ? storedEbooks : getStoredEbooks(),
